@@ -19,3 +19,5 @@ runs/*
 !runs/e4_main.spec.json
 !runs/fig_main_meta.json
 !runs/numbers.json
+!runs/e5_frame.jsonl
+!runs/e5_frame.spec.json

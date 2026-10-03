@@ -238,5 +238,55 @@
   "value": 2,
   "tex": "2",
   "source": "fig_main_meta: smallest best open-loop Bp"
+ },
+ "NumFrameBestB": {
+  "value": 32,
+  "tex": "32",
+  "source": "e5_frame: B maximizing track throughput at 12 dB"
+ },
+ "NumFrameGapLongPct": {
+  "value": 2.6519362083437303,
+  "tex": "2.7\\%",
+  "source": "e5_frame: track genie gap at largest B, 12 dB"
+ },
+ "NumFrameLongB": {
+  "value": 64,
+  "tex": "64",
+  "source": "e5_frame: largest B"
+ },
+ "NumOpenLongTp": {
+  "value": 0.16185396634615387,
+  "tex": "0.16",
+  "source": "e5_frame: open-loop tp at largest B, 12 dB"
+ },
+ "NumOpenShortTp": {
+  "value": 0.704375,
+  "tex": "0.70",
+  "source": "e5_frame: open-loop tp at smallest B, 12 dB"
+ },
+ "NumFrameShortB": {
+  "value": 4,
+  "tex": "4",
+  "source": "e5_frame: smallest B"
+ },
+ "NumFrameTimeRatio": {
+  "value": 5.252969161172813,
+  "tex": "5.3",
+  "source": "e5_frame: track time B_max / B=16"
+ },
+ "NumFrameTrials": {
+  "value": 100,
+  "tex": "100",
+  "source": "e5_frame: trials per point"
+ },
+ "NumFrameBlerLongPct": {
+  "value": 3.65625,
+  "tex": "3.7\\%",
+  "source": "e5_frame: track BLER at largest B, 12 dB"
+ },
+ "NumFrameBlerMidPct": {
+  "value": 1.625,
+  "tex": "1.6\\%",
+  "source": "e5_frame: track BLER at B=16, 12 dB"
  }
 }
