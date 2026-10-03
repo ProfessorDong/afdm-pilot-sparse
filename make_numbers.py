@@ -110,8 +110,48 @@ try:
     first = min(s for s in ok if all(rr >= 0.98 for ss, _, rr in gains if ss >= s)) if ok else None
     put("NumSnrGenieMatch", first, "e4_main: lowest SNR with tp_track >= 0.98 tp_genie at and above it", "{:d}")
     put("NumGapGeniePct", 100 * max(1 - g[2] for g in gains if g[0] >= first), "e4_main: max genie gap above match SNR", r"{:.1f}\%")
+    by = {r["snr_db"]: r for r in full}
+    sp_win = [s for s in sorted(by) if by[s]["tp_sp"] > by[s]["tp_track"]]
+    sp_lose = [s for s in sorted(by) if by[s]["tp_track"] >= by[s]["tp_sp"] and by[s]["tp_genie"] > 0.3]
+    put("NumSpTopSnr", max(s for s in sp_lose if all(t in sp_lose for t in sorted(by) if 6 <= t <= s)), "e4_main: highest SNR up to which track >= sp (from 6 dB)", "{:d}")
+    put("NumSpFromSnr", min(sp_win), "e4_main: lowest SNR where sp > track", "{:d}")
+    put("NumSpMaxAdvPct", 100 * max(by[s]["tp_sp"] / by[s]["tp_track"] - 1 for s in sp_win), "e4_main: max sp advantage", r"{:.1f}\%")
+    put("NumOverSpEightPct", 100 * (by[8]["tp_track"] / by[8]["tp_sp"] - 1), "e4_main: track over sp at 8 dB", r"{:.0f}\%")
+    put("NumOverConvEightPct", 100 * (by[8]["tp_track"] / by[8]["tp_conv"] - 1), "e4_main: track over conv at 8 dB", r"{:.0f}\%")
+    put("NumGenieRatioEightPct", 100 * by[8]["tp_track"] / by[8]["tp_genie"], "e4_main: track/genie at 8 dB", r"{:.0f}\%")
+    put("NumGenieRatioSixPct", 100 * by[6]["tp_track"] / by[6]["tp_genie"], "e4_main: track/genie at 6 dB", r"{:.0f}\%")
+    put("NumGainConvMaxPct", 100 * max(g[1] for g in gains), "e4_main: max track/conv - 1", r"{:.0f}\%")
+    ofdm = [100 * (by[s]["tp_track"] / by[s]["tp_ofdm-track"] - 1) for s in sorted(by) if s >= 6]
+    put("NumOverOfdmMinPct", min(ofdm), "e4_main: min track/ofdm-1 for SNR>=6", r"{:.0f}\%")
+    put("NumOverOfdmMaxPct", max(ofdm), "e4_main: max track/ofdm-1 for SNR>=6", r"{:.0f}\%")
+    ofdm_better = [s for s in sorted(by) if by[s]["tp_ofdm-track"] > by[s]["tp_track"]]
+    put("NumOfdmBetterSnr", max(ofdm_better) if ofdm_better else None, "e4_main: highest SNR where ofdm-track > track", "{:d}")
+    # open loop: best over Bp in {1,2,4,8} per SNR vs track(Bp=1)
+    olbest = {}
+    for r in e4:
+        if "tp_openloop" in r:
+            olbest[r["snr_db"]] = max(olbest.get(r["snr_db"], 0), r["tp_openloop"])
+    olg = [100 * (by[s]["tp_track"] / olbest[s] - 1) for s in sorted(by) if s >= 6]
+    put("NumOverOpenMinPct", min(olg), "e4_main: min track/best-openloop-1 for SNR>=6", r"{:.0f}\%")
+    put("NumOverOpenMaxPct", max(olg), "e4_main: max track/best-openloop-1 for SNR>=6", r"{:.0f}\%")
+    put("NumEvalTrials", min(r["trials"] for r in e4), "e4_main: trials per point (min)", "{:d}")
+    put("NumBlerFloorPct", 100 * max(by[s]["bler_track"] for s in by if s > 12), "e4_main: max track BLER above 12 dB", r"{:.1f}\%")
+    for key, nm in (("sp", "Sp"), ("track", "Track"), ("conv", "Conv"), ("genie", "Genie")):
+        put(f"NumTime{nm}", float(np.mean([by[s][f"time_{key}"] for s in by])),
+            f"e4_main: mean wall time per 16-block frame, single thread ({key})", "{:.0f}")
+    bp2 = {r["snr_db"]: r for r in e4 if r.get("Bp") == 2}
+    better2 = [s for s in sorted(bp2) if bp2[s]["tp_track"] > by[s]["tp_track"]]
+    put("NumBpTwoBetterTop", max(better2), "e4_main: highest SNR where Bp=2 tracking beats Bp=1", "{:d}")
+    meta = json.load(open(RUNS / "fig_main_meta.json"))["best_open"]
+    put("NumOpenBestBpMax", max(b for _, _, b in meta), "fig_main_meta: largest best open-loop Bp", "{:d}")
+    put("NumOpenBestBpMin", min(b for _, _, b in meta), "fig_main_meta: smallest best open-loop Bp", "{:d}")
 except Exception as e:  # noqa: BLE001
-    for n in ("NumGainConvPct", "NumSnrGenieMatch", "NumGapGeniePct"):
+    for n in ("NumGainConvPct", "NumSnrGenieMatch", "NumGapGeniePct", "NumSpTopSnr", "NumSpFromSnr",
+              "NumSpMaxAdvPct", "NumOverSpEightPct", "NumOverConvEightPct", "NumGenieRatioEightPct",
+              "NumGenieRatioSixPct", "NumGainConvMaxPct", "NumOverOfdmMinPct", "NumOverOfdmMaxPct",
+              "NumOfdmBetterSnr", "NumOverOpenMinPct", "NumOverOpenMaxPct", "NumEvalTrials",
+              "NumTimeSp", "NumTimeTrack", "NumTimeConv", "NumTimeGenie", "NumBpTwoBetterTop",
+              "NumOpenBestBpMax", "NumOpenBestBpMin", "NumBlerFloorPct"):
         missing(n, f"e4_main ({e!r})")
 
 # ------------------------------------------------------------------ write

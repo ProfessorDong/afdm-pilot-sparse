@@ -65,8 +65,8 @@ def fig_main():
            "\\begin{figure}[t]\n\\centering\n",
            "\\begin{tikzpicture}\n\\begin{axis}[width=\\columnwidth, height=0.78\\columnwidth, "
            "xlabel={SNR (dB)}, ylabel={Throughput (bit/s/Hz)}, grid=both, grid style={black!12}, "
-           "xmin=%g, xmax=%g, ymin=0, legend style={font=\\scriptsize, at={(0.99,0.02)}, anchor=south east, "
-           "cells={anchor=west}}, tick label style={font=\\footnotesize}, label style={font=\\footnotesize}]\n"
+           "xmin=%g, xmax=%g, ymin=0, ymax=1, legend style={font=\\scriptsize, at={(0.5,-0.2)}, anchor=north, "
+           "legend columns=2, cells={anchor=west}}, tick label style={font=\\footnotesize}, label style={font=\\footnotesize}]\n"
            % (min(snrs), max(snrs))]
     for k in ("genie", "track1", "track2", "open", "ofdm", "sp", "conv"):
         tex.append(plot(k, curves[k]))

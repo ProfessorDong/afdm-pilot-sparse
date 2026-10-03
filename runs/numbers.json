@@ -1,0 +1,242 @@
+{
+ "NumGuardPct": {
+  "value": 34.1796875,
+  "tex": "34\\%",
+  "source": "|Z|/N, mbafdm.MBAFDM defaults"
+ },
+ "NumGuardGainDb": {
+  "value": 22.430380486862944,
+  "tex": "22.4",
+  "source": "10log10|Z|"
+ },
+ "NumEpsOne": {
+  "value": 0.015619012389976084,
+  "tex": "0.0156",
+  "source": "Theorem 1, eq. (grating), m=1"
+ },
+ "NumEpsOneDb": {
+  "value": -36.12692861166317,
+  "tex": "-36.1",
+  "source": "20log10 eps_1"
+ },
+ "NumRhoOneDb": {
+  "value": -7.551101821743221,
+  "tex": "-7.6",
+  "source": "Corollary 2, eq. (rho1), P=4"
+ },
+ "NumRhoOneLossDb": {
+  "value": 0.7031416291610061,
+  "tex": "0.70",
+  "source": "SINR loss 10log10(1+rho1)"
+ },
+ "NumRhoTwoDb": {
+  "value": -18.369567370595504,
+  "tex": "-18.4",
+  "source": "Corollary 2 asymptotic form, b=2"
+ },
+ "NumHorOne": {
+  "value": 1,
+  "tex": "1",
+  "source": "Corollary 1 exact form, delta=1/4"
+ },
+ "NumHorTwo": {
+  "value": 3,
+  "tex": "3",
+  "source": "Corollary 1 exact form, delta=1/4"
+ },
+ "NumHorFour": {
+  "value": 9,
+  "tex": "9",
+  "source": "Corollary 1 exact form, delta=1/4"
+ },
+ "NumHorEight": {
+  "value": 26,
+  "tex": "26",
+  "source": "Corollary 1 exact form, delta=1/4"
+ },
+ "NumGammaCellDb": {
+  "value": 12.997967898659494,
+  "tex": "13.0",
+  "source": "Prop. 1 (threshold-aware), Bp=1, P_cell=1-1e-3"
+ },
+ "NumSnrCellOk": {
+  "value": -3.4118126749238282,
+  "tex": "-3",
+  "source": "Prop. 1 threshold minus 10log10(Ep/4)"
+ },
+ "NumLeakDb": {
+  "value": -30.983677206833924,
+  "tex": "-31",
+  "source": "data leakage into W, xi=2, 200 draws"
+ },
+ "NumMergeDl": {
+  "value": 0.6,
+  "tex": "0.6",
+  "source": "mbtrack.Tracker.merge_dl"
+ },
+ "NumMergeDk": {
+  "value": 0.3,
+  "tex": "0.3",
+  "source": "mbtrack.Tracker.merge_dk"
+ },
+ "NumRetries": {
+  "value": "two",
+  "tex": "two",
+  "source": "mbtrack.Tracker.retries (word)"
+ },
+ "NumAcqMaxDev": {
+  "value": 0.07704803555572404,
+  "tex": "0.08",
+  "source": "theory_check e2: max |P_cell sim - Prop.1|"
+ },
+ "NumAcqTrials": {
+  "value": 600,
+  "tex": "600",
+  "source": "theory_check e2: trials per point"
+ },
+ "NumTrackMaxDevPct": {
+  "value": 91.2645168725336,
+  "tex": "91\\%",
+  "source": "theory_check e3: max rel. dev. tracking NMSE vs Thm 2"
+ },
+ "NumTrackMaxDevPctHi": {
+  "value": 14.870012158235934,
+  "tex": "15\\%",
+  "source": "theory_check e3: same, gamma1=20 dB"
+ },
+ "NumOffDesignDataSnr": {
+  "value": -12.430380486862944,
+  "tex": "-12.4",
+  "source": "data SNR at gamma1=10 dB: 10 - 10log10(Ep)"
+ },
+ "NumPredTrials": {
+  "value": 274,
+  "tex": "274",
+  "source": "theory_check e3: in-cell trials per point (min)"
+ },
+ "NumGainConvPct": {
+  "value": 60.69612477033337,
+  "tex": "61\\%",
+  "source": "e4_main: mean tp_track/tp_conv-1 over SNR>=10 dB"
+ },
+ "NumSnrGenieMatch": {
+  "value": 12,
+  "tex": "12",
+  "source": "e4_main: lowest SNR with tp_track >= 0.98 tp_genie at and above it"
+ },
+ "NumGapGeniePct": {
+  "value": 1.6122345570961372,
+  "tex": "1.6\\%",
+  "source": "e4_main: max genie gap above match SNR"
+ },
+ "NumSpTopSnr": {
+  "value": 12,
+  "tex": "12",
+  "source": "e4_main: highest SNR up to which track >= sp (from 6 dB)"
+ },
+ "NumSpFromSnr": {
+  "value": 14,
+  "tex": "14",
+  "source": "e4_main: lowest SNR where sp > track"
+ },
+ "NumSpMaxAdvPct": {
+  "value": 2.712502294841168,
+  "tex": "2.7\\%",
+  "source": "e4_main: max sp advantage"
+ },
+ "NumOverSpEightPct": {
+  "value": 35.0427981109799,
+  "tex": "35\\%",
+  "source": "e4_main: track over sp at 8 dB"
+ },
+ "NumOverConvEightPct": {
+  "value": 46.607386045021194,
+  "tex": "47\\%",
+  "source": "e4_main: track over conv at 8 dB"
+ },
+ "NumGenieRatioEightPct": {
+  "value": 93.92112083344023,
+  "tex": "94\\%",
+  "source": "e4_main: track/genie at 8 dB"
+ },
+ "NumGenieRatioSixPct": {
+  "value": 89.252756771163,
+  "tex": "89\\%",
+  "source": "e4_main: track/genie at 6 dB"
+ },
+ "NumGainConvMaxPct": {
+  "value": 67.18845917740943,
+  "tex": "67\\%",
+  "source": "e4_main: max track/conv - 1"
+ },
+ "NumOverOfdmMinPct": {
+  "value": 4.685057830572048,
+  "tex": "5\\%",
+  "source": "e4_main: min track/ofdm-1 for SNR>=6"
+ },
+ "NumOverOfdmMaxPct": {
+  "value": 7.0609570609570405,
+  "tex": "7\\%",
+  "source": "e4_main: max track/ofdm-1 for SNR>=6"
+ },
+ "NumOfdmBetterSnr": {
+  "value": 4,
+  "tex": "4",
+  "source": "e4_main: highest SNR where ofdm-track > track"
+ },
+ "NumOverOpenMinPct": {
+  "value": 3.7164647129417805,
+  "tex": "4\\%",
+  "source": "e4_main: min track/best-openloop-1 for SNR>=6"
+ },
+ "NumOverOpenMaxPct": {
+  "value": 8.657704654895682,
+  "tex": "9\\%",
+  "source": "e4_main: max track/best-openloop-1 for SNR>=6"
+ },
+ "NumEvalTrials": {
+  "value": 200,
+  "tex": "200",
+  "source": "e4_main: trials per point (min)"
+ },
+ "NumBlerFloorPct": {
+  "value": 1.53125,
+  "tex": "1.5\\%",
+  "source": "e4_main: max track BLER above 12 dB"
+ },
+ "NumTimeSp": {
+  "value": 43.08106025791168,
+  "tex": "43",
+  "source": "e4_main: mean wall time per 16-block frame, single thread (sp)"
+ },
+ "NumTimeTrack": {
+  "value": 22.751531875014305,
+  "tex": "23",
+  "source": "e4_main: mean wall time per 16-block frame, single thread (track)"
+ },
+ "NumTimeConv": {
+  "value": 6.506225138187408,
+  "tex": "7",
+  "source": "e4_main: mean wall time per 16-block frame, single thread (conv)"
+ },
+ "NumTimeGenie": {
+  "value": 5.501316637635231,
+  "tex": "6",
+  "source": "e4_main: mean wall time per 16-block frame, single thread (genie)"
+ },
+ "NumBpTwoBetterTop": {
+  "value": 8,
+  "tex": "8",
+  "source": "e4_main: highest SNR where Bp=2 tracking beats Bp=1"
+ },
+ "NumOpenBestBpMax": {
+  "value": 8,
+  "tex": "8",
+  "source": "fig_main_meta: largest best open-loop Bp"
+ },
+ "NumOpenBestBpMin": {
+  "value": 2,
+  "tex": "2",
+  "source": "fig_main_meta: smallest best open-loop Bp"
+ }
+}

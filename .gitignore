@@ -15,3 +15,7 @@ runs/*
 !runs/tune_sp.spec.json
 !runs/tune_sp_ext.jsonl
 !runs/tune_sp_ext.spec.json
+!runs/e4_main.jsonl
+!runs/e4_main.spec.json
+!runs/fig_main_meta.json
+!runs/numbers.json
