@@ -1,0 +1,4 @@
+{"name": "dev_track_v4", "trials": 80, "procs": 18, "seed0": 999001,
+ "base": {"B": 16, "Bp": 1, "coded": true, "decision": "decoded", "P_max": 8, "frac_delay": true, "reacq_every": 4,
+          "receivers": ["genie", "track"]},
+ "grid": [{"snr_db": 6}, {"snr_db": 8}, {"snr_db": 12}, {"snr_db": 16}]}

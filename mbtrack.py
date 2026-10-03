@@ -127,13 +127,17 @@ def lmmse_soft(H, y, known_mask, x_known, sigma2, idx):
 class Tracker:
     def __init__(self, S: MBAFDM, soft=True, window=None, gn_iters=3, redetect=True,
                  est_delay=False, model_rho=False, reacq_every=0, reacq_window=8,
-                 reacq_pfa=1e-3, kmax=None, P_cap=8):
+                 reacq_pfa=1e-3, kmax=None, P_cap=8, retries=2, aperture_res=True, reacq_level="residual"):
         self.S, self.soft, self.window = S, soft, window
         self.gn_iters, self.redetect = gn_iters, redetect
         self.est_delay, self.model_rho = est_delay, model_rho
         self.reacq_every, self.reacq_window, self.reacq_pfa = reacq_every, reacq_window, reacq_pfa
         self.kmax = S.alpha_max + 0.5 if kmax is None else kmax
         self.P_cap = P_cap
+        self.retries = retries
+        self.merge_dl, self.merge_dk = 0.6, 0.3          # resolution-cell merge thresholds
+        self.aperture_res = aperture_res                 # shrink Doppler thresholds with the aperture
+        self.reacq_level = reacq_level                   # 'noise': sigma^2; 'residual': measured residual power
 
     # ---------- data-aided re-acquisition ----------
     def reacquire(self, Y, X, blocks, paths, h, sigma2, M=64):
@@ -166,12 +170,14 @@ class Tracker:
             if sc[i] > best[0]:
                 best = (sc[i], (float(l), float(kg[i])))
         cells = (S.ell_max + 1) * sel.sum() / M               # ~independent cells
-        thr = sigma2 * -np.log(self.reacq_pfa / cells)       # exp(1) tail of |c|^2/E
+        lvl = sigma2 if self.reacq_level == "noise" else max(sigma2, float(np.mean(np.abs(R) ** 2)))
+        thr = lvl * -np.log(self.reacq_pfa / cells)          # exp(1) tail of |c|^2/E
         if best[0] < thr:
             return paths
         l, k = best[1]
         # reject a duplicate of an existing path
-        if any(abs(l - p[0]) < 0.5 and abs(k - p[1]) < 0.5 for p in paths):
+        dk_dup = 0.5 / (len(np.atleast_1d(blocks)) * S.beta) if self.aperture_res else 0.5
+        if any(abs(l - p[0]) < 1.0 and abs(k - p[1]) < dk_dup for p in paths):
             return paths
         return paths + [(l, k, 0.0)]
 
@@ -233,6 +239,18 @@ class Tracker:
             if not improved or np.max(np.abs(step)) < 1e-8:
                 break
         out = [(float(ell[p]), float(kap[p]), float(rho[p])) for p in range(P)]
+        # Two estimates inside one resolution cell (sub-sample delay, a fraction of a
+        # Doppler bin) describe one path; keeping both makes the LS ill-conditioned
+        # with large cancelling gains. Merge: keep the stronger and re-solve.
+        if P > 1:
+            # Doppler resolution sharpens with the aperture: ~1/(|A| beta) subcarrier spacings
+            dk = self.merge_dk / max(1, len(np.atleast_1d(blocks))) if self.aperture_res else self.merge_dk
+            for i in range(P):
+                for j in range(i + 1, P):
+                    if abs(ell[i] - ell[j]) < self.merge_dl and abs(kap[i] - kap[j]) < dk:
+                        drop = i if abs(g[i]) < abs(g[j]) else j
+                        keep = [out[q] for q in range(P) if q != drop]
+                        return self.refit(Y, X, blocks, keep, iters=iters, rows=rows)
         return out, g, cost / y.size
 
     # ---------- sequential receiver over a frame ----------
@@ -281,21 +299,38 @@ class Tracker:
 
         n_known = sum(1 for k in kinds if k in "PT")
         self.crc_ok = np.ones(B, bool)
+
+        def reacq_loop(b, lo, blocks):
+            nonlocal paths, h
+            wl = max(0, b + 1 - self.reacq_window)
+            wb = np.arange(wl, b + 1)
+            for _ in range(self.P_cap):
+                new = self.reacquire(Y[wl:b + 1], Xs[wl:b + 1], wb, paths, h, sigma2)
+                if len(new) == len(paths):
+                    break
+                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], blocks, new)
+
         for b in range(B):
             dets[b], Xs[b] = detect(b)
             if b + 1 < n_known:
                 continue
             lo = 0 if self.window is None else max(0, b + 1 - self.window)
             blocks = np.arange(lo, b + 1)
-            paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], blocks, paths)
-            periodic = self.reacq_every and (b + 1 - n_known) % self.reacq_every == 0
-            if self.reacq_every and kinds[b] == "D" and (periodic or not self.crc_ok[b]):
-                wl = max(0, b + 1 - self.reacq_window)
-                wb = np.arange(wl, b + 1)
-                new = self.reacquire(Y[wl:b + 1], Xs[wl:b + 1], wb, paths, h, sigma2)
-                if len(new) > len(paths):
-                    paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], blocks, new)
-            if self.redetect and kinds[b] == "D":
-                dets[b], Xs[b] = detect(b)
+            last_known = b + 1 == n_known
+            periodic = self.reacq_every and kinds[b] == "D" and (b + 1 - n_known) % self.reacq_every == 0
+            for attempt in range(1 + (self.retries if codec is not None else 0)):
+                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], blocks, paths)
+                # data-aided re-acquisition: after the pilot block(s) are decoded (finds
+                # weak paths the single-pilot search missed), periodically, and on CRC failure
+                if self.reacq_every and (last_known or periodic or not self.crc_ok[b]):
+                    reacq_loop(b, lo, blocks)
+                if kinds[b] == "T":
+                    break
+                if (self.redetect and kinds[b] == "D") or not self.crc_ok[b] or last_known:
+                    for bb in (range(lo, b + 1) if last_known else (b,)):
+                        if kinds[bb] != "T":
+                            dets[bb], Xs[bb] = detect(bb)
+                if self.crc_ok[b]:
+                    break
             traj.append((b, [p[1] for p in paths], h.copy()))
         return dets, traj

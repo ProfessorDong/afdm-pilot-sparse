@@ -74,6 +74,13 @@ for _ in range(200):
     pil.append(np.sum(np.abs(S.receive(S.channel(S.transmit(xp), ls, ks, hs), B)[:, S.W]) ** 2))
 put("NumLeakDb", 10 * np.log10(np.sum(leak) / np.sum(pil)), "data leakage into W, xi=2, 200 draws", "{:.0f}")
 
+# ------------------------------------------------------------------ receiver constants (from code)
+from mbtrack import Tracker
+_T = Tracker(S)
+put("NumMergeDl", _T.merge_dl, "mbtrack.Tracker.merge_dl", "{:g}")
+put("NumMergeDk", _T.merge_dk, "mbtrack.Tracker.merge_dk", "{:g}")
+put("NumRetries", ["zero", "one", "two", "three", "four"][_T.retries], "mbtrack.Tracker.retries (word)")
+
 # ------------------------------------------------------------------ theory validation
 try:
     th = json.load(open(RUNS / "theory_check.json"))

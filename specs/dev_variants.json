@@ -1,0 +1,50 @@
+{
+ "name": "dev_variants",
+ "trials": 80,
+ "procs": 18,
+ "seed0": 999001,
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "receivers": [
+   "track"
+  ]
+ },
+ "grid": [
+  {
+   "snr_db": 8,
+   "aperture_res": false,
+   "reacq_level": "noise"
+  },
+  {
+   "snr_db": 8,
+   "aperture_res": false,
+   "reacq_level": "residual"
+  },
+  {
+   "snr_db": 8,
+   "aperture_res": true,
+   "reacq_level": "residual"
+  },
+  {
+   "snr_db": 12,
+   "aperture_res": false,
+   "reacq_level": "noise"
+  },
+  {
+   "snr_db": 12,
+   "aperture_res": false,
+   "reacq_level": "residual"
+  },
+  {
+   "snr_db": 12,
+   "aperture_res": true,
+   "reacq_level": "residual"
+  }
+ ]
+}

@@ -48,6 +48,8 @@ class Config:
     window: int | None = None
     model_rho: bool = False
     reacq_every: int = 0            # tracker data-aided re-acquisition period (blocks)
+    aperture_res: bool = True       # Doppler resolution thresholds shrink with the aperture
+    reacq_level: str = "residual"   # re-acquisition CFAR level: 'noise' or 'residual'
     receivers: tuple = ("genie", "conv", "sp", "openloop", "track")
     ofdm: bool = False              # include OFDM same-architecture baseline
     coded: bool = False             # rate-1/2 K=7 conv. code per block
@@ -225,8 +227,8 @@ class Acquirer:
             C = np.einsum("lkw,bw->lkb", np.conj(self.An), r)
             s = np.sum(np.abs(C) ** 2, -1)
             l, i = np.unravel_index(np.argmax(s), s.shape)
-            if P_known is None and s[l, i] < thr:
-                break
+            if P_known is None and s[l, i] < thr and paths:
+                break                              # (the strongest candidate is always kept)
             k = self.fit_kappa(r, l, self.KG[i])
             paths.append((int(l), float(k)))
             _, r = self.ls(y, paths)
@@ -366,7 +368,7 @@ def simulate(cfg: Config, seed: int):
         mk = lambda: Tracker(S, soft=True, window=cfg.window, redetect=True,
                              est_delay=cfg.frac_delay, model_rho=cfg.model_rho,
                              reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5,
-                             P_cap=P_cap)
+                             P_cap=P_cap, aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level)
         if "openloop" in cfg.receivers:
             t1 = time.time()
             # same acquisition, one refit over the pilot blocks (pilots + soft data),
@@ -421,21 +423,52 @@ def simulate(cfg: Config, seed: int):
     return res
 
 
+def _block_matrix_exact(S, ch, b, cfo=0.0, taps=24):
+    """Exact DAFT-domain matrix of block b under the physical channel of
+    mbafdm.MBAFDM.channel (same interpolation kernel, Doppler rate, births, CFO),
+    built directly: CP insertion -> per-path delay filter -> absolute-time phase ->
+    CP removal. Equals probing the channel with all N unit chirp vectors."""
+    N, Ncp = S.N, S.Ncp
+    Tb = N + Ncp
+    L = Tb
+    n_abs = b * Tb + np.arange(L)                       # absolute indices of block b (incl. CP)
+    C = np.zeros((L, N)); C[np.arange(L), (np.arange(L) - Ncp) % N] = 1.0   # CP insertion
+    G = np.zeros((L, L), complex)
+    for p in range(len(ch["tau"])):
+        if ch["born"][p] > b:
+            continue
+        t = float(ch["tau"][p])
+        D = np.zeros((L, L))
+        if abs(t - round(t)) < 1e-12:
+            d = int(round(t))
+            idx = np.arange(d, L)
+            D[idx, idx - d] = 1.0
+        else:
+            k = np.arange(-taps, taps + 1) + int(np.floor(t))
+            w = np.kaiser(2 * taps + 1, 8.0)
+            gk = np.sinc(k - t) * w
+            for kk, gg in zip(k, gk):
+                if kk >= 0:
+                    idx = np.arange(kk, L); D[idx, idx - kk] += gg
+                else:
+                    idx = np.arange(0, L + kk); D[idx, idx - kk] += gg
+        ph = 2 * np.pi * (ch["kappa"][p] * n_abs + 0.5 * ch["rho"][p] * n_abs * n_abs / Tb) / N
+        G += ch["h"][p] * (np.exp(1j * ph)[:, None] * D)
+    if cfo:
+        G = np.exp(1j * 2 * np.pi * cfo * n_abs / N)[:, None] * G
+    Tm = G[Ncp:, :] @ C                                 # N x N time-domain block map
+    FA = S.daft(np.eye(N)).T
+    return FA @ Tm @ FA.conj().T
+
+
 def _genie_dense(S, ch, cfg, Y, kinds, sigma2):
-    """Genie for impaired channels: block b's exact matrix, measured by probing
-    the physical channel with every unit chirp vector in block b at its true
-    absolute time (deterministic impairments included; random phase noise is
-    not known to the genie)."""
+    """Genie for any channel: block b's exact matrix (deterministic impairments
+    included; random phase noise is not known to the genie)."""
     out = []
     pil = np.zeros(S.N, bool); pil[S.zero_set] = True
     xp = np.zeros(S.N, complex); xp[S.m0] = np.sqrt(S.Ep)
-    s = S.idaft(np.eye(S.N, dtype=complex))
-    probes = np.concatenate([s[:, -S.Ncp:], s], 1)          # (N, N+Ncp)
-    Tb = S.N + S.Ncp
     for b, k in enumerate(kinds):
-        r = S.channel(probes, ch["tau"], ch["kappa"], ch["h"], rho=ch["rho"], born=ch["born"],
-                      cfo=cfg.cfo, n0=b * Tb)
-        H = S.receive(r, 1)[:, 0, :].T
+        H = _block_matrix_exact(S, ch, b, cfo=cfg.cfo)
         if k == "P":
             idx = S.data_idx
             hd, _, _, _, zu, v = lmmse_soft(H, Y[b], pil, xp, sigma2, idx)
@@ -444,6 +477,15 @@ def _genie_dense(S, ch, cfg, Y, kinds, sigma2):
             hd, _, _, _, zu, v = lmmse_soft(H, Y[b], None, None, sigma2, idx)
         out.append((hd, zu, v, idx))
     return out
+
+
+def _genie_probe_matrix(S, ch, cfg, b):
+    """Reference: probe the simulated channel with every unit chirp vector (tests)."""
+    s = S.idaft(np.eye(S.N, dtype=complex))
+    probes = np.concatenate([s[:, -S.Ncp:], s], 1)
+    r = S.channel(probes, ch["tau"], ch["kappa"], ch["h"], rho=ch["rho"], born=ch["born"],
+                  cfo=cfg.cfo, n0=b * (S.N + S.Ncp))
+    return S.receive(r, 1)[:, 0, :].T
 
 
 def _superimposed(S, cfg, chan, rng, sigma2, acq, P_cap, P_known, pay):
