@@ -1,0 +1,17 @@
+# private / not part of the code release
+paper/
+PLAN.md
+TCOM_REVIEW_MAP.md
+__pycache__/
+*.pyc
+nohup.out
+
+# artifacts: only those the paper uses are published
+runs/*
+!runs/theory_check.json
+!runs/physical_mapping.json
+!runs/sp_choice.json
+!runs/tune_sp.jsonl
+!runs/tune_sp.spec.json
+!runs/tune_sp_ext.jsonl
+!runs/tune_sp_ext.spec.json

@@ -1,0 +1,3 @@
+{"name": "smoke_main", "trials": 4, "procs": 8,
+ "base": {"B": 16, "coded": true, "decision": "decoded", "ofdm": true},
+ "grid": [{"snr_db": 4, "Bp": 1}, {"snr_db": 10, "Bp": 1}]}

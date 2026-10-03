@@ -1,0 +1,5 @@
+{"name": "smoke_frac", "trials": 6, "procs": 18,
+ "base": {"B": 16, "coded": true, "decision": "decoded", "P_max": 8, "reacq_every": 4},
+ "grid": [{"snr_db": 8, "Bp": 1, "frac_delay": false},
+          {"snr_db": 8, "Bp": 1, "frac_delay": true},
+          {"snr_db": 8, "Bp": 1, "frac_delay": true, "born_frac": 0.25}]}

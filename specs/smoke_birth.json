@@ -1,0 +1,7 @@
+{"name": "smoke_birth", "trials": 8, "procs": 18,
+ "base": {"B": 16, "coded": true, "decision": "decoded", "P_max": 8, "frac_delay": true, "snr_db": 8, "Bp": 1,
+          "born_frac": 0.25, "receivers": ["genie", "track"]},
+ "grid": [{"window": null, "reacq_every": 4},
+          {"window": 8, "reacq_every": 2},
+          {"window": 6, "reacq_every": 1},
+          {"window": 4, "reacq_every": 1}]}
