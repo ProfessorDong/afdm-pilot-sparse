@@ -2,8 +2,7 @@
 
 Reference implementation and artifacts for
 
-> **Pilot-Sparse Multi-Block AFDM with Single-Block Acquisition and
-> Decision-Directed Doppler Tracking for High-Mobility Links**
+> **Pilot-Sparse AFDM with Decision-Directed Doppler Tracking for High-Mobility Links**
 > L. Dong, submitted to IEEE Transactions on Vehicular Technology.
 
 An embedded-pilot AFDM block spends a third of its chirps on the null guard
