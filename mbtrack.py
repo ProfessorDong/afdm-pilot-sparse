@@ -191,7 +191,10 @@ class Tracker:
         ell = np.array([p[0] for p in paths], float)
         kap = np.array([p[1] for p in paths], float)
         rho = np.array([p[2] if len(p) > 2 else 0.0 for p in paths], float)
-        names = ["k"] + (["l"] if self.est_delay else []) + (["rho"] if self.model_rho else [])
+        # The Doppler rate is identifiable only across several blocks: within one
+        # block a quadratic phase trades off against kappa. Estimate it from 3 blocks on.
+        rho_ok = self.model_rho and len(np.atleast_1d(blocks)) >= 3
+        names = ["k"] + (["l"] if self.est_delay else []) + (["rho"] if rho_ok else [])
         sel = slice(None) if rows is None else rows
         y = Y[:, sel].reshape(-1)
         it = self.gn_iters if iters is None else iters

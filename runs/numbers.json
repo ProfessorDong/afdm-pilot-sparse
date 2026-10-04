@@ -16,12 +16,12 @@
  },
  "NumEpsOneDb": {
   "value": -36.12692861166317,
-  "tex": "-36.1",
+  "tex": "\\ensuremath{-36.1}",
   "source": "20log10 eps_1"
  },
  "NumRhoOneDb": {
   "value": -7.551101821743221,
-  "tex": "-7.6",
+  "tex": "\\ensuremath{-7.6}",
   "source": "Corollary 2, eq. (rho1), P=4"
  },
  "NumRhoOneLossDb": {
@@ -31,7 +31,7 @@
  },
  "NumRhoTwoDb": {
   "value": -18.369567370595504,
-  "tex": "-18.4",
+  "tex": "\\ensuremath{-18.4}",
   "source": "Corollary 2 asymptotic form, b=2"
  },
  "NumHorOne": {
@@ -61,12 +61,12 @@
  },
  "NumSnrCellOk": {
   "value": -3.4118126749238282,
-  "tex": "-3",
+  "tex": "\\ensuremath{-3}",
   "source": "Prop. 1 threshold minus 10log10(Ep/4)"
  },
  "NumLeakDb": {
   "value": -30.983677206833924,
-  "tex": "-31",
+  "tex": "\\ensuremath{-31}",
   "source": "data leakage into W, xi=2, 200 draws"
  },
  "NumMergeDl": {
@@ -106,7 +106,7 @@
  },
  "NumOffDesignDataSnr": {
   "value": -12.430380486862944,
-  "tex": "-12.4",
+  "tex": "\\ensuremath{-12.4}",
   "source": "data SNR at gamma1=10 dB: 10 - 10log10(Ep)"
  },
  "NumPredTrials": {
@@ -288,5 +288,105 @@
   "value": 1.625,
   "tex": "1.6\\%",
   "source": "e5_frame: track BLER at B=16, 12 dB"
+ },
+ "NumRobTrials": {
+  "value": 150,
+  "tex": "150",
+  "source": "e6_robust: trials per point"
+ },
+ "NumRobBaseRatioPct": {
+  "value": 97.95441808331776,
+  "tex": "98\\%",
+  "source": "e6: reference track/genie"
+ },
+ "NumRobMinRatioPct": {
+  "value": 93.96493594066084,
+  "tex": "94\\%",
+  "source": "e6: min track/genie over CFO, P, kappa_max variations"
+ },
+ "NumDriftHsrRatioPct": {
+  "value": 97.59013924322997,
+  "tex": "98\\%",
+  "source": "e6: track/genie at rho=0.005 (HSR value)"
+ },
+ "NumDriftHiDefault": {
+  "value": 0.6291586538461538,
+  "tex": "0.63",
+  "source": "e6: track at rho=0.02, no window"
+ },
+ "NumDriftHiWindow": {
+  "value": 0.8243229166666667,
+  "tex": "0.82",
+  "source": "e6: track at rho=0.02, window 6"
+ },
+ "NumDriftHiModel": {
+  "value": 0.879795673076923,
+  "tex": "0.88",
+  "source": "e6: track at rho=0.02, rate model"
+ },
+ "NumDriftHiGenie": {
+  "value": 0.9021754807692306,
+  "tex": "0.90",
+  "source": "e6: genie at rho=0.02"
+ },
+ "NumDriftZeroModelCostPct": {
+  "value": 5.355837385969908,
+  "tex": "5.4\\%",
+  "source": "e6: rate-model cost at rho=0"
+ },
+ "NumDriftZeroWindowCostPct": {
+  "value": 2.9210768888464855,
+  "tex": "2.9\\%",
+  "source": "e6: window cost at rho=0"
+ },
+ "NumPnHiTrack": {
+  "value": 0.6911097756410256,
+  "tex": "0.69",
+  "source": "e6: track at largest phase noise"
+ },
+ "NumPnHiConv": {
+  "value": 0.5588221153846153,
+  "tex": "0.56",
+  "source": "e6: conv at largest phase noise"
+ },
+ "NumPnHiGenie": {
+  "value": 0.5365544871794872,
+  "tex": "0.54",
+  "source": "e6: deterministic genie at largest phase noise"
+ },
+ "NumPnHiLw": {
+  "value": "10^{-2}",
+  "tex": "10^{-2}",
+  "source": "e6: largest linewidth/df"
+ },
+ "NumBornQTrack": {
+  "value": 0.6811538461538461,
+  "tex": "0.68",
+  "source": "e6: track, 25% born"
+ },
+ "NumBornQTrackW": {
+  "value": 0.7208934294871794,
+  "tex": "0.72",
+  "source": "e6: track with per-block re-acq + window, 25% born"
+ },
+ "NumBornQGenie": {
+  "value": 0.8567708333333334,
+  "tex": "0.86",
+  "source": "e6: genie, 25% born"
+ },
+ "NumBornQConv": {
+  "value": 0.5393870192307693,
+  "tex": "0.54",
+  "source": "e6: conv, 25% born"
+ },
+ "NumBornHTrack": {
+  "value": 0.4915144230769231,
+  "tex": "0.49",
+  "source": "e6: track, 50% born"
+ },
+ "NumBornHConv": {
+  "value": 0.5179326923076922,
+  "tex": "0.52",
+  "source": "e6: conv, 50% born"
  }
 }

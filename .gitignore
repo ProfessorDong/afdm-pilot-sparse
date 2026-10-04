@@ -21,3 +21,6 @@ runs/*
 !runs/numbers.json
 !runs/e5_frame.jsonl
 !runs/e5_frame.spec.json
+!runs/e6_robust.jsonl
+!runs/e6_robust.spec.json
+!runs/physical_mapping.json

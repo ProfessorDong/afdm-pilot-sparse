@@ -1,0 +1,45 @@
+{
+ "name": "dev_rho",
+ "trials": 40,
+ "procs": 18,
+ "seed0": 555001,
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "snr_db": 10,
+  "receivers": [
+   "track"
+  ]
+ },
+ "grid": [
+  {
+   "rho_max": 0.0,
+   "model_rho": false
+  },
+  {
+   "rho_max": 0.0,
+   "model_rho": true
+  },
+  {
+   "rho_max": 0.01,
+   "model_rho": false
+  },
+  {
+   "rho_max": 0.01,
+   "model_rho": true
+  },
+  {
+   "rho_max": 0.02,
+   "model_rho": false
+  },
+  {
+   "rho_max": 0.02,
+   "model_rho": true
+  }
+ ]
+}
