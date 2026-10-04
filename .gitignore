@@ -1,5 +1,6 @@
 # private / not part of the code release
 paper/
+submission/
 PLAN.md
 INTERNAL_NOTES*.md
 __pycache__/
