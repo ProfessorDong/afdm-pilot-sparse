@@ -2,7 +2,7 @@
 
 Reference implementation and artifacts for
 
-> **Pilot-Sparse Multi-Block AFDM: Single-Block Chirp-Domain Acquisition and
+> **Pilot-Sparse Multi-Block AFDM with Single-Block Acquisition and
 > Decision-Directed Doppler Tracking for High-Mobility Links**
 > L. Dong, submitted to IEEE Transactions on Vehicular Technology.
 
