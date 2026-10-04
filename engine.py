@@ -48,6 +48,8 @@ class Config:
     window: int | None = None
     model_rho: bool = False
     reacq_every: int = 0            # tracker data-aided re-acquisition period (blocks)
+    c2: float | None = None         # second chirp parameter; None -> 1/(2N)
+    sp_acq_blocks: int = 1          # superimposed pilot + tracker: blocks used for acquisition
     aperture_res: bool = True       # Doppler resolution thresholds shrink with the aperture
     reacq_level: str = "residual"   # re-acquisition CFAR level: 'noise' or 'residual'
     receivers: tuple = ("genie", "conv", "sp", "openloop", "track")
@@ -57,7 +59,7 @@ class Config:
 
 
 def make_system(cfg: Config) -> MBAFDM:
-    return MBAFDM(N=cfg.N, Ncp=cfg.Ncp, alpha_max=cfg.alpha_max, xi=cfg.xi, ell_max=cfg.ell_max)
+    return MBAFDM(N=cfg.N, Ncp=cfg.Ncp, alpha_max=cfg.alpha_max, xi=cfg.xi, ell_max=cfg.ell_max, c2=cfg.c2)
 
 
 def ofdm_system(cfg: Config) -> MBAFDM:
@@ -434,9 +436,10 @@ def simulate(cfg: Config, seed: int):
         xs[:, S.m0] += np.sqrt(eps * S.N)
         Ys = S.receive(chan(S.transmit(xs)), B) + awgn(rng, (B, S.N), sigma2)
         Ep0 = S.Ep; S.Ep = eps * S.N
-        paths, h = acq.run(Ys[:1], P_cap, P_known)          # level measured: data + noise
+        K = max(1, int(cfg.sp_acq_blocks))                 # every block carries the pilot:
+        paths, h = acq.run(Ys[:K], P_cap, P_known)          # acquire over the first K (data + noise level)
         S.Ep = Ep0
-        dets, _ = mkT().run_full(Ys, "S" * B, paths, h, sigma2, codec=codec_da, sp_eps=eps)
+        dets, _ = mkT().run_full(Ys, "S" * B, paths, h, sigma2, codec=codec_da, sp_eps=eps, n_acq=K)
         tally("sp-track", dets, d, t0, "ST")
 
     for K in (4, 8):

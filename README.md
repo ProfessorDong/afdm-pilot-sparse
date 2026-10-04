@@ -14,9 +14,9 @@ and appends each guard-free data block and refits the path parameters.
 
 ## Status
 
-The manuscript is being submitted to IEEE TVT; its LaTeX sources are not
-included here. Simulation artifacts for the main results (`e4_main`,
-`e5_frame`, `e6_robust`) are added when the sweeps complete. The scripts that
+The manuscript's LaTeX sources are not included here. Every simulation
+artifact that the paper's numbers, figures and tables are computed from is in
+`runs/`. The scripts that
 write the paper's numbers, figures and tables (`make_*.py`) target a `paper/`
 directory that is not part of this repository.
 
@@ -31,7 +31,7 @@ mbtrack.py       path operator, LMMSE, variable-projection Gauss-Newton tracker,
 coding.py        rate-1/2 K=7 convolutional code, CRC-16, soft Viterbi
 run_sweep.py     parallel, resumable sweeps (JSON lines, one line per trial)
 aggregate.py     per-point statistics
-theory_check.py  numerical validation of Theorem 1, Proposition 1, Theorem 2
+theory_check.py  numerical validation of Approximation 1, Proposition 1, Theorem 1
 make_numbers.py  every number quoted in the paper's text -> paper/numbers.tex
 make_figures.py  every figure -> paper/fig_*.tex
 make_tables.py   parameter table -> paper/tab_params.tex
@@ -39,6 +39,8 @@ specs/           sweep definitions
 runs/            artifacts
 proto/           development gates (not used by the paper)
 pick_sp.py       picks the tuned superimposed-pilot configuration per SNR
+spbest.py        superimposed pilot + tracker: best acquisition length (1, 2, 4 blocks)
+oracle_guard.py  bound on the saving of an ideal adaptive guard
 audit_acronyms.py  checks that every acronym is defined at first use
 queue.sh, queue2.sh  run the experiment chain
 ```
@@ -55,6 +57,11 @@ python run_sweep.py specs/e4_main.json      # Figs. 3-4: proposed, open loop, si
 python run_sweep.py specs/e4b_baselines.json # Figs. 3-4: data-aided per-block pilot, its ceiling,
                                             #   SP + same tracker, OFDM same tracker (same channels)
 python run_sweep.py specs/e4c_interp.json   # Fig. 3: periodic pilot blocks (same channels)
+python run_sweep.py specs/e4d_sp_k2.json    # Figs. 3-4: SP + tracker acquired from 2 blocks (same channels)
+python run_sweep.py specs/e4d_sp_k4.json    #   ... and from 4 blocks
+python run_sweep.py specs/dev_c2p_ref.json  # paired c2 test on held-out seeds: c2 = 1/(2N)
+python run_sweep.py specs/dev_c2p_irr.json  #   ... and c2 = sqrt(2)/(4N)
+python oracle_guard.py                      # ideal adaptive-guard bound (Remark 1)
 python run_sweep.py specs/e5_frame.json     # Fig. 5
 python run_sweep.py specs/e6_robust.json    # robustness table
 python make_numbers.py && python make_figures.py && python make_tables.py && python make_tables.py robust
@@ -70,7 +77,7 @@ BLAS thread per worker.
 - Per-block pilot response equals `exp(j2 pi kappa b beta)` times the block-0
   response to 1e-14 (Lemma 1); the dense and FFT block matrices agree to 1e-15.
 - A path lands at chirp index `m0 + alpha - Q*ell`.
-- The grating-lobe level of Theorem 1 matches the measured atom correlation to
+- The grating-lobe level of Proposition 1 matches the measured atom correlation to
   four digits for N in {256, 512, 1024} and Ncp in {4,...,64}.
 
 ## License

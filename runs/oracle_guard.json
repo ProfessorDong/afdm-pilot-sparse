@@ -1,0 +1,6 @@
+{
+ "fixed_guard": 0.341796875,
+ "oracle_mean": 0.285148828125,
+ "max_gain_oracle_vs_fixed": 0.08606468842729975,
+ "pilot_sparse_frame_guard_share": 0.0213623046875
+}

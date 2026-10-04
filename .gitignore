@@ -34,3 +34,12 @@ runs/*
 !runs/tune_sptrack.spec.json
 !runs/sptrack_choice.json
 !runs/grating_peak.json
+!runs/e4d_sp_k2.jsonl
+!runs/e4d_sp_k2.spec.json
+!runs/e4d_sp_k4.jsonl
+!runs/e4d_sp_k4.spec.json
+!runs/dev_c2p_ref.jsonl
+!runs/dev_c2p_ref.spec.json
+!runs/dev_c2p_irr.jsonl
+!runs/dev_c2p_irr.spec.json
+!runs/oracle_guard.json

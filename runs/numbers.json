@@ -129,6 +129,41 @@
   "tex": "52\\%",
   "source": "1/(1-|Z|/N)-1: upper bound of the guard-removal gain"
  },
+ "NumOracleGuardPct": {
+  "value": 28.514882812499998,
+  "tex": "28.5\\%",
+  "source": "oracle_guard.json: mean guard sized to the realized support"
+ },
+ "NumOracleGainPct": {
+  "value": 8.606468842729974,
+  "tex": "8.6\\%",
+  "source": "oracle_guard.json: max gain of an ideal adaptive guard"
+ },
+ "NumPilotBlockSharePct": {
+  "value": 2.13623046875,
+  "tex": "2.1\\%",
+  "source": "|Z|/(16N): guard share of a 16-block pilot-sparse frame"
+ },
+ "NumCtwoGenieEightPct": {
+  "value": -1.618772744384489,
+  "tex": "\\ensuremath{-1.6\\%}",
+  "source": "dev_c2p: irrational-c2 change of perfect-CSI throughput at 8 dB"
+ },
+ "NumCtwoTrackEightPct": {
+  "value": -2.232469939232007,
+  "tex": "\\ensuremath{-2.2\\%}",
+  "source": "dev_c2p: irrational-c2 change of proposed throughput at 8 dB"
+ },
+ "NumCtwoMaxTwelvePct": {
+  "value": 0.8618367896579548,
+  "tex": "0.9\\%",
+  "source": "dev_c2p: max |change| at 12 dB"
+ },
+ "NumCtwoTrials": {
+  "value": 120,
+  "tex": "120",
+  "source": "dev_c2p: paired channel realizations per point"
+ },
  "NumMergeDl": {
   "value": 0.6,
   "tex": "0.6",
@@ -234,29 +269,49 @@
   "tex": "9.5\\%",
   "source": "plain conv BLER max >=14 dB"
  },
+ "NumSpBestKMax": {
+  "value": 4,
+  "tex": "4",
+  "source": "largest best acquisition K for sp-track"
+ },
+ "NumSpOverGenieMaxPct": {
+  "value": 2.2831050228310446,
+  "tex": "2.3\\%",
+  "source": "max sp-track over perfect-CSI throughput of the pilot-sparse frame"
+ },
+ "NumSpKSatDiff": {
+  "value": 0.012367788461538465,
+  "tex": "0.012",
+  "source": "max |K=4 - K=2| sp-track (bit/s/Hz)"
+ },
+ "NumSpKOneGainMax": {
+  "value": 0.025030048076922995,
+  "tex": "0.025",
+  "source": "max gain of best-K over K=1 sp-track (bit/s/Hz)"
+ },
  "NumSpFromSnr": {
-  "value": 14,
-  "tex": "14",
+  "value": 12,
+  "tex": "12",
   "source": "lowest SNR where sp-track > track"
  },
  "NumSpTopSnr": {
-  "value": 12,
-  "tex": "12",
+  "value": 10,
+  "tex": "10",
   "source": "highest SNR below that"
  },
  "NumSpMaxAdvPct": {
-  "value": 2.7446300715990413,
-  "tex": "2.7\\%",
+  "value": 2.9867971563105833,
+  "tex": "3.0\\%",
   "source": "max sp-track advantage"
  },
  "NumOverSpEightPct": {
-  "value": 38.25640250812115,
-  "tex": "38\\%",
+  "value": 33.25324013397404,
+  "tex": "33\\%",
   "source": "track/sp-track-1 at 8 dB"
  },
  "NumSpSingleMaxDiff": {
-  "value": 0.060955528846153906,
-  "tex": "0.06",
+  "value": 0.0815685096153847,
+  "tex": "0.08",
   "source": "max |sp-track - sp| (bit/s/Hz)"
  },
  "NumOverInterpMinPct": {
@@ -345,9 +400,9 @@
   "source": "time sp"
  },
  "NumTimeSpTrack": {
-  "value": 25.411072765469548,
-  "tex": "25",
-  "source": "time sp-track"
+  "value": 25.60892586565018,
+  "tex": "26",
+  "source": "time sp-track (best K)"
  },
  "NumTimeGenie": {
   "value": 5.501316637635231,

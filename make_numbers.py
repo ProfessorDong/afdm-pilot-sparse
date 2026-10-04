@@ -106,6 +106,31 @@ for Nn, nm in ((1024, "Kilo"), (2048, "TwoKilo")):
     put(f"NumGuardPct{nm}", 100 * len(Sn.zero_set) / Nn, f"|Z|/N at N={Nn}", r"{:.0f}\%")
 put("NumOverheadGainPct", 100 * (1 / (1 - len(S.zero_set) / S.N) - 1), "1/(1-|Z|/N)-1: upper bound of the guard-removal gain", r"{:.0f}\%")
 
+# ------------------------------------------------------------------ oracle adaptive guard (runs/oracle_guard.json)
+_og = json.load(open(RUNS / "oracle_guard.json"))
+put("NumOracleGuardPct", 100 * _og["oracle_mean"], "oracle_guard.json: mean guard sized to the realized support", r"{:.1f}\%")
+put("NumOracleGainPct", 100 * _og["max_gain_oracle_vs_fixed"], "oracle_guard.json: max gain of an ideal adaptive guard", r"{:.1f}\%")
+put("NumPilotBlockSharePct", 100 * _og["pilot_sparse_frame_guard_share"], "|Z|/(16N): guard share of a 16-block pilot-sparse frame", r"{:.1f}\%")
+# paired c2 test (held-out seeds): c2 = sqrt(2)/(4N) vs the default 1/(2N)
+def _c2pair():
+    from aggregate import load
+    out = {}
+    (sa, ra), (_, rb) = load("dev_c2p_ref"), load("dev_c2p_irr")
+    a = {(r["point"], r["seed"]): r for r in ra if r.get("ok")}
+    b = {(r["point"], r["seed"]): r for r in rb if r.get("ok")}
+    for i, g in enumerate(sa["grid"]):
+        ks = [k for k in a if k[0] == i and k in b]
+        for rx in ("genie", "track"):
+            x = np.array([sum(a[k][rx]["goodbits"]) for k in ks], float)
+            y = np.array([sum(b[k][rx]["goodbits"]) for k in ks], float)
+            out[(g["snr_db"], rx)] = (100 * (y.mean() / x.mean() - 1), len(ks))
+    return out
+_c2 = _c2pair()
+put("NumCtwoGenieEightPct", _c2[(8, "genie")][0], "dev_c2p: irrational-c2 change of perfect-CSI throughput at 8 dB", r"{:+.1f}\%")
+put("NumCtwoTrackEightPct", _c2[(8, "track")][0], "dev_c2p: irrational-c2 change of proposed throughput at 8 dB", r"{:+.1f}\%")
+put("NumCtwoMaxTwelvePct", max(abs(_c2[(12, r)][0]) for r in ("genie", "track")), "dev_c2p: max |change| at 12 dB", r"{:.1f}\%")
+put("NumCtwoTrials", _c2[(8, "genie")][1], "dev_c2p: paired channel realizations per point", "{:d}")
+
 # ------------------------------------------------------------------ receiver constants (from code)
 from mbtrack import Tracker
 _T = Tracker(S)
@@ -167,7 +192,16 @@ try:
     put("NumConvCeilGainPct", 100 * (ge[20] / bb[20]["tp_genie-conv"] - 1), "perfect-CSI ceiling ratio, 20 dB", r"{:.0f}\%")
     put("NumPlainConvHiPct", 100 * max(by[s]["bler_conv"] for s in S_ if s >= 14), "plain conv BLER max >=14 dB", r"{:.1f}\%")
     # superimposed pilot with the same tracker
-    sp = {s: bb[s]["tp_sp-track"] for s in S_}
+    from spbest import sp_best
+    _spb = sp_best()
+    sp = {s: _spb[s]["tp"] for s in S_}
+    put("NumSpBestKMax", max(_spb[s]["K"] for s in S_), "largest best acquisition K for sp-track", "{:d}")
+    _k2 = {r["snr_db"]: r for r in summarize("e4d_sp_k2")[0]}
+    _k4 = {r["snr_db"]: r for r in summarize("e4d_sp_k4")[0]}
+    put("NumSpOverGenieMaxPct", 100 * max(sp[s] / ge[s] - 1 for s in S_), "max sp-track over perfect-CSI throughput of the pilot-sparse frame", r"{:.1f}\%")
+    put("NumSpKSatDiff", max(abs(_k4[s]["tp_sp-track"] - _k2[s]["tp_sp-track"]) for s in S_), "max |K=4 - K=2| sp-track (bit/s/Hz)", "{:.3f}")
+    assert all(abs(_k4[s]["tp_sp-track"] - _k2[s]["tp_sp-track"]) <= _k4[s]["tp_sp-track_se"] for s in S_ if _k4[s]["tp_sp-track_se"] > 0), "K=4 vs K=2 no longer within SE: revise text"
+    put("NumSpKOneGainMax", max(_spb[s]["tp"] - bb[s]["tp_sp-track"] for s in S_), "max gain of best-K over K=1 sp-track (bit/s/Hz)", "{:.3f}")
     win = [s for s in S_ if sp[s] > tr[s]]
     put("NumSpFromSnr", min(win), "lowest SNR where sp-track > track", "{:d}")
     put("NumSpTopSnr", max(s for s in S_ if s < min(win)), "highest SNR below that", "{:d}")
@@ -203,7 +237,7 @@ try:
     put("NumTimeConv", np.mean([by[s]["time_conv"] for s in S_]), "time conv", "{:.0f}")
     put("NumTimeConvDa", np.mean([bb[s]["time_conv-da"] for s in S_]), "time conv-da", "{:.0f}")
     put("NumTimeSp", np.mean([by[s]["time_sp"] for s in S_]), "time sp", "{:.0f}")
-    put("NumTimeSpTrack", np.mean([bb[s]["time_sp-track"] for s in S_]), "time sp-track", "{:.0f}")
+    put("NumTimeSpTrack", np.mean([_spb[s]["time"] for s in S_]), "time sp-track (best K)", "{:.0f}")
     put("NumTimeGenie", np.mean([by[s]["time_genie"] for s in S_]), "time genie", "{:.0f}")
 except Exception as e:  # noqa: BLE001
     for n in _E4:

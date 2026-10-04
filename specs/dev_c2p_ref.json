@@ -1,0 +1,28 @@
+{
+ "name": "dev_c2p_ref",
+ "trials": 120,
+ "procs": 18,
+ "seed0": 333001,
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "receivers": [
+   "genie",
+   "track"
+  ],
+  "c2": null
+ },
+ "grid": [
+  {
+   "snr_db": 8
+  },
+  {
+   "snr_db": 12
+  }
+ ]
+}
