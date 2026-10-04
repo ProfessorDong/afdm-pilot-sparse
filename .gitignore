@@ -1,7 +1,7 @@
 # private / not part of the code release
 paper/
 PLAN.md
-TCOM_REVIEW_MAP.md
+INTERNAL_NOTES*.md
 __pycache__/
 *.pyc
 nohup.out
