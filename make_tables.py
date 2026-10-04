@@ -119,7 +119,9 @@ def robust_table(rho_run="e6_robust"):
                "but not the random oscillator phase. Reference: $P=4$, $\\kappa_{\\max}=3$. CFO in subcarrier spacings; drift: Doppler rate in subcarrier spacings per block; "
                "PN: phase-noise linewidth relative to the subcarrier spacing; born: fraction of paths appearing during the frame. "
                "Window: sliding window of 6 blocks (8 with re-acquisition every block for path births). "
-               f"Each entry averages {min(r['trials'] for r in res)} channel realizations.}}\n\\end{{table}}\n")
+               f"Each entry averages {min(r['trials'] for r in res)} channel realizations; the standard errors of the "
+               f"proposed receiver's entries are {min(r['tp_track_se'] for r in res if 'tp_track_se' in r):.2f}--"
+               f"{max(r['tp_track_se'] for r in res if 'tp_track_se' in r):.2f}\\,bit/s/Hz, so differences of a few hundredths are not significant.}}\n\\end{{table}}\n")
     (PAPER / "tab_robust.tex").write_text("".join(tex))
     print("".join(tex))
 

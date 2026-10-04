@@ -15,7 +15,7 @@ and appends each guard-free data block and refits the path parameters.
 
 ## Status
 
-The manuscript is under preparation for submission; its LaTeX sources are not
+The manuscript is being submitted to IEEE TVT; its LaTeX sources are not
 included here. Simulation artifacts for the main results (`e4_main`,
 `e5_frame`, `e6_robust`) are added when the sweeps complete. The scripts that
 write the paper's numbers, figures and tables (`make_*.py`) target a `paper/`
@@ -51,10 +51,14 @@ python run_sweep.py specs/tune_sp.json      # superimposed-pilot tuning (held-ou
 python run_sweep.py specs/tune_sp_ext.json  # extended grid: no chosen configuration on the boundary
 python pick_sp.py                           # writes the tuned (eps, iters) into specs/e4_main.json
 python theory_check.py                      # Fig. 2 data
-python run_sweep.py specs/e4_main.json      # Figs. 3-4
+python run_sweep.py specs/tune_sptrack.json # superimposed pilot + tracker tuning (held-out seeds)
+python run_sweep.py specs/e4_main.json      # Figs. 3-4: proposed, open loop, single-block SP
+python run_sweep.py specs/e4b_baselines.json # Figs. 3-4: data-aided per-block pilot, its ceiling,
+                                            #   SP + same tracker, OFDM same tracker (same channels)
+python run_sweep.py specs/e4c_interp.json   # Fig. 3: periodic pilot blocks (same channels)
 python run_sweep.py specs/e5_frame.json     # Fig. 5
 python run_sweep.py specs/e6_robust.json    # robustness table
-python make_numbers.py && python make_figures.py && python make_tables.py
+python make_numbers.py && python make_figures.py && python make_tables.py && python make_tables.py robust
 cd paper && pdflatex AFDM_TVT && bibtex AFDM_TVT && pdflatex AFDM_TVT && pdflatex AFDM_TVT
 ```
 

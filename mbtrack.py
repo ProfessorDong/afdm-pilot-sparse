@@ -257,7 +257,8 @@ class Tracker:
         return out, g, cost / y.size
 
     # ---------- sequential receiver over a frame ----------
-    def run_full(self, Y, kinds, paths, h, sigma2, xknown=None, codec=None):
+    def run_full(self, Y, kinds, paths, h, sigma2, xknown=None, codec=None, blocks_abs=None,
+                 sp_eps=None, n_acq=None):
         """kinds per block: 'P' pilot(+guard)+data, 'T' fully known training,
         'D' data on all chirps. Pilot/training blocks are detected with the
         acquisition estimate; each data block is predicted, detected, appended
@@ -270,8 +271,12 @@ class Tracker:
         S = self.S
         B = len(kinds)
         N = S.N
+        A = np.arange(B) if blocks_abs is None else np.asarray(blocks_abs)   # absolute block index
         pil = np.zeros(N, bool); pil[S.zero_set] = True
         xp = np.zeros(N, complex); xp[S.m0] = np.sqrt(S.Ep)
+        if sp_eps is not None:                      # superimposed-pilot blocks 'S'
+            a_d = np.sqrt(1 - sp_eps)
+            xsp = np.zeros(N, complex); xsp[S.m0] = np.sqrt(sp_eps * N)
         Xs = np.zeros((B, N), complex)
         dets = [None] * B
         traj = []
@@ -279,10 +284,23 @@ class Tracker:
         h = np.asarray(h, complex)
 
         def detect(b):
-            H = channel_matrix(S, b, [p[0] for p in paths], [p[1] for p in paths], h,
+            H = channel_matrix(S, A[b], [p[0] for p in paths], [p[1] for p in paths], h,
                                [p[2] for p in paths])
             if kinds[b] == "T":
                 return None, xknown[b]
+            if kinds[b] == "S":
+                idx = np.arange(N)
+                r = Y[b] - H[:, S.m0] * xsp[S.m0]
+                hd, xm, xv, _, zu, v = lmmse_soft(H * a_d, r, None, None, sigma2, idx)
+                xs = xsp.copy()
+                if codec is not None:
+                    bits, xr = codec("D", zu, v)
+                    ok = xr is not None
+                    xs = xs + a_d * (xr if ok else (xm if self.soft else hd))
+                    self.crc_ok[b] = ok
+                    return (hd, zu, v, idx, bits), xs
+                xs = xs + a_d * (xm if self.soft else hd)
+                return (hd, zu, v, idx), xs
             if kinds[b] == "P":
                 idx = S.data_idx
                 hd, xm, xv, _, zu, v = lmmse_soft(H, Y[b], pil, xp, sigma2, idx)
@@ -300,7 +318,10 @@ class Tracker:
             xs[idx] = xm if self.soft else hd
             return (hd, zu, v, idx), xs
 
-        n_known = sum(1 for k in kinds if k in "PT")
+        # leading blocks acquired jointly (default: all pilot/training blocks; an all-'S'
+        # frame acquires on block 0; periodic pilots pass n_acq=1 so that every later
+        # pilot block is refit and re-detected like a data block)
+        n_known = n_acq if n_acq is not None else max(1, sum(1 for k in kinds if k in "PT"))
         self.crc_ok = np.ones(B, bool)
 
         def reacq_loop(b, lo, blocks):
@@ -308,10 +329,10 @@ class Tracker:
             wl = max(0, b + 1 - self.reacq_window)
             wb = np.arange(wl, b + 1)
             for _ in range(self.P_cap):
-                new = self.reacquire(Y[wl:b + 1], Xs[wl:b + 1], wb, paths, h, sigma2)
+                new = self.reacquire(Y[wl:b + 1], Xs[wl:b + 1], A[wb], paths, h, sigma2)
                 if len(new) == len(paths):
                     break
-                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], blocks, new)
+                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], A[blocks], new)
 
         for b in range(B):
             dets[b], Xs[b] = detect(b)
@@ -320,20 +341,21 @@ class Tracker:
             lo = 0 if self.window is None else max(0, b + 1 - self.window)
             blocks = np.arange(lo, b + 1)
             last_known = b + 1 == n_known
-            periodic = self.reacq_every and kinds[b] == "D" and (b + 1 - n_known) % self.reacq_every == 0
+            periodic = self.reacq_every and kinds[b] in "DS" and (b + 1 - n_known) % self.reacq_every == 0
             for attempt in range(1 + (self.retries if codec is not None else 0)):
-                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], blocks, paths)
+                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], A[blocks], paths)
                 # data-aided re-acquisition: after the pilot block(s) are decoded (finds
                 # weak paths the single-pilot search missed), periodically, and on CRC failure
                 if self.reacq_every and (last_known or periodic or not self.crc_ok[b]):
                     reacq_loop(b, lo, blocks)
                 if kinds[b] == "T":
                     break
-                if (self.redetect and kinds[b] == "D") or not self.crc_ok[b] or last_known:
+                if (self.redetect and (kinds[b] in "DS" or b >= n_known)) or not self.crc_ok[b] or last_known:
                     for bb in (range(lo, b + 1) if last_known else (b,)):
                         if kinds[bb] != "T":
                             dets[bb], Xs[bb] = detect(bb)
                 if self.crc_ok[b]:
                     break
             traj.append((b, [p[1] for p in paths], h.copy()))
+        self.final = (list(paths), np.asarray(h).copy())
         return dets, traj

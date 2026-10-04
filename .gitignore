@@ -24,3 +24,11 @@ runs/*
 !runs/e6_robust.jsonl
 !runs/e6_robust.spec.json
 !runs/physical_mapping.json
+!runs/e4b_baselines.jsonl
+!runs/e4b_baselines.spec.json
+!runs/e4c_interp.jsonl
+!runs/e4c_interp.spec.json
+!runs/tune_sptrack.jsonl
+!runs/tune_sptrack.spec.json
+!runs/sptrack_choice.json
+!runs/grating_peak.json
