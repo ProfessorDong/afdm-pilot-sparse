@@ -1,0 +1,34 @@
+{
+ "name": "dev_smoke",
+ "trials": 60,
+ "procs": 18,
+ "seed0": 444001,
+ "seed_by": "snr",
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "diag": true,
+  "receivers": [
+   "genie",
+   "openloop",
+   "track",
+   "track-strict"
+  ]
+ },
+ "grid": [
+  {
+   "snr_db": 6
+  },
+  {
+   "snr_db": 10
+  },
+  {
+   "snr_db": 14
+  }
+ ]
+}

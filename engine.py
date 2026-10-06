@@ -50,12 +50,20 @@ class Config:
     reacq_every: int = 0            # tracker data-aided re-acquisition period (blocks)
     c2: float | None = None         # second chirp parameter; None -> 1/(2N)
     sp_acq_blocks: int = 1          # superimposed pilot + tracker: blocks used for acquisition
+    spt_eps: float | None = None    # superimposed pilot + tracker: pilot fraction (None -> sp_eps)
+    spl_eps: float = 0.15           # low-latency variant 'sp-track-ll' (acquisition from spl_K blocks)
+    spl_K: int = 4
     aperture_res: bool = True       # Doppler resolution thresholds shrink with the aperture
     reacq_level: str = "residual"   # re-acquisition CFAR level: 'noise' or 'residual'
     receivers: tuple = ("genie", "conv", "sp", "openloop", "track")
     ofdm: bool = False              # include OFDM same-architecture baseline
     coded: bool = False             # rate-1/2 K=7 conv. code per block
     decision: str = "soft"          # tracker regression symbols: soft | hard | decoded
+    taps: int = 24                  # fractional-delay filter: Kaiser-windowed sinc of 2*taps+1 taps
+    circular: bool = False          # matched-model control: receiver's circular delay model, no IBI
+    diag: bool = False              # record tracker diagnostics (prediction error, CRC, insertions)
+    tp_dk: float | None = None      # two-path study: Doppler separation (subcarrier spacings)
+    tp_dl: float = 0.0              # two-path study: delay separation (samples)
 
 
 def make_system(cfg: Config) -> MBAFDM:
@@ -72,6 +80,15 @@ def ofdm_system(cfg: Config) -> MBAFDM:
 
 
 def draw_channel(cfg: Config, rng):
+    if cfg.tp_dk is not None:
+        # two equal-power paths separated by (tp_dl, tp_dk), random placement and phases
+        c = rng.uniform(-cfg.kappa_max + cfg.tp_dk / 2, cfg.kappa_max - cfg.tp_dk / 2)
+        kap = np.array([c - cfg.tp_dk / 2, c + cfg.tp_dk / 2])
+        t1 = rng.uniform(0, cfg.ell_max - 0.5 - cfg.tp_dl) if cfg.frac_delay else \
+            float(rng.integers(0, cfg.ell_max + 1 - int(cfg.tp_dl)))
+        tau = np.array([t1, t1 + cfg.tp_dl])
+        h = np.sqrt(0.25) * (rng.standard_normal(2) + 1j * rng.standard_normal(2))
+        return dict(tau=tau, kappa=kap, h=h, rho=np.zeros(2), born=np.zeros(2, int))
     P = cfg.P
     if cfg.frac_delay:
         tau = np.sort(rng.uniform(0, cfg.ell_max - 0.5, P))
@@ -303,9 +320,41 @@ def simulate(cfg: Config, seed: int):
     S = make_system(cfg)
     sigma2 = 10 ** (-cfg.snr_db / 10)
     ch = draw_channel(cfg, rng)
-    chan = lambda st: S.channel(st, ch["tau"], ch["kappa"], ch["h"], rho=ch["rho"], born=ch["born"],
-                                cfo=cfg.cfo, pn_var=cfg.pn_var, rng=rng)
     B, Bp = cfg.B, cfg.Bp
+    Tb = S.N + S.Ncp
+    # one oscillator realization shared by every waveform of this trial (paired comparison)
+    pn = None
+    if cfg.pn_var > 0:
+        rpn = np.random.default_rng([seed, 7])
+        pn = np.cumsum(np.sqrt(cfg.pn_var) * rpn.standard_normal(B * Tb))
+
+    def rx(Sx, xx):
+        """Noise-free received frame (B, N) of transmitted chirp-domain symbols xx."""
+        if cfg.circular:
+            # matched-model control: each block passes through the receiver's own
+            # circular band-limited delay model; no inter-block interference
+            Yn = np.zeros((B, Sx.N), complex)
+            for p in range(len(ch["tau"])):
+                Yn += ch["h"][p] * apply_path(Sx, ch["tau"][p], ch["kappa"][p], xx, np.arange(B), rho=ch["rho"][p])
+            return Yn
+        st = Sx.channel(Sx.transmit(xx), ch["tau"], ch["kappa"], ch["h"], rho=ch["rho"], born=ch["born"],
+                        cfo=cfg.cfo, taps=cfg.taps, pn_traj=pn)
+        return Sx.receive(st, B)
+
+    Htrue = {}
+
+    def H_true(b, with_pn=True):
+        """Block b's exact DAFT-domain matrix (deterministic channel, and the shared
+        phase-noise trajectory if with_pn)."""
+        key = (b, with_pn)
+        if key not in Htrue:
+            if cfg.circular:
+                Htrue[key] = channel_matrix(S, b, ch["tau"], ch["kappa"], ch["h"], ch["rho"])
+            else:
+                Htrue[key] = _block_matrix_exact(S, ch, b, cfo=cfg.cfo, taps=cfg.taps,
+                                                 pn=(pn[b * Tb + S.Ncp:(b + 1) * Tb] if (with_pn and pn is not None) else None))
+        return Htrue[key]
+
     res = {"seed": seed}
     timing = {}
 
@@ -327,28 +376,69 @@ def simulate(cfg: Config, seed: int):
             res[name].update({"blerr": bl, "goodbits": ib})
         timing[name] = time.time() - t0
 
+    def diag(T, x, Yn=None):
+        """Tracker diagnostics: prediction-error-to-noise ratio of every predicted
+        block (channel used to first detect it vs the true block matrix, applied to
+        the transmitted block), CRC/trust status, insertions, merges, path sets."""
+        rho = []
+        for b in sorted(T.pred):
+            pth, hh = T.pred[b]
+            Hp = channel_matrix(S, b, [p[0] for p in pth], [p[1] for p in pth], hh, [p[2] for p in pth]) \
+                if len(pth) else np.zeros((S.N, S.N), complex)
+            e = (Hp - H_true(b)) @ x[b]
+            rho.append(float(np.vdot(e, e).real / (S.N * sigma2)))
+        out = {"rho_pred": rho, "crc": T.crc_ok.astype(int).tolist(), "trusted": T.trusted.astype(int).tolist(),
+               "n_insert": T.n_insert, "n_merge": T.n_merge,
+               "final": [(p[0], p[1], float(abs(g))) for p, g in zip(T.final[0], T.final[1])]}
+        if Yn is not None:              # residual inter-block interference + delay-model mismatch
+            ibi = [float(np.vdot(Yn[b] - H_true(b) @ x[b], Yn[b] - H_true(b) @ x[b]).real /
+                         np.vdot(H_true(b) @ x[b], H_true(b) @ x[b]).real) for b in range(B)]
+            out["ibi"] = float(np.mean(ibi))
+            Hc = channel_matrix(S, 0, ch["tau"], ch["kappa"], ch["h"], ch["rho"])
+            out["circ_mismatch"] = float(np.linalg.norm(H_true(0, False) - Hc) ** 2 / np.linalg.norm(H_true(0, False)) ** 2)
+        return out
+
     kinds = "P" * Bp + "D" * (B - Bp)
     pay = Payload(cfg.coded, rng)
     x = build_frame(S, kinds, pay, "A")
-    Y = S.receive(chan(S.transmit(x)), B)
-    Y = Y + awgn(rng, Y.shape, sigma2)
+    Yn = rx(S, x)
+    Y = Yn + awgn(rng, Yn.shape, sigma2)
     acq = Acquirer(S)
     P_known = cfg.P if cfg.P_max is None else None
     P_cap = cfg.P if cfg.P_max is None else cfg.P_max
+    codec_da = make_codec() if cfg.coded else None
+    def mkT(trust="strict"):
+        return Tracker(S, soft=True, window=cfg.window, redetect=True, est_delay=cfg.frac_delay,
+                       model_rho=cfg.model_rho, reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5,
+                       P_cap=P_cap, aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level, trust=trust)
+
+    def genie_dets(Yx, knd, with_pn=True):
+        pil = np.zeros(S.N, bool); pil[S.zero_set] = True
+        xp = np.zeros(S.N, complex); xp[S.m0] = np.sqrt(S.Ep)
+        out = []
+        for b, k in enumerate(knd):
+            H = H_true(b, with_pn)
+            if k == "P":
+                idx = S.data_idx
+                hd, _, _, _, zu, v = lmmse_soft(H, Yx[b], pil, xp, sigma2, idx)
+            else:
+                idx = np.arange(S.N)
+                hd, _, _, _, zu, v = lmmse_soft(H, Yx[b], None, None, sigma2, idx)
+            out.append((hd, zu, v, idx))
+        return out
 
     if "genie" in cfg.receivers:
         t0 = time.time()
-        # genie uses the true channel at every block (incl. drift via block-centred kappa)
-        if cfg.frac_delay or cfg.rho_max > 0 or cfg.pn_var > 0 or cfg.born_frac > 0 or cfg.cfo:
-            dets = _genie_dense(S, ch, cfg, Y, kinds, sigma2)
-        else:
-            dets = detect_frame(S, Y, kinds, lambda b: (ch["tau"], ch["kappa"], ch["h"]), sigma2)
-        tally("genie", dets, x, t0)
+        tally("genie", genie_dets(Y, kinds), x, t0)
+    if "genie-det" in cfg.receivers:                 # knows the channel but not the oscillator phase
+        t0 = time.time()
+        tally("genie-det", genie_dets(Y, kinds, with_pn=False), x, t0)
 
     if "conv" in cfg.receivers:
+        # per-block embedded pilot, single-shot pilot-window estimate (no data-aided iterations)
         t0 = time.time()
         xc = build_frame(S, "P" * B, pay, "C")
-        Yc = S.receive(chan(S.transmit(xc)), B) + awgn(rng, (B, S.N), sigma2)
+        Yc = rx(S, xc) + awgn(rng, (B, S.N), sigma2)
         ests = []
         Tpol = Tracker(S, est_delay=True)
         xpil = np.zeros((1, S.N), complex); xpil[0, S.m0] = np.sqrt(S.Ep)
@@ -364,57 +454,49 @@ def simulate(cfg: Config, seed: int):
 
     if "sp" in cfg.receivers:
         t0 = time.time()
-        dsp, xsp = _superimposed(S, cfg, chan, rng, sigma2, acq, P_cap, P_known, pay)
+        dsp, xsp = _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay)
         tally("sp", dsp, xsp, t0, "S")
 
-    if "openloop" in cfg.receivers or "track" in cfg.receivers:
+    run_track = any(r in cfg.receivers for r in ("openloop", "track", "track-hybrid"))
+    if run_track:
         t0 = time.time()
-        paths, h = acq.run(Y[:Bp], P_cap, P_known, sigma2=sigma2)
+        paths0, h0 = acq.run(Y[:Bp], P_cap, P_known, sigma2=sigma2)
         t_acq = time.time() - t0
-        mk = lambda: Tracker(S, soft=True, window=cfg.window, redetect=True,
-                             est_delay=cfg.frac_delay, model_rho=cfg.model_rho,
-                             reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5,
-                             P_cap=P_cap, aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level)
+        res["acq"] = [(p[0], p[1], float(abs(g))) for p, g in zip(paths0, h0)]
+        codec = codec_da if cfg.decision == "decoded" else None
         if "openloop" in cfg.receivers:
+            # the proposed receiver's own processing of the Bp pilot blocks (acquisition,
+            # decoding, re-acquisition, refit); its final state is then frozen and the
+            # remaining blocks are detected by pure extrapolation (Lemma 1), no feedback
             t1 = time.time()
-            # same acquisition, one refit over the pilot blocks (pilots + soft data),
-            # then pure phase extrapolation: the AFDM transplant of open-loop
-            # inter-frame prediction (cf. Zak-OTFS prediction, Ubadah & Mohammed 2026)
-            T = mk()
-            pk = "P" * Bp
-            d0, _ = T.run_full(Y[:Bp], pk, paths, h, sigma2)   # pilot blocks only
-            Xs = np.zeros((Bp, S.N), complex)
-            for b in range(Bp):
-                Xs[b, S.m0] = np.sqrt(S.Ep)
-                Xs[b, S.data_idx] = d0[b][0]
-            pr, hr, _ = T.refit(Y[:Bp], Xs, np.arange(Bp), paths)
-            e = ([p[0] for p in pr], [p[1] for p in pr], hr)
-            dets = detect_frame(S, Y, kinds, lambda b: e, sigma2)
-            tally("openloop", dets, x, t1)
+            T = mkT()
+            d0, _ = T.run_full(Y[:Bp], "P" * Bp, paths0, h0, sigma2, codec=codec)
+            fp, fh = T.final
+            e = ([p[0] for p in fp], [p[1] for p in fp], fh)
+            dd = detect_frame(S, Y, kinds, lambda b: e, sigma2)
+            tally("openloop", d0 + dd[Bp:], x, t1)
             timing["openloop"] += t_acq
-        if "track" in cfg.receivers:
+        # proposed: strict (trusted aperture); ablation: hybrid (failed blocks kept with soft symbols)
+        for name, trust in (("track", "strict"), ("track-hybrid", "hybrid")):
+            if name not in cfg.receivers:
+                continue
             t1 = time.time()
-            T = mk()
+            T = mkT(trust=trust)
             if cfg.decision == "hard":
                 T.soft = False
-            codec = make_codec() if (cfg.coded and cfg.decision == "decoded") else None
-            dets, traj = T.run_full(Y, kinds, paths, h, sigma2, codec=codec)
-            tally("track", dets, x, t1)
-            timing["track"] += t_acq
-            res["traj"] = [(b, list(k), list(np.abs(g))) for b, k, g in traj]
-
-    mkT = lambda: Tracker(S, soft=True, window=cfg.window, redetect=True, est_delay=cfg.frac_delay,
-                          model_rho=cfg.model_rho, reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5,
-                          P_cap=P_cap, aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level)
-    codec_da = make_codec() if cfg.coded else None
+            dets, traj = T.run_full(Y, kinds, paths0, h0, sigma2, codec=codec)
+            tally(name, dets, x, t1)
+            timing[name] += t_acq
+            if cfg.diag:
+                res["diag-" + name] = diag(T, x, Yn if name == "track" else None)
 
     if "conv-da" in cfg.receivers or "genie-conv" in cfg.receivers:
-        # conventional frame (pilot + guard in every block), same seeds -> same channel
+        # conventional frame (pilot + guard in every block), same channel
         t0 = time.time()
         xc2 = build_frame(S, "P" * B, pay, "C2")
-        Yc2 = S.receive(chan(S.transmit(xc2)), B) + awgn(rng, (B, S.N), sigma2)
+        Yc2 = rx(S, xc2) + awgn(rng, (B, S.N), sigma2)
         if "genie-conv" in cfg.receivers:
-            tally("genie-conv", _genie_dense(S, ch, cfg, Yc2, "P" * B, sigma2), xc2, t0, "C2")
+            tally("genie-conv", genie_dets(Yc2, "P" * B), xc2, t0, "C2")
         if "conv-da" in cfg.receivers:
             t0 = time.time()
             dets = []
@@ -426,48 +508,65 @@ def simulate(cfg: Config, seed: int):
                 dets.append(d[0])
             tally("conv-da", dets, xc2, t0, "C2")
 
+    # superimposed pilot in every block, processed by the same multi-block tracker and
+    # acquired from the first K blocks: (name, pilot fraction, K); variants with the same
+    # pilot fraction share one transmitted frame
+    spv = [(r, cfg.sp_eps if cfg.spt_eps is None else cfg.spt_eps, int(r[8:]))
+           for r in cfg.receivers if r.startswith("sp-track") and r[8:].isdigit()]
     if "sp-track" in cfg.receivers:
-        # superimposed pilot in every block, processed by the same multi-block tracker
-        t0 = time.time()
-        eps = cfg.sp_eps
-        a_d = np.sqrt(1 - eps)
-        d = np.stack([pay.symbols(("ST", b), S.N) for b in range(B)])
-        xs = a_d * d
-        xs[:, S.m0] += np.sqrt(eps * S.N)
-        Ys = S.receive(chan(S.transmit(xs)), B) + awgn(rng, (B, S.N), sigma2)
+        spv.append(("sp-track", cfg.sp_eps if cfg.spt_eps is None else cfg.spt_eps, max(1, int(cfg.sp_acq_blocks))))
+    if "sp-track-ll" in cfg.receivers:
+        spv.append(("sp-track-ll", cfg.spl_eps, cfg.spl_K))
+    frames_sp = {}
+    for name, eps, Kb in spv:
+        if eps not in frames_sp:
+            a_d = np.sqrt(1 - eps)
+            tag = "ST" if not frames_sp else f"ST{len(frames_sp)}"
+            d = np.stack([pay.symbols((tag, b), S.N) for b in range(B)])
+            xs = a_d * d
+            xs[:, S.m0] += np.sqrt(eps * S.N)
+            frames_sp[eps] = (tag, d, rx(S, xs) + awgn(rng, (B, S.N), sigma2))
+        tag, d, Ys = frames_sp[eps]
+        t1 = time.time()
         Ep0 = S.Ep; S.Ep = eps * S.N
-        K = max(1, int(cfg.sp_acq_blocks))                 # every block carries the pilot:
-        paths, h = acq.run(Ys[:K], P_cap, P_known)          # acquire over the first K (data + noise level)
+        paths, h = acq.run(Ys[:Kb], P_cap, P_known)          # CFAR level measured: data + noise
         S.Ep = Ep0
-        dets, _ = mkT().run_full(Ys, "S" * B, paths, h, sigma2, codec=codec_da, sp_eps=eps, n_acq=K)
-        tally("sp-track", dets, d, t0, "ST")
+        dets, _ = mkT().run_full(Ys, "S" * B, paths, h, sigma2, codec=codec_da, sp_eps=eps, n_acq=Kb)
+        tally(name, dets, d, t1, tag)
 
-    for K in (4, 8):
-        name = f"interp{K}"
-        if name not in cfg.receivers:
+    for K in (2, 4, 8):
+        names = [n for n in (f"interp{K}", f"ptrack{K}") if n in cfg.receivers]
+        if not names:
             continue
-        # periodic pilot blocks every K blocks; parameters fit jointly on all pilot blocks
-        # (tracked across them), then every data block is detected with that fit:
-        # non-causal parametric interpolation, requiring a frame of buffering
-        t0 = time.time()
+        # periodic pilot blocks every K blocks, one transmitted frame for both receivers
         ik = "".join("P" if b % K == 0 else "D" for b in range(B))
-        xi = build_frame(S, ik, pay, name)
-        Yi = S.receive(chan(S.transmit(xi)), B) + awgn(rng, (B, S.N), sigma2)
-        pb = np.array([b for b in range(B) if ik[b] == "P"])
+        xi = build_frame(S, ik, pay, f"I{K}")
+        Yi = rx(S, xi) + awgn(rng, (B, S.N), sigma2)
         paths, h = acq.run(Yi[:1], P_cap, P_known, sigma2=sigma2)
-        T = mkT()
-        dp, _ = T.run_full(Yi[pb], "P" * len(pb), paths, h, sigma2, codec=codec_da, blocks_abs=pb, n_acq=1)
-        fp, fh = T.final
-        e = ([p[0] for p in fp], [p[1] for p in fp], fh, [p[2] for p in fp])
-        dd = detect_frame(S, Yi, ik, lambda b: e[:3], sigma2)
-        dets = []
-        for b in range(B):
-            if ik[b] == "P":
-                dets.append(dp[int(np.where(pb == b)[0][0])])
-            else:
-                hd, zu, v, idx = dd[b]
-                dets.append((hd, zu, v, idx) + ((codec_da("D", zu, v)[0],) if codec_da else ()))
-        tally(name, dets, xi, t0, name)
+        if f"interp{K}" in cfg.receivers:
+            # parameters tracked across the pilot blocks only, then every data block is
+            # detected with that fit: non-causal parametric interpolation
+            t0 = time.time()
+            pb = np.array([b for b in range(B) if ik[b] == "P"])
+            T = mkT()
+            dp, _ = T.run_full(Yi[pb], "P" * len(pb), paths, h, sigma2, codec=codec_da, blocks_abs=pb, n_acq=1)
+            fp, fh = T.final
+            e = ([p[0] for p in fp], [p[1] for p in fp], fh)
+            dd = detect_frame(S, Yi, ik, lambda b: e, sigma2)
+            dets = []
+            for b in range(B):
+                if ik[b] == "P":
+                    dets.append(dp[int(np.where(pb == b)[0][0])])
+                else:
+                    hd, zu, v, idx = dd[b]
+                    dets.append((hd, zu, v, idx) + ((codec_da("D", zu, v)[0],) if codec_da else ()))
+            tally(f"interp{K}", dets, xi, t0, f"I{K}")
+        if f"ptrack{K}" in cfg.receivers:
+            # periodic pilot blocks AND the proposed decision-directed tracker through
+            # every block (causal); the later pilot blocks refresh the aperture
+            t0 = time.time()
+            dets, _ = mkT().run_full(Yi, ik, paths, h, sigma2, codec=codec_da, n_acq=1)
+            tally(f"ptrack{K}", dets, xi, t0, f"I{K}")
 
     if cfg.ofdm:
         t0 = time.time()
@@ -476,13 +575,13 @@ def simulate(cfg: Config, seed: int):
         xo = np.zeros((B, So.N), complex)
         for b in range(B):
             xo[b] = So.data_block(rng) if b < Bp else pay.symbols(("O", b), So.N)
-        Yo = So.receive(chan(So.transmit(xo)), B) + awgn(rng, (B, So.N), sigma2)
+        Yo = rx(So, xo) + awgn(rng, (B, So.N), sigma2)
         tb = np.arange(Bp)
         paths = known_block_acquire(So, Yo[:Bp], xo[:Bp], tb, P_cap, cfg.kappa_max, sigma2=sigma2)
         T = Tracker(So, soft=True, window=cfg.window, redetect=True,
                     est_delay=cfg.frac_delay, model_rho=cfg.model_rho,
                     reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5, P_cap=P_cap,
-                    aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level)
+                    aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level, trust="strict")
         paths, g, _ = T.refit(Yo[:Bp], xo[:Bp], tb, paths)
         codec = make_codec() if (cfg.coded and cfg.decision == "decoded") else None
         if cfg.decision == "hard":
@@ -497,7 +596,7 @@ def simulate(cfg: Config, seed: int):
     return res
 
 
-def _block_matrix_exact(S, ch, b, cfo=0.0, taps=24):
+def _block_matrix_exact(S, ch, b, cfo=0.0, taps=24, pn=None):
     """Exact DAFT-domain matrix of block b under the physical channel of
     mbafdm.MBAFDM.channel (same interpolation kernel, Doppler rate, births, CFO),
     built directly: CP insertion -> per-path delay filter -> absolute-time phase ->
@@ -531,6 +630,8 @@ def _block_matrix_exact(S, ch, b, cfo=0.0, taps=24):
     if cfo:
         G = np.exp(1j * 2 * np.pi * cfo * n_abs / N)[:, None] * G
     Tm = G[Ncp:, :] @ C                                 # N x N time-domain block map
+    if pn is not None:                                  # receiver oscillator phase of block b
+        Tm = np.exp(1j * np.asarray(pn))[:, None] * Tm
     FA = S.daft(np.eye(N)).T
     return FA @ Tm @ FA.conj().T
 
@@ -562,7 +663,7 @@ def _genie_probe_matrix(S, ch, cfg, b):
     return S.receive(r, 1)[:, 0, :].T
 
 
-def _superimposed(S, cfg, chan, rng, sigma2, acq, P_cap, P_known, pay):
+def _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay):
     """Superimposed-pilot AFDM, every block (adaptation of Zheng et al., TVT 2025,
     and of the data-aided loop of D-GESBL, Luo et al., TCOM 2026).
 
@@ -580,7 +681,7 @@ def _superimposed(S, cfg, chan, rng, sigma2, acq, P_cap, P_known, pay):
     d = np.stack([pay.symbols(("S", b), S.N) for b in range(B)])
     x = a_d * d
     x[:, S.m0] += np.sqrt(Ep)
-    Y = S.receive(chan(S.transmit(x)), B) + awgn(rng, (B, S.N), sigma2)
+    Y = rx(S, x) + awgn(rng, (B, S.N), sigma2)
     codec = make_codec() if cfg.coded else None
     T = Tracker(S, est_delay=cfg.frac_delay, gn_iters=4, kmax=cfg.kappa_max + 0.5, P_cap=P_cap)
     idx = np.arange(S.N)

@@ -3,7 +3,8 @@ as it finishes, so an interrupted sweep loses nothing and can be resumed.
 
 Usage: python run_sweep.py SPEC.json
 SPEC = {"name": str, "trials": int, "base": {Config overrides},
-        "grid": [{Config overrides}, ...], "seed0": int}
+        "grid": [{Config overrides (+ optional "trials")}, ...], "seed0": int,
+        "seed_by": "point" | "snr"}
 """
 import json
 import os
@@ -47,12 +48,15 @@ def main():
     base = spec.get("base", {})
     jobs = []
     for i, g in enumerate(spec["grid"]):
-        cfgd = {**base, **g}
+        cfgd = {k: v for k, v in {**base, **g}.items() if k != "trials"}
         for k, v in list(cfgd.items()):
             if isinstance(v, list) and k == "receivers":
                 cfgd[k] = tuple(v)
-        for t in range(spec["trials"]):
-            seed = spec.get("seed0", 0) + 7919 * t + 104729 * i
+        # seed_by "snr": every grid point at one SNR shares the channel draws (paired
+        # across receivers and pilot-block counts); default: one seed set per point
+        key = int(round(10 * cfgd.get("snr_db", 0))) + 1000 if spec.get("seed_by") == "snr" else i
+        for t in range(g.get("trials", spec["trials"])):
+            seed = spec.get("seed0", 0) + 7919 * t + 104729 * key
             if (i, seed) not in done:
                 jobs.append((i, cfgd, seed))
     meta = RUNS / f"{spec['name']}.spec.json"

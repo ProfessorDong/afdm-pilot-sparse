@@ -1,7 +1,7 @@
 """Generate the pgfplots figures and data tables of the paper from runs/*.
 
-Writes paper/fig_*.tex. Every coordinate comes from an artifact; nothing is
-typed by hand. Run after the sweeps: python make_figures.py
+Writes paper/fig_*.tex and paper/tab_paired.tex. Every coordinate comes from an
+artifact; nothing is typed by hand. Run after the sweeps: python make_figures.py
 """
 import json
 from pathlib import Path
@@ -9,25 +9,33 @@ from pathlib import Path
 import numpy as np
 
 from aggregate import summarize
-from spbest import sp_best
+from diagnostics import frames, paired
 
 ROOT = Path(__file__).resolve().parent
 RUNS = ROOT / "runs"
 PAPER = ROOT / "paper"
+MAIN = "m_main"
+N, NCP, BETA = 512, 8, 520 / 512
+VU = (N * N - 1) / (12 * N * N)
 
 STY = {
     "geniec":     ("gray!70!black", "dashed", "none", "Perfect CSI, per-block"),
     "convda":     ("gray!70!black", "solid", "square*", "Pilot every block (data-aided)"),
     "sptrack":    ("teal!80!black", "solid", "diamond*", "Superimposed, same tracker"),
     "interp":     ("violet!80!black", "densely dashed", "x", r"Periodic pilots, best $K$"),
+    "ptrack":     ("violet!80!black", "solid", "+", r"Periodic pilots + tracker, best $K$"),
     "genie":      ("black", "dashed", "none", "Perfect CSI"),
     "track1":     ("red!80!black", "solid", "*", r"Proposed, $B_\mathrm{p}{=}1$"),
     "track2":     ("red!55", "solid", "o", r"Proposed, $B_\mathrm{p}{=}2$"),
     "open":       ("blue!70!black", "densely dotted", "triangle*", r"Open loop, best $B_\mathrm{p}$"),
-    "sp":         ("teal!80!black", "solid", "diamond*", "Superimposed pilot"),
-    "conv":       ("gray!70!black", "solid", "square*", "Embedded pilot, every block"),
     "ofdm":       ("orange!85!black", "dashdotted", "pentagon*", "OFDM, same tracker"),
 }
+
+
+def rho_cr(L, E, b, P=4):
+    """Decoupled benchmark, eq. (horizon) of the paper."""
+    vL = BETA ** 2 * (L ** 2 - 1) / 12 + VU
+    return P / (2 * L * E) * (2 + (BETA ** 2 * (b - (L - 1) / 2) ** 2 + VU) / vL)
 
 
 def plot(key, pts, legend=True):
@@ -38,82 +46,158 @@ def plot(key, pts, legend=True):
             f"coordinates {{{coords}}};\n{leg}")
 
 
-def fig_main():
-    a, _ = summarize("e4_main")
-    b, _ = summarize("e4b_baselines")
-    c, _ = summarize("e4c_interp")
-    A1 = {r["snr_db"]: r for r in a if r.get("Bp") == 1 and "tp_conv" in r}
-    A2 = {r["snr_db"]: r for r in a if r.get("Bp") == 2}
-    Bb = {r["snr_db"]: r for r in b}
-    Cc = {r["snr_db"]: r for r in c}
+def main_tables():
+    """Per-SNR summaries of m_main: Bp=1 point, Bp=2 point, best open loop, best periodic."""
+    res, _ = summarize(MAIN)
+    A1 = {r["snr_db"]: r for r in res if r.get("Bp") == 1 and "tp_track" in r}
+    A2 = {r["snr_db"]: r for r in res if r.get("Bp") == 2}
     snrs = sorted(A1)
-    SPB = sp_best()
     ol = {}
-    for r in a:
-        if "tp_openloop" in r:
-            if r["snr_db"] not in ol or r["tp_openloop"] > ol[r["snr_db"]][0]:
-                ol[r["snr_db"]] = (r["tp_openloop"], r["Bp"])
-    ip = {s: max((Cc[s]["tp_interp4"], 4), (Cc[s]["tp_interp8"], 8)) for s in snrs}
+    for r in res:
+        if "tp_openloop" in r and (r["snr_db"] not in ol or r["tp_openloop"] > ol[r["snr_db"]][0]):
+            ol[r["snr_db"]] = (r["tp_openloop"], r["Bp"])
+    ip = {s: max((A1[s]["tp_interp4"], 4), (A1[s]["tp_interp8"], 8)) for s in snrs}
+    pt = {s: max((A1[s]["tp_ptrack4"], 4), (A1[s]["tp_ptrack8"], 8)) for s in snrs}
+    return res, A1, A2, snrs, ol, ip, pt
+
+
+def fig_main():
+    res, A1, A2, snrs, ol, ip, pt = main_tables()
     tp = {
         "genie": [(s, A1[s]["tp_genie"]) for s in snrs],
         "track1": [(s, A1[s]["tp_track"]) for s in snrs],
         "track2": [(s, A2[s]["tp_track"]) for s in snrs],
-        "geniec": [(s, Bb[s]["tp_genie-conv"]) for s in snrs],
-        "convda": [(s, Bb[s]["tp_conv-da"]) for s in snrs],
-        "sptrack": [(s, SPB[s]["tp"]) for s in snrs],
+        "geniec": [(s, A1[s]["tp_genie-conv"]) for s in snrs],
+        "convda": [(s, A1[s]["tp_conv-da"]) for s in snrs],
+        "sptrack": [(s, A1[s]["tp_sp-track"]) for s in snrs],
         "interp": [(s, ip[s][0]) for s in snrs],
+        "ptrack": [(s, pt[s][0]) for s in snrs],
         "open": [(s, ol[s][0]) for s in snrs],
-        "ofdm": [(s, Bb[s]["tp_ofdm-track"]) for s in snrs],
+        "ofdm": [(s, A1[s]["tp_ofdm-track"]) for s in snrs],
     }
+    nmin = min(A1[s]["trials"] for s in snrs)
+    nmax = max(A1[s]["trials"] for s in snrs)
+    hi = [s for s in snrs if A1[s]["trials"] == nmax]
     axis = ("\\begin{axis}[%s width=\\columnwidth, height=0.66\\columnwidth, xlabel={SNR (dB)}, "
             "ylabel={Throughput (bit/s/Hz)}, grid=both, grid style={black!12}, xmin=%g, xmax=%g, ymin=0, ymax=1, "
             "legend style={font=\\scriptsize, at={(0.5,-0.24)}, anchor=north, legend columns=2, cells={anchor=west}}, "
             "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}, title={%s}, title style={font=\\footnotesize}]\n")
-    tex = ["% GENERATED by make_figures.py from runs/e4_main, e4b_baselines, e4c_interp (same channel draws)\n",
+    tex = [f"% GENERATED by make_figures.py from runs/{MAIN} (same channel draws for every curve)\n",
            "\\begin{figure}[t]\n\\centering\n\\begin{tikzpicture}\n",
            axis % ("name=a,", min(snrs), max(snrs), "(a) pilot placement")]
-    for k in ("genie", "track1", "geniec", "convda", "sptrack", "interp"):
+    for k in ("genie", "track1", "geniec", "convda", "sptrack", "interp", "ptrack"):
         tex.append(plot(k, tp[k]))
     tex.append("\\end{axis}\n")
-    tex.append(axis.replace("\\begin{axis}[%s", "\\begin{axis}[at={(a.south west)}, anchor=north west, yshift=-3.5cm, %s")
+    tex.append(axis.replace("\\begin{axis}[%s", "\\begin{axis}[at={(a.south west)}, anchor=north west, yshift=-3.9cm, %s")
                % ("", min(snrs), max(snrs), "(b) closing the loop, and the waveform"))
     for k in ("genie", "track1", "track2", "open", "ofdm"):
         tex.append(plot(k, tp[k]))
     tex.append("\\end{axis}\n\\end{tikzpicture}\n")
-    tex.append("\\caption{Coded throughput versus SNR ($B=16$ blocks, $P=4$ paths with fractional delays, Jakes Doppler with "
-               "$\\kappa_{\\max}=3$, number of paths estimated); every curve uses the same 200 channel realizations per point. "
+    tex.append("\\caption{Coded throughput versus SNR ($B=16$ blocks, $P=4$ paths with fractional delays, Jakes-distributed "
+               f"Doppler shifts with $\\kappa_{{\\max}}=3$, number of paths estimated); every curve uses the same {nmin} channel "
+               f"realizations per point ({nmax} at " + ", ".join(f"{s}" for s in hi) + "\\,dB for the one-pilot-block frames; the open-loop "
+               f"and two-pilot-block points use the first {nmin} of them). "
                "(a) Where the pilot energy goes: one embedded pilot block (proposed), one in every block, periodic pilot blocks "
-               "(best of $K\\in\\{4,8\\}$), or a superimposed pilot in every block (same tracker, acquired from the best of 1, 2 or 4 blocks). (b) What closing the loop adds over "
+               "(best of $K\\in\\{4,8\\}$) with parametric interpolation or with the proposed tracker, or a superimposed pilot in "
+               "every block with the proposed tracker. (b) What closing the loop adds over "
                "open-loop prediction (best of $B_\\mathrm{p}\\in\\{1,2,4,8\\}$), and what AFDM adds over OFDM with the same tracker.}\n"
                "\\label{fig:tp}\n\\end{figure}\n")
     (PAPER / "fig_tp.tex").write_text("".join(tex))
 
-    bl = {
-        "genie": [(s, A1[s]["bler_genie"]) for s in snrs],
-        "track1": [(s, A1[s]["bler_track"]) for s in snrs],
-        "convda": [(s, Bb[s]["bler_conv-da"]) for s in snrs],
-        "sptrack": [(s, SPB[s]["bler"]) for s in snrs],
-        "ofdm": [(s, Bb[s]["bler_ofdm-track"]) for s in snrs],
-    }
-    tex = ["% GENERATED by make_figures.py from runs/e4_main, e4b_baselines (same channel draws)\n",
+    # block error rate, with explicit markers for points without any block error
+    keys = (("genie", "genie"), ("track1", "track"), ("convda", "conv-da"), ("sptrack", "sp-track"), ("ofdm", "ofdm-track"))
+    spec, by = frames(MAIN)
+    pidx = {g["snr_db"]: i for i, g in enumerate(spec["grid"]) if g.get("Bp") == 1}
+    tex = [f"% GENERATED by make_figures.py from runs/{MAIN}\n",
            "\\begin{figure}[t]\n\\centering\n\\begin{tikzpicture}\n\\begin{semilogyaxis}[width=\\columnwidth, "
            "height=0.66\\columnwidth, xlabel={SNR (dB)}, ylabel={Block error rate}, grid=both, grid style={black!12}, "
-           "xmin=%g, xmax=%g, ymin=1e-3, ymax=1, legend style={font=\\scriptsize, at={(0.5,-0.24)}, anchor=north, "
+           "xmin=%g, xmax=%g, ymin=1e-4, ymax=1, legend style={font=\\scriptsize, at={(0.5,-0.24)}, anchor=north, "
            "legend columns=2, cells={anchor=west}}, tick label style={font=\\footnotesize}, label style={font=\\footnotesize}]\n"
            % (min(snrs), max(snrs))]
-    for k in ("genie", "track1", "convda", "sptrack", "ofdm"):
-        tex.append(plot(k, [(s, max(v, 1e-3)) for s, v in bl[k]]))
+    zeros, counts = [], {}
+    for k, rx in keys:
+        pts = []
+        for s in snrs:
+            rows = by[pidx[s]]
+            ne = sum(sum(r[rx]["blerr"]) for r in rows)
+            nb = sum(sum(1 for n in r[rx]["n"] if n > 0) for r in rows)
+            counts[(k, s)] = (ne, nb)
+            if ne == 0:
+                zeros.append((s, STY[k][0]))
+            else:
+                pts.append((s, ne / nb))
+        tex.append(plot(k, pts))
+    for s, c in zeros:
+        tex.append(f"\\addplot[color={c}, only marks, mark=triangle, mark options={{rotate=180}}, mark size=2pt, forget plot] "
+                   f"coordinates {{({s:g},1.3e-4)}};\n")
     tex.append("\\end{semilogyaxis}\n\\end{tikzpicture}\n")
-    tex.append("\\caption{Block error rate of selected systems of Fig.~\\ref{fig:tp}; values below $10^{-3}$ "
-               "(no error in the simulated blocks) are drawn at $10^{-3}$.}\n\\label{fig:bler}\n\\end{figure}\n")
+    nbl = sorted({v[1] for v in counts.values()})
+    tex.append("\\caption{Block error rate of selected systems of Fig.~\\ref{fig:tp}. A downward triangle on the lower edge "
+               "marks a point without any block error among all its simulated blocks (16 per frame, 15 for OFDM).}"
+               "\n\\label{fig:bler}\n\\end{figure}\n")
     (PAPER / "fig_bler.tex").write_text("".join(tex))
     json.dump({"best_open": [(s, ol[s][0], ol[s][1]) for s in snrs],
-               "best_interp": [(s, ip[s][0], ip[s][1]) for s in snrs]}, open(RUNS / "fig_main_meta.json", "w"))
+               "best_interp": [(s, ip[s][0], ip[s][1]) for s in snrs],
+               "best_ptrack": [(s, pt[s][0], pt[s][1]) for s in snrs],
+               "bler_counts": {f"{k}@{s}": v for (k, s), v in counts.items()}},
+              open(RUNS / "fig_main_meta.json", "w"), indent=1)
+
+
+def _ci(d):
+    return f"${100 * d['ratio']:+.1f}$\\,[${100 * d['ratio_lo']:+.1f}$,${100 * d['ratio_hi']:+.1f}$]"
+
+
+def tab_paired():
+    """Paired frame-bootstrap 95% intervals of the proposed receiver's relative
+    throughput difference to each reference at the high-trial SNR points."""
+    res, A1, A2, snrs, ol, ip, pt = main_tables()
+    spec, by = frames(MAIN)
+    pidx = {(g["snr_db"], g.get("Bp")): i for i, g in enumerate(spec["grid"])}
+    nmax = max(A1[s]["trials"] for s in snrs)
+    key = [s for s in snrs if A1[s]["trials"] == nmax]
+    refs = [("Perfect CSI", "genie"), ("Pilot every block", "conv-da"),
+            ("Superimposed $+$ tracker", "sp-track"), ("\\quad low latency ($K_\\mathrm{a}\\le4$)", "sp-track-ll"), ("Periodic $+$ tracker", "ptrack*"),
+            ("Periodic, interpolation", "interp*"), ("OFDM $+$ tracker", "ofdm-track"),
+            ("Hybrid aperture", "track-hybrid")]
+    out, rows_tex = {}, []
+    for lab, rx in refs:
+        cells = []
+        for s in key:
+            rows = by[pidx[(s, 1)]]
+            rx_s = f"{rx[:-1]}{(pt if rx.startswith('ptrack') else ip)[s][1]}" if rx.endswith("*") else rx
+            d = paired(rows, "track", rx_s, seed=int(s))
+            out[f"{rx}@{s}"] = {**d, "rx": rx_s}
+            cells.append(_ci(d))
+        rows_tex.append(lab + " & " + " & ".join(cells) + " \\\\\n")
+    cells = []
+    for s in key:                      # open loop at its best Bp: its own grid point, same channel draws
+        bp = ol[s][1]
+        ra = {r["seed"]: r for r in by[pidx[(s, 1)]]}
+        rb = {r["seed"]: r for r in by[pidx[(s, bp)]]}
+        merged = [{**ra[k], "openloop_b": rb[k]["openloop"]} for k in ra if k in rb]
+        d = paired(merged, "track", "openloop_b", seed=int(s))
+        out[f"openloop@{s}"] = {**d, "Bp": bp}
+        cells.append(_ci(d))
+    rows_tex.insert(5, "Open loop & " + " & ".join(cells) + " \\\\\n")
+    n = min(v["n"] for k, v in out.items() if not k.startswith("openloop"))
+    n_ol = min(v["n"] for k, v in out.items() if k.startswith("openloop"))
+    tex = [f"% GENERATED by make_figures.py from runs/{MAIN}\n",
+           "\\begin{table*}[t]\n\\centering\n\\caption{Throughput of the Proposed Receiver Relative to Each Reference (\\%), "
+           "With Paired 95\\% Bootstrap Intervals}\n\\label{tab:paired}\n\\footnotesize\n\\setlength{\\tabcolsep}{8pt}\n"
+           "\\begin{tabular}{@{}l" + "c" * len(key) + "@{}}\n\\toprule\nReference & " +
+           " & ".join(f"{s}\\,dB" for s in key) + " \\\\\n\\midrule\n"] + rows_tex + [
+           "\\bottomrule\n\\end{tabular}\n\n\\smallskip\n\\parbox{0.8\\textwidth}{\\scriptsize Entries: "
+           "$\\bar T_\\mathrm{proposed}/\\bar T_\\mathrm{ref}-1$ over "
+           f"{n} channel realizations per SNR ({n_ol} for the open loop, whose best $B_\\mathrm{{p}}$ point has fewer); in brackets, the 2.5 and 97.5 percentiles over 4000 resamples of whole frames "
+           "(all receivers of a frame resampled together). Positive: the proposed receiver is ahead. Best-of selections "
+           "(periodic: $K$; open loop: $B_\\mathrm{p}$) are made on the evaluation channels and favor the reference.}\n\\end{table*}\n"]
+    (PAPER / "tab_paired.tex").write_text("".join(tex))
+    json.dump(out, open(RUNS / "paired.json", "w"), indent=1)
 
 
 def fig_frame():
-    res, _ = summarize("e5_frame")
-    tex = ["% GENERATED by make_figures.py from runs/e5_frame.jsonl\n",
+    res, _ = summarize("m_frame")
+    tex = ["% GENERATED by make_figures.py from runs/m_frame.jsonl\n",
            "\\begin{figure}[t]\n\\centering\n\\begin{tikzpicture}\n"
            "\\begin{semilogxaxis}[width=\\columnwidth, height=0.72\\columnwidth, xlabel={Frame length $B$ (blocks)}, "
            "ylabel={Throughput (bit/s/Hz)}, log basis x=2, grid=both, grid style={black!12}, ymin=0, ymax=1, "
@@ -121,7 +205,7 @@ def fig_frame():
            "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}]\n"]
     for snr, fill in ((12, True), (6, False)):
         rr = sorted([r for r in res if r["snr_db"] == snr], key=lambda r: r["B"])
-        for key, field in (("genie", "tp_genie"), ("track1", "tp_track"), ("open", "tp_openloop"), ("conv", "tp_conv")):
+        for key, field in (("genie", "tp_genie"), ("track1", "tp_track"), ("open", "tp_openloop"), ("convda", "tp_conv-da")):
             c, ls, mk, lab = STY[key]
             mk2 = mk if fill else mk.replace("*", "")
             coords = " ".join(f"({r['B']},{r[field]:.6g})" for r in rr)
@@ -129,23 +213,24 @@ def fig_frame():
                        f"coordinates {{{coords}}};\n")
             if fill:
                 if key == "open":
-                    lab = r"Open loop, $B_\mathrm{p}{=}1$"      # E5 uses one pilot block for every receiver
+                    lab = r"Open loop, $B_\mathrm{p}{=}1$"
                 tex.append(f"\\addlegendentry{{{lab}}}\n")
+    n = min(r["trials"] for r in res)
     tex.append("\\end{semilogxaxis}\n\\end{tikzpicture}\n")
     tex.append("\\caption{Throughput versus frame length with one pilot block. Filled markers: 12\\,dB; "
-               "open markers: 6\\,dB. Each point averages 100 channel realizations.}\n"
+               f"open markers: 6\\,dB. Each point averages {n} channel realizations.}}\n"
                "\\label{fig:frame}\n\\end{figure}\n")
     (PAPER / "fig_frame.tex").write_text("".join(tex))
 
 
 def fig_theory():
     th = json.load(open(RUNS / "theory_check.json"))
-    e2, e3 = th["e2"], th["e3"]
+    e2, e3, e4 = th["e2"], th["e3"], th["e4"]["rows"]
     cols = {1: "red!80!black", 2: "blue!70!black", 4: "teal!80!black"}
     tex = ["% GENERATED by make_figures.py from runs/theory_check.json\n",
            "\\begin{figure}[t]\n\\centering\n\\begin{tikzpicture}\n"
-           "\\begin{axis}[name=a, width=\\columnwidth, height=0.6\\columnwidth, xlabel={Per-block pilot SNR $\\gamma_1$ (dB)}, "
-           "ylabel={$P_\\mathrm{cell}$}, grid=both, grid style={black!12}, ymin=0, ymax=1.02, "
+           "\\begin{axis}[name=a, width=\\columnwidth, height=0.62\\columnwidth, xlabel={Per-block pilot SNR $\\gamma_1$ (dB)}, "
+           "ylabel={Probability}, grid=both, grid style={black!12}, ymin=0, ymax=1.02, xmin=-6, xmax=21, "
            "legend style={font=\\scriptsize, at={(0.99,0.02)}, anchor=south east}, legend columns=2, "
            "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}, title={(a) acquisition, Approx.~\\ref{prop:acq}}, "
            "title style={font=\\footnotesize}]\n"]
@@ -153,10 +238,17 @@ def fig_theory():
         rr = sorted([r for r in e2 if r["Bp"] == Bp], key=lambda r: r["gamma1_db"])
         tex.append(f"\\addplot[color={cols[Bp]}, only marks, mark=*, mark size=1.5pt] coordinates {{"
                    + " ".join(f"({r['gamma1_db']},{r['p_cell']:.4f})" for r in rr) + "};\n")
-        tex.append(f"\\addlegendentry{{sim. $B_\\mathrm{{p}}{{=}}{Bp}$}}\n")
+        tex.append(f"\\addlegendentry{{$P_\\mathrm{{cell}}$, $B_\\mathrm{{p}}{{=}}{Bp}$}}\n")
         tex.append(f"\\addplot[color={cols[Bp]}, thick] coordinates {{"
                    + " ".join(f"({r['gamma1_db']},{r['p_cell_formula']:.4f})" for r in rr) + "};\n")
-        tex.append(f"\\addlegendentry{{\\eqref{{eq:pcell}}}}\n")
+        tex.append("\\addlegendentry{\\eqref{eq:pcell}}\n")
+    rr = sorted(e4, key=lambda r: r["gamma1_db"])
+    tex.append("\\addplot[color=black, only marks, mark=o, mark size=1.8pt] coordinates {"
+               + " ".join(f"({r['gamma1_db']},{r['p_retained']:.4f})" for r in rr) + "};\n")
+    tex.append("\\addlegendentry{$P_\\mathrm{ret}$, $B_\\mathrm{p}{=}1$}\n")
+    tex.append("\\addplot[color=black, thick, densely dashed] coordinates {"
+               + " ".join(f"({r['gamma1_db']},{r['p_retained_formula']:.4f})" for r in rr) + "};\n")
+    tex.append("\\addlegendentry{Approx.~\\ref{prop:acq}}\n")
     tex.append("\\end{axis}\n")
     tex.append("\\begin{semilogyaxis}[at={(a.south west)}, anchor=north west, yshift=-1.75cm, width=\\columnwidth, "
                "height=0.62\\columnwidth, xlabel={Predicted block $b'$}, ylabel={Prediction NMSE}, grid=both, "
@@ -170,7 +262,6 @@ def fig_theory():
         tex.append(f"\\addplot[color={cols[Bp]}, only marks, mark=*, mark size=1.3pt] coordinates {{"
                    + " ".join(f"({b},{v:.4g})" for b, v in zip(r["lag"], r["ol_emp"])) + "};\n")
         tex.append(f"\\addlegendentry{{open loop $B_\\mathrm{{p}}{{=}}{Bp}$}}\n")
-        # the linearized bound is meaningful only for small errors: draw it while <= 1
         tex.append(f"\\addplot[color={cols[Bp]}, thick] coordinates {{"
                    + " ".join(f"({b},{v:.4g})" for b, v in zip(r["lag"], r["ol_formula"]) if v <= 1) + "};\n")
         tex.append("\\addlegendentry{\\eqref{eq:pred_bound}}\n")
@@ -183,18 +274,112 @@ def fig_theory():
     tex.append("\\addlegendentry{\\eqref{eq:pred_bound}}\n")
     tex.append("\\addplot[black!50, densely dashed, domain=0:32] {2};\n")
     tex.append("\\end{semilogyaxis}\n\\end{tikzpicture}\n")
-    tex.append("\\caption{Validation of the analysis for a single path (markers: simulation; lines: closed forms). "
-               "(a) Correct-cell probability of acquisition. (b) NMSE of the predicted path coefficient for open-loop "
-               "prediction from $B_\\mathrm{p}$ pilot blocks and for one-step prediction while tracking with correct decisions; the bound is drawn where it is below one, and the dashed line marks the level 2 of a uniformly random phase, at which open-loop prediction saturates.}\n"
+    tex.append("\\caption{Validation of the analysis (markers: simulation; lines: approximations and bounds). "
+               "(a) Correct-cell probability of an isolated path, and retention probability of a weak path next to a "
+               "25\\,dB path. (b) NMSE of the predicted coefficient of an isolated path for open-loop "
+               "prediction from $B_\\mathrm{p}$ pilot blocks and for one-step prediction while tracking with correct decisions; "
+               "the bound is drawn where it is below one, and the dashed line marks the level 2 of a uniformly random phase, "
+               "at which open-loop prediction saturates.}\n"
                "\\label{fig:theory}\n\\end{figure}\n")
     (PAPER / "fig_theory.tex").write_text("".join(tex))
 
 
+def fig_diag():
+    """Achieved prediction-error-to-noise ratio of the proposed receiver versus the
+    benchmark of Corollary 2, and the matched-model control."""
+    spec, by = frames(MAIN)
+    cols = {6: "blue!70!black", 10: "teal!80!black", 16: "red!80!black"}
+    tex = [f"% GENERATED by make_figures.py from runs/{MAIN}, runs/m_mismatch\n",
+           "\\begin{figure}[t]\n\\centering\n\\begin{tikzpicture}\n"
+           "\\begin{axis}[width=\\columnwidth, height=0.68\\columnwidth, xlabel={Predicted block $b$}, "
+           "ylabel={$\\rho(b)$ (dB)}, grid=both, grid style={black!12}, xmin=1, xmax=15, "
+           "legend style={font=\\scriptsize, at={(0.5,-0.22)}, anchor=north, legend columns=2, cells={anchor=west}}, "
+           "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}]\n"]
+    meta = {}
+    for i, g in enumerate(spec["grid"]):
+        if g.get("Bp") != 1 or g["snr_db"] not in cols:
+            continue
+        R = np.array([r["diag-track"]["rho_pred"] for r in by[i] if "diag-track" in r])
+        med = 10 * np.log10(np.median(R, 0))
+        meta[f"phys@{g['snr_db']}"] = med.tolist()
+        tex.append(f"\\addplot[color={cols[g['snr_db']]}, thick, mark=*, mark size=1.2pt] coordinates {{"
+                   + " ".join(f"({b},{med[b]:.3f})" for b in range(1, R.shape[1])) + "};\n")
+        tex.append(f"\\addlegendentry{{proposed, {g['snr_db']}\\,dB}}\n")
+    sm, bm = frames("m_mismatch")
+    for i, g in enumerate(sm["grid"]):
+        if g.get("circular") and g["snr_db"] == 16:
+            R = np.array([r["diag-track"]["rho_pred"] for r in bm[i] if "diag-track" in r])
+            med = 10 * np.log10(np.median(R, 0))
+            meta["circ@16"] = med.tolist()
+            tex.append("\\addplot[color=red!80!black, densely dashed, thick, mark=o, mark size=1.2pt] coordinates {"
+                       + " ".join(f"({b},{med[b]:.3f})" for b in range(1, R.shape[1])) + "};\n")
+            tex.append("\\addlegendentry{matched model, 16\\,dB}\n")
+    tex.append("\\addplot[black, thick] coordinates {"
+               + " ".join(f"({b},{10 * np.log10(rho_cr(b, N, b)):.3f})" for b in range(1, 16)) + "};\n")
+    tex.append("\\addlegendentry{benchmark~\\eqref{eq:horizon}, $L=b$}\n")
+    tex.append("\\end{axis}\n\\end{tikzpicture}\n")
+    tex.append("\\caption{Median over channel realizations of the achieved prediction-error-to-noise ratio of the proposed "
+               "receiver: the error of the channel used to first detect block $b$, applied to the transmitted block, "
+               "relative to $N\\sigma^2$; and the decoupled benchmark for an aperture of $b$ known full-energy blocks. "
+               "Matched model: the channel follows the receiver's circular delay model exactly, without inter-block interference.}\n"
+               "\\label{fig:diag}\n\\end{figure}\n")
+    (PAPER / "fig_diag.tex").write_text("".join(tex))
+    json.dump(meta, open(RUNS / "fig_diag_meta.json", "w"), indent=1)
+
+
+def fig_two():
+    """Two paths: joint versus decoupled benchmark, and receiver throughput, versus
+    the Doppler separation."""
+    ck = json.load(open(RUNS / "checks.json"))["k6"]
+    res, _ = summarize("m_two")
+    cols = {1: "red!80!black", 2: "orange!85!black", 4: "teal!80!black", 8: "blue!70!black"}
+    tex = ["% GENERATED by make_figures.py from runs/checks.json (k6) and runs/m_two\n",
+           "\\begin{figure}[t]\n\\centering\n\\begin{tikzpicture}\n"
+           "\\begin{semilogxaxis}[name=a, width=\\columnwidth, height=0.6\\columnwidth, xlabel={Doppler separation $\\Delta\\kappa$}, "
+           "ylabel={$\\rho_\\mathrm{J}/\\rho_\\mathrm{CR}$ (dB)}, grid=both, grid style={black!12}, xmin=0.02, xmax=2, "
+           "legend style={font=\\scriptsize, at={(0.99,0.98)}, anchor=north east}, legend columns=2, "
+           "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}, "
+           "title={(a) joint versus decoupled benchmark, next block}, title style={font=\\footnotesize}]\n"]
+    for L in (1, 2, 4, 8):
+        rr = sorted([r for r in ck if r["dl"] == 0.0 and r["L"] == L], key=lambda r: r["dk"])
+        tex.append(f"\\addplot[color={cols[L]}, thick, mark=*, mark size=1.1pt] coordinates {{"
+                   + " ".join(f"({r['dk']:g},{r['ratio_db_median']:.3f})" for r in rr) + "};\n")
+        tex.append(f"\\addlegendentry{{$L={L}$, $\\Delta\\ell=0$}}\n")
+    rr = sorted([r for r in ck if r["dl"] == 1.0 and r["L"] == 1], key=lambda r: r["dk"])
+    tex.append("\\addplot[color=black, densely dashed, thick] coordinates {"
+               + " ".join(f"({r['dk']:g},{r['ratio_db_median']:.3f})" for r in rr) + "};\n")
+    tex.append("\\addlegendentry{$L=1$, $\\Delta\\ell=1$}\n")
+    tex.append("\\end{semilogxaxis}\n")
+    tex.append("\\begin{semilogxaxis}[at={(a.south west)}, anchor=north west, yshift=-1.6cm, width=\\columnwidth, "
+               "height=0.6\\columnwidth, xlabel={Doppler separation $\\Delta\\kappa$}, ylabel={Throughput (bit/s/Hz)}, "
+               "grid=both, grid style={black!12}, xmin=0.04, xmax=2, ymin=0, ymax=1, "
+               "legend style={font=\\scriptsize, at={(0.99,0.02)}, anchor=south east}, legend columns=2, "
+               "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}, "
+               "title={(b) two equal-power paths, 12\\,dB}, title style={font=\\footnotesize}]\n")
+    for dl, ls in ((0.0, "solid"), (1.0, "densely dashed")):
+        rr = sorted([r for r in res if r["tp_dl"] == dl], key=lambda r: r["tp_dk"])
+        for rx, c, mk in (("genie", "black", "none"), ("track", "red!80!black", "*"), ("conv-da", "gray!70!black", "square*")):
+            tex.append(f"\\addplot[color={c}, {ls}, thick, mark={mk}, mark size=1.4pt, mark options={{solid}}] coordinates {{"
+                       + " ".join(f"({r['tp_dk']:g},{r['tp_' + rx]:.4f})" for r in rr) + "};\n")
+            lab = {"genie": "Perfect CSI", "track": "Proposed", "conv-da": "Pilot every block"}[rx]
+            tex.append(f"\\addlegendentry{{{lab}, $\\Delta\\ell={int(dl)}$}}\n")
+    n = min(r["trials"] for r in res)
+    tex.append("\\end{semilogxaxis}\n\\end{tikzpicture}\n")
+    tex.append("\\caption{Two paths separated by $\\Delta\\ell$ samples in delay and $\\Delta\\kappa$ in Doppler. (a) Joint benchmark "
+               "$\\rho_\\mathrm{J}$ of the next block after $L$ known full-energy blocks relative to the decoupled benchmark "
+               "$\\rho_\\mathrm{CR}$~\\eqref{eq:rho}, both for known integer delays (median over random data and four "
+               "path geometries). (b) Coded throughput for equal-power Rayleigh paths at random positions, "
+               f"{n} channel realizations per point.}}\n\\label{{fig:two}}\n\\end{{figure}}\n")
+    (PAPER / "fig_two.tex").write_text("".join(tex))
+
+
 if __name__ == "__main__":
     import sys
-    for f in (sys.argv[1:] or ["theory", "main", "frame"]):
+    fns = {"theory": fig_theory, "main": fig_main, "paired": tab_paired, "frame": fig_frame,
+           "diag": fig_diag, "two": fig_two}
+    for f in (sys.argv[1:] or list(fns)):
         try:
-            {"theory": fig_theory, "main": fig_main, "frame": fig_frame}[f]()
+            fns[f]()
             print(f, "ok")
         except Exception as e:  # noqa: BLE001
             print(f, "FAILED:", repr(e))

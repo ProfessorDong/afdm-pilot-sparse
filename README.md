@@ -24,53 +24,52 @@ directory that is not part of this repository.
 
 ```
 mbafdm.py        sample-exact multi-block AFDM transmitter and physical channel
-                 (fractional delays, Doppler rate, path births, CFO, phase noise)
-engine.py        one simulated frame through every compared receiver; metrics
-mbtrack.py       path operator, LMMSE, variable-projection Gauss-Newton tracker,
-                 data-aided re-acquisition
+                 (fractional delays, Doppler rate, path births, CFO, shared phase noise)
+engine.py        one simulated frame through every compared receiver on the same channel
+mbtrack.py       path operator, LMMSE, variable-projection Gauss-Newton tracker with a
+                 trusted (CRC-verified) aperture, data-aided re-acquisition
 coding.py        rate-1/2 K=7 convolutional code, CRC-16, soft Viterbi
-run_sweep.py     parallel, resumable sweeps (JSON lines, one line per trial)
+run_sweep.py     parallel, resumable sweeps (JSON lines, one line per trial);
+                 "seed_by": "snr" pairs every grid point of an SNR on the same channels
 aggregate.py     per-point statistics
-theory_check.py  numerical validation of Approximation 1, Proposition 1, Theorem 1
+diagnostics.py   path association, prediction-error diagnostics, paired frame bootstrap
+theory_check.py  validation of Approximation 1 (correct cell, retention), Theorem 1
+checks.py        numerical checks: Kaufman Jacobian, leakage, ambiguity, guard scaling,
+                 RMS delay spread, joint two-path Cramer-Rao benchmark
+oracle_guard.py  bound on the saving of an ideal adaptive guard
+pick_v2.py       tuned superimposed-pilot configurations (held-out seeds) -> specs/m_main.json
 make_numbers.py  every number quoted in the paper's text -> paper/numbers.tex
-make_figures.py  every figure -> paper/fig_*.tex
-make_tables.py   parameter table -> paper/tab_params.tex
+make_figures.py  every figure and the paired-interval table -> paper/fig_*.tex, tab_paired.tex
+make_tables.py   parameter table and impairment table
+tests/           unit tests (python -m pytest tests -q)
 specs/           sweep definitions
 runs/            artifacts
 proto/           development gates (not used by the paper)
-pick_sp.py       picks the tuned superimposed-pilot configuration per SNR
-spbest.py        superimposed pilot + tracker: best acquisition length (1, 2, 4 blocks)
-oracle_guard.py  bound on the saving of an ideal adaptive guard
-audit_acronyms.py  checks that every acronym is defined at first use
-queue.sh, queue2.sh  run the experiment chain
 ```
 
 ## Reproducing the paper
 
 ```bash
-python run_sweep.py specs/tune_sp.json      # superimposed-pilot tuning (held-out seeds)
-python run_sweep.py specs/tune_sp_ext.json  # extended grid: no chosen configuration on the boundary
-python pick_sp.py                           # writes the tuned (eps, iters) into specs/e4_main.json
-python theory_check.py                      # Fig. 2 data
-python run_sweep.py specs/tune_sptrack.json # superimposed pilot + tracker tuning (held-out seeds)
-python run_sweep.py specs/e4_main.json      # Figs. 3-4: proposed, open loop, single-block SP
-python run_sweep.py specs/e4b_baselines.json # Figs. 3-4: data-aided per-block pilot, its ceiling,
-                                            #   SP + same tracker, OFDM same tracker (same channels)
-python run_sweep.py specs/e4c_interp.json   # Fig. 3: periodic pilot blocks (same channels)
-python run_sweep.py specs/e4d_sp_k2.json    # Figs. 3-4: SP + tracker acquired from 2 blocks (same channels)
-python run_sweep.py specs/e4d_sp_k4.json    #   ... and from 4 blocks
-python run_sweep.py specs/dev_c2p_ref.json  # paired c2 test on held-out seeds: c2 = 1/(2N)
-python run_sweep.py specs/dev_c2p_irr.json  #   ... and c2 = sqrt(2)/(4N)
-python oracle_guard.py                      # ideal adaptive-guard bound (Remark 1)
-python run_sweep.py specs/e5_frame.json     # Fig. 5
-python run_sweep.py specs/e6_robust.json    # robustness table
+pip install -r requirements.txt
+python -m pytest tests -q                    # smoke test (~10 s)
+python run_sweep.py specs/tune_v2.json       # superimposed-pilot tuning, held-out seeds
+python run_sweep.py specs/tune_v3.json       #   grid extension beyond the first boundaries
+python run_sweep.py specs/tune_v4.json       #   grid extension (single-block iterations)
+python pick_v2.py                            # writes the tuned settings into specs/m_main.json
+python run_sweep.py specs/m_main.json        # Figs. 3-5, Table III: all receivers, same channels
+python run_sweep.py specs/m_two.json         # Fig. 6(b): two closely spaced paths
+python run_sweep.py specs/m_mismatch.json    # matched-model control (Fig. 5)
+python run_sweep.py specs/m_robust.json      # Table IV
+python run_sweep.py specs/m_frame.json       # Fig. 7
+python run_sweep.py specs/dev_c2p_ref.json   # paired c2 check (held-out seeds)
+python run_sweep.py specs/dev_c2p_irr.json
+python theory_check.py && python checks.py && python oracle_guard.py
 python make_numbers.py && python make_figures.py && python make_tables.py && python make_tables.py robust
-cd paper && pdflatex AFDM_TVT && bibtex AFDM_TVT && pdflatex AFDM_TVT && pdflatex AFDM_TVT
 ```
 
-`queue.sh` runs the whole chain. Seeds are fixed in the specs; sweeps resume
-from their JSON-lines files after an interruption. CPU only; the code sets one
-BLAS thread per worker.
+Seeds are fixed in the specs; sweeps resume from their JSON-lines files after an
+interruption. CPU only; one BLAS thread per worker. The full set of sweeps takes
+about three days on 18 cores.
 
 ## Verified invariants
 

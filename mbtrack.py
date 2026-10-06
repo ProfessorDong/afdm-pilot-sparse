@@ -127,7 +127,8 @@ def lmmse_soft(H, y, known_mask, x_known, sigma2, idx):
 class Tracker:
     def __init__(self, S: MBAFDM, soft=True, window=None, gn_iters=3, redetect=True,
                  est_delay=False, model_rho=False, reacq_every=0, reacq_window=8,
-                 reacq_pfa=1e-3, kmax=None, P_cap=8, retries=2, aperture_res=True, reacq_level="residual"):
+                 reacq_pfa=1e-3, kmax=None, P_cap=8, retries=2, aperture_res=True, reacq_level="residual",
+                 trust="hybrid"):
         self.S, self.soft, self.window = S, soft, window
         self.gn_iters, self.redetect = gn_iters, redetect
         self.est_delay, self.model_rho = est_delay, model_rho
@@ -138,6 +139,18 @@ class Tracker:
         self.merge_dl, self.merge_dk = 0.6, 0.3          # resolution-cell merge thresholds
         self.aperture_res = aperture_res                 # shrink Doppler thresholds with the aperture
         self.reacq_level = reacq_level                   # 'noise': sigma^2; 'residual': measured residual power
+        # 'hybrid': a block whose CRC fails stays in the aperture with soft symbols;
+        # 'strict': it is used only while that block is being retried, then excluded
+        # (pilot blocks always stay: their pilot is known)
+        self.trust = trust
+        self.n_insert = 0                                # paths added by re-acquisition
+        self.n_merge = 0                                 # merges of paths within one resolution cell
+
+    @staticmethod
+    def span(blocks):
+        """Time span of an aperture in blocks (contiguous: its length)."""
+        b = np.atleast_1d(blocks)
+        return int(b.max() - b.min() + 1) if b.size else 1
 
     # ---------- data-aided re-acquisition ----------
     def reacquire(self, Y, X, blocks, paths, h, sigma2, M=64):
@@ -159,6 +172,10 @@ class Tracker:
         sel = np.abs(kg) <= self.kmax
         best = (0.0, None)
         E = np.sum(np.abs(st) ** 2)           # energy of the known signal over the window
+        # the main lobe of every tracked path (one Doppler resolution cell either side)
+        # is excluded before maximizing, so a tracked path cannot hide a new one
+        span = self.span(blocks)
+        dk_dup = 1.0 / (span * S.beta) if self.aperture_res else 1.0
         for l in range(S.ell_max + 1):
             q = np.conj(np.roll(st, l, axis=-1)) * rt            # (Bw, N)
             Fq = np.fft.fft(q, n=Nf, axis=-1)                    # sum_n q e^{-j2pi kappa n/N}
@@ -166,19 +183,20 @@ class Tracker:
             c = np.sum(Fq * np.exp(-1j * 2 * np.pi * kg[None, :] * t0 / S.N), axis=0)
             sc = np.abs(c) ** 2 / E
             sc[~sel] = 0
+            for p in paths:
+                if abs(l - p[0]) < 1.0:
+                    sc[np.abs(kg - p[1]) < dk_dup] = 0
             i = int(np.argmax(sc))
             if sc[i] > best[0]:
                 best = (sc[i], (float(l), float(kg[i])))
-        cells = (S.ell_max + 1) * sel.sum() / M               # ~independent cells
+        # ~independent cells: Doppler resolution 1/(span*beta) over the searched range
+        cells = (S.ell_max + 1) * (sel.sum() / M) * max(1.0, span * S.beta)
         lvl = sigma2 if self.reacq_level == "noise" else max(sigma2, float(np.mean(np.abs(R) ** 2)))
         thr = lvl * -np.log(self.reacq_pfa / cells)          # exp(1) tail of |c|^2/E
         if best[0] < thr:
             return paths
         l, k = best[1]
-        # reject a duplicate of an existing path
-        dk_dup = 0.5 / (len(np.atleast_1d(blocks)) * S.beta) if self.aperture_res else 0.5
-        if any(abs(l - p[0]) < 1.0 and abs(k - p[1]) < dk_dup for p in paths):
-            return paths
+        self.n_insert += 1
         return paths + [(l, k, 0.0)]
 
     # ---------- parametric refit ----------
@@ -247,11 +265,12 @@ class Tracker:
         # with large cancelling gains. Merge: keep the stronger and re-solve.
         if P > 1:
             # Doppler resolution sharpens with the aperture: ~1/(|A| beta) subcarrier spacings
-            dk = self.merge_dk / max(1, len(np.atleast_1d(blocks))) if self.aperture_res else self.merge_dk
+            dk = self.merge_dk / self.span(blocks) if self.aperture_res else self.merge_dk
             for i in range(P):
                 for j in range(i + 1, P):
                     if abs(ell[i] - ell[j]) < self.merge_dl and abs(kap[i] - kap[j]) < dk:
                         drop = i if abs(g[i]) < abs(g[j]) else j
+                        self.n_merge += 1
                         keep = [out[q] for q in range(P) if q != drop]
                         return self.refit(Y, X, blocks, keep, iters=iters, rows=rows)
         return out, g, cost / y.size
@@ -323,31 +342,33 @@ class Tracker:
         # pilot block is refit and re-detected like a data block)
         n_known = n_acq if n_acq is not None else max(1, sum(1 for k in kinds if k in "PT"))
         self.crc_ok = np.ones(B, bool)
+        self.trusted = np.ones(B, bool)            # blocks admitted to the aperture
+        self.pred = {}                             # b -> (paths, h) used to first detect block b
 
-        def reacq_loop(b, lo, blocks):
+        def reacq_loop(b, blocks):
             nonlocal paths, h
-            wl = max(0, b + 1 - self.reacq_window)
-            wb = np.arange(wl, b + 1)
+            wb = blocks[blocks >= b + 1 - self.reacq_window]
             for _ in range(self.P_cap):
-                new = self.reacquire(Y[wl:b + 1], Xs[wl:b + 1], A[wb], paths, h, sigma2)
+                new = self.reacquire(Y[wb], Xs[wb], A[wb], paths, h, sigma2)
                 if len(new) == len(paths):
                     break
-                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], A[blocks], new)
+                paths, h, _ = self.refit(Y[blocks], Xs[blocks], A[blocks], new)
 
         for b in range(B):
+            self.pred[b] = (list(paths), h.copy())
             dets[b], Xs[b] = detect(b)
             if b + 1 < n_known:
                 continue
             lo = 0 if self.window is None else max(0, b + 1 - self.window)
-            blocks = np.arange(lo, b + 1)
+            blocks = np.array([q for q in range(lo, b + 1) if self.trusted[q] or q == b])
             last_known = b + 1 == n_known
             periodic = self.reacq_every and kinds[b] in "DS" and (b + 1 - n_known) % self.reacq_every == 0
             for attempt in range(1 + (self.retries if codec is not None else 0)):
-                paths, h, _ = self.refit(Y[lo:b + 1], Xs[lo:b + 1], A[blocks], paths)
+                paths, h, _ = self.refit(Y[blocks], Xs[blocks], A[blocks], paths)
                 # data-aided re-acquisition: after the pilot block(s) are decoded (finds
                 # weak paths the single-pilot search missed), periodically, and on CRC failure
                 if self.reacq_every and (last_known or periodic or not self.crc_ok[b]):
-                    reacq_loop(b, lo, blocks)
+                    reacq_loop(b, blocks)
                 if kinds[b] == "T":
                     break
                 if (self.redetect and (kinds[b] in "DS" or b >= n_known)) or not self.crc_ok[b] or last_known:
@@ -356,6 +377,12 @@ class Tracker:
                             dets[bb], Xs[bb] = detect(bb)
                 if self.crc_ok[b]:
                     break
+            if self.trust == "strict" and not self.crc_ok[b] and kinds[b] in "DS":
+                # failed block: leave the aperture and restore the last trusted fit
+                self.trusted[b] = False
+                tb = np.array([q for q in range(lo, b + 1) if self.trusted[q]])
+                if tb.size:
+                    paths, h, _ = self.refit(Y[tb], Xs[tb], A[tb], paths)
             traj.append((b, [p[1] for p in paths], h.copy()))
         self.final = (list(paths), np.asarray(h).copy())
         return dets, traj

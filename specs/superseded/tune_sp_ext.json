@@ -1,0 +1,178 @@
+{
+ "name": "tune_sp_ext",
+ "trials": 40,
+ "procs": 18,
+ "seed0": 900001,
+ "base": {
+  "B": 8,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "receivers": [
+   "sp"
+  ]
+ },
+ "grid": [
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.3,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.3,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.4,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.4,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.5,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.5,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.3,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.3,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.4,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.4,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.5,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.5,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.3,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.3,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.4,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.4,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.5,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.5,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.3,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.3,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.4,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.4,
+   "sp_iters": 8
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.5,
+   "sp_iters": 6
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.5,
+   "sp_iters": 8
+  }
+ ]
+}

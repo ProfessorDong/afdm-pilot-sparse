@@ -116,7 +116,7 @@ class MBAFDM:
 
     # ---------------- physical channel ----------------
     def channel(self, stream, tau, kappa, h, rho=None, born=None, taps=24,
-                cfo=0.0, pn_var=0.0, rng=None, n0=0):
+                cfo=0.0, pn_var=0.0, rng=None, n0=0, pn_traj=None):
         """Doubly-dispersive channel applied along the last axis of `stream`
         (leading axes are independent streams, e.g. probe batches).
 
@@ -127,6 +127,8 @@ class MBAFDM:
         born  : first block index in which each path exists, default 0
         cfo   : common frequency offset (subcarrier spacings), Rx side
         pn_var: Wiener phase-noise increment variance per sample (rad^2), Rx side
+        pn_traj: phase-noise trajectory (rad) per absolute sample; overrides pn_var
+                 so that several waveforms can share one oscillator realization
         """
         stream = np.asarray(stream)
         L = stream.shape[-1]
@@ -163,7 +165,9 @@ class MBAFDM:
             r += path
         if cfo:
             r = r * np.exp(1j * 2 * np.pi * cfo * n / self.N)
-        if pn_var > 0:
+        if pn_traj is not None:
+            r = r * np.exp(1j * np.asarray(pn_traj)[n])
+        elif pn_var > 0:
             rng = rng or np.random.default_rng()
             r = r * np.exp(1j * np.cumsum(np.sqrt(pn_var) * rng.standard_normal(L)))
         return r

@@ -1,0 +1,71 @@
+{
+ "name": "m_mismatch",
+ "trials": 150,
+ "procs": 18,
+ "seed0": 30001,
+ "seed_by": "snr",
+ "base": {
+  "B": 16,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "Bp": 1,
+  "diag": true,
+  "receivers": [
+   "genie",
+   "track"
+  ]
+ },
+ "grid": [
+  {
+   "snr_db": 8,
+   "circular": true
+  },
+  {
+   "snr_db": 8,
+   "taps": 24
+  },
+  {
+   "snr_db": 8,
+   "taps": 48
+  },
+  {
+   "snr_db": 12,
+   "circular": true
+  },
+  {
+   "snr_db": 12,
+   "taps": 24
+  },
+  {
+   "snr_db": 12,
+   "taps": 48
+  },
+  {
+   "snr_db": 16,
+   "circular": true
+  },
+  {
+   "snr_db": 16,
+   "taps": 24
+  },
+  {
+   "snr_db": 16,
+   "taps": 48
+  },
+  {
+   "snr_db": 20,
+   "circular": true
+  },
+  {
+   "snr_db": 20,
+   "taps": 24
+  },
+  {
+   "snr_db": 20,
+   "taps": 48
+  }
+ ]
+}

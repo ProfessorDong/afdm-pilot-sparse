@@ -1,0 +1,73 @@
+{
+ "name": "m_two",
+ "trials": 150,
+ "procs": 18,
+ "seed0": 20001,
+ "base": {
+  "B": 16,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "snr_db": 12,
+  "Bp": 1,
+  "P": 2,
+  "diag": true,
+  "receivers": [
+   "genie",
+   "conv-da",
+   "track"
+  ]
+ },
+ "grid": [
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.05
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.1
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.2
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.4
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.8
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 1.6
+  },
+  {
+   "tp_dl": 1.0,
+   "tp_dk": 0.05
+  },
+  {
+   "tp_dl": 1.0,
+   "tp_dk": 0.1
+  },
+  {
+   "tp_dl": 1.0,
+   "tp_dk": 0.2
+  },
+  {
+   "tp_dl": 1.0,
+   "tp_dk": 0.4
+  },
+  {
+   "tp_dl": 1.0,
+   "tp_dk": 0.8
+  },
+  {
+   "tp_dl": 1.0,
+   "tp_dk": 1.6
+  }
+ ]
+}

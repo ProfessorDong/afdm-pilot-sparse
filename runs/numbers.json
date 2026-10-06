@@ -20,12 +20,12 @@
   "source": "20log10 eps_1"
  },
  "NumRhoOneDb": {
-  "value": -7.551101821743221,
+  "value": -7.551088486666465,
   "tex": "\\ensuremath{-7.6}",
-  "source": "Corollary 2, eq. (rho1), P=4"
+  "source": "Corollary 2, eq. (rho1) exact, P=4, E=Ep"
  },
  "NumRhoOneLossDb": {
-  "value": 0.7031416291610061,
+  "value": 0.7031436224567611,
   "tex": "0.70",
   "source": "SINR loss 10log10(1+rho1)"
  },
@@ -37,37 +37,47 @@
  "NumHorOne": {
   "value": 1,
   "tex": "1",
-  "source": "Corollary 1 exact form, delta=1/4"
+  "source": "Corollary 1, eq. (horizon), E=Ep, delta=1/4"
  },
  "NumHorTwo": {
   "value": 3,
   "tex": "3",
-  "source": "Corollary 1 exact form, delta=1/4"
+  "source": "Corollary 1, eq. (horizon), E=Ep, delta=1/4"
  },
  "NumHorFour": {
   "value": 9,
   "tex": "9",
-  "source": "Corollary 1 exact form, delta=1/4"
+  "source": "Corollary 1, eq. (horizon), E=Ep, delta=1/4"
  },
  "NumHorEight": {
   "value": 26,
   "tex": "26",
-  "source": "Corollary 1 exact form, delta=1/4"
+  "source": "Corollary 1, eq. (horizon), E=Ep, delta=1/4"
  },
  "NumGammaCellDb": {
   "value": 12.997967898659494,
   "tex": "13.0",
   "source": "Prop. 1 (threshold-aware), Bp=1, P_cell=1-1e-3"
  },
- "NumSnrCellOk": {
-  "value": -3.4118126749238282,
-  "tex": "\\ensuremath{-3}",
-  "source": "Prop. 1 threshold minus 10log10(Ep/4)"
+ "NumRetainAtCell": {
+  "value": 0.8280693935914261,
+  "tex": "0.83",
+  "source": "Approx. 1: P_ret at the SNR where P_cell = 1-1e-3"
  },
- "NumLeakDb": {
+ "NumGammaRetainDb": {
+  "value": 15.548956925882175,
+  "tex": "15.5",
+  "source": "Approx. 1: SNR for P_ret = 1-1e-3, Bp=1"
+ },
+ "NumSnrRetainOk": {
+  "value": -0.8608236477011477,
+  "tex": "\\ensuremath{-1}",
+  "source": "P_ret threshold minus 10log10(Ep/4): data SNR for a quarter-power path"
+ },
+ "NumLeakIntDb": {
   "value": -30.983677206833924,
   "tex": "\\ensuremath{-31}",
-  "source": "data leakage into W, xi=2, 200 draws"
+  "source": "data leakage into W, integer delays, xi=2, 200 draws"
  },
  "NumGratPeakTwoDb": {
   "value": -12.889345118511988,
@@ -82,17 +92,17 @@
  "NumRhoOneDataDb": {
   "value": -12.213407609561829,
   "tex": "\\ensuremath{-12.2}",
-  "source": "exact rho(1), pilot block with decoded data (energy N)"
+  "source": "eq. (horizon), 1 full-energy blocks, next block"
  },
  "NumRhoTwoExactDb": {
   "value": -17.52805853229088,
   "tex": "\\ensuremath{-17.5}",
-  "source": "exact rho(2), two full-energy blocks"
+  "source": "eq. (horizon), 2 full-energy blocks, next block"
  },
  "NumRhoTenExactDb": {
   "value": -26.56898770661784,
   "tex": "\\ensuremath{-26.6}",
-  "source": "exact rho(10), ten full-energy blocks"
+  "source": "eq. (horizon), 10 full-energy blocks, next block"
  },
  "NumHorDataOne": {
   "value": 2,
@@ -114,16 +124,6 @@
   "tex": "48",
   "source": "Cor. 1 with decoded pilot-block data (energy N per block)"
  },
- "NumGuardPctKilo": {
-  "value": 17.08984375,
-  "tex": "17\\%",
-  "source": "|Z|/N at N=1024"
- },
- "NumGuardPctTwoKilo": {
-  "value": 8.544921875,
-  "tex": "9\\%",
-  "source": "|Z|/N at N=2048"
- },
  "NumOverheadGainPct": {
   "value": 51.92878338278932,
   "tex": "52\\%",
@@ -143,6 +143,56 @@
   "value": 2.13623046875,
   "tex": "2.1\\%",
   "source": "|Z|/(16N): guard share of a 16-block pilot-sparse frame"
+ },
+ "NumKaufFitPct": {
+  "value": 0.13632954361634153,
+  "tex": "0.1\\%",
+  "source": "checks k1: Kaufman vs exact Jacobian at the fit"
+ },
+ "NumKaufAwayPct": {
+  "value": 24.886245974370745,
+  "tex": "25\\%",
+  "source": "checks k1: Kaufman vs exact Jacobian away from the fit"
+ },
+ "NumLeakMeanDb": {
+  "value": -24.751473721291617,
+  "tex": "\\ensuremath{-25}",
+  "source": "checks k2: mean data leakage into W / pilot response, evaluation ensemble"
+ },
+ "NumLeakNoiseMedDb": {
+  "value": -3.6102633746549335,
+  "tex": "\\ensuremath{-3.6}",
+  "source": "checks k2: median leakage per chirp / noise at 20 dB"
+ },
+ "NumLeakNoiseHiDb": {
+  "value": 2.624552553138497,
+  "tex": "+2.6",
+  "source": "checks k2: 95th percentile, same"
+ },
+ "NumGratRestrictDiffDb": {
+  "value": 0.5627152123587926,
+  "tex": "0.6",
+  "source": "checks k3: max |restricted/fractional - full| grating peak, Bp<=16"
+ },
+ "NumGuardPctKiloFs": {
+  "value": 26.46484375,
+  "tex": "26\\%",
+  "source": "checks k4: |Z|/N at N=1024, fixed sample rate and physical spreads"
+ },
+ "NumGuardPctTwoKiloFs": {
+  "value": 22.607421875,
+  "tex": "23\\%",
+  "source": "checks k4: |Z|/N at N=2048, same"
+ },
+ "NumRmsDelayMed": {
+  "value": 1.1858252845737007,
+  "tex": "1.2",
+  "source": "checks k5: median realized RMS delay spread (samples)"
+ },
+ "NumRmsDelayHi": {
+  "value": 1.9433120597446367,
+  "tex": "1.9",
+  "source": "checks k5: 90th percentile realized RMS delay spread (samples)"
  },
  "NumCtwoGenieEightPct": {
   "value": -1.618772744384489,
@@ -179,8 +229,13 @@
   "tex": "two",
   "source": "mbtrack.Tracker.retries (word)"
  },
+ "NumGnIters": {
+  "value": "three",
+  "tex": "three",
+  "source": "mbtrack.Tracker.gn_iters (word)"
+ },
  "NumAcqMaxDev": {
-  "value": 0.07704803555572404,
+  "value": 0.07704803555407502,
   "tex": "0.08",
   "source": "theory_check e2: max |P_cell sim - Prop.1|"
  },
@@ -188,6 +243,21 @@
   "value": 600,
   "tex": "600",
   "source": "theory_check e2: trials per point"
+ },
+ "NumRetainMaxDev": {
+  "value": 0.025022939452511994,
+  "tex": "0.03",
+  "source": "theory_check e4: max |retention sim - P_ret|"
+ },
+ "NumRetainCellGap": {
+  "value": 0.7382383000504469,
+  "tex": "0.74",
+  "source": "theory_check e4: max overestimate of retention by P_cell"
+ },
+ "NumFalseTrials": {
+  "value": 4000,
+  "tex": "4000",
+  "source": "theory_check e5: trials (no false extra path observed)"
  },
  "NumTrackMaxDevPct": {
   "value": 91.2645168725336,
@@ -217,7 +287,12 @@
  "NumEvalTrials": {
   "value": 200,
   "tex": "200",
-  "source": "e4*: trials per point (min)"
+  "source": "m_main: channel realizations per SNR (min)"
+ },
+ "NumEvalTrialsHi": {
+  "value": 400,
+  "tex": "400",
+  "source": "m_main: channel realizations at the key SNRs"
  },
  "NumSnrGenieMatch": {
   "value": 12,
@@ -225,39 +300,34 @@
   "source": "lowest SNR with track >= 0.98 genie at and above it"
  },
  "NumGapGeniePct": {
-  "value": 1.6122345570961372,
-  "tex": "1.6\\%",
+  "value": 1.2866760103853125,
+  "tex": "1.3\\%",
   "source": "max genie gap above that SNR"
  },
  "NumGenieRatioEightPct": {
-  "value": 93.92112083344023,
-  "tex": "94\\%",
+  "value": 96.40168511317178,
+  "tex": "96\\%",
   "source": "track/genie at 8 dB"
  },
  "NumGenieRatioSixPct": {
-  "value": 89.252756771163,
-  "tex": "89\\%",
+  "value": 91.32599741808569,
+  "tex": "91\\%",
   "source": "track/genie at 6 dB"
  },
  "NumBlerFloorPct": {
-  "value": 1.53125,
-  "tex": "1.5\\%",
+  "value": 1.28125,
+  "tex": "1.3\\%",
   "source": "max track BLER above 12 dB"
  },
  "NumGainConvPct": {
-  "value": 49.579893642860696,
+  "value": 50.1294020246732,
   "tex": "50\\%",
-  "source": "mean track/conv-da-1, SNR>=10"
+  "source": "mean over the simulated SNR points >= 10 dB of track/conv-da-1"
  },
  "NumOverConvEightPct": {
-  "value": 41.16240502911796,
-  "tex": "41\\%",
+  "value": 45.6097744644,
+  "tex": "46\\%",
   "source": "track/conv-da-1 at 8 dB"
- },
- "NumGainConvMaxPct": {
-  "value": 51.305555555555536,
-  "tex": "51\\%",
-  "source": "max track/conv-da-1, SNR>=6"
  },
  "NumConvCeilGainPct": {
   "value": 52.0833333333333,
@@ -265,72 +335,102 @@
   "source": "perfect-CSI ceiling ratio, 20 dB"
  },
  "NumPlainConvHiPct": {
-  "value": 9.5,
-  "tex": "9.5\\%",
+  "value": 11.25,
+  "tex": "11.2\\%",
   "source": "plain conv BLER max >=14 dB"
  },
- "NumSpBestKMax": {
-  "value": 4,
-  "tex": "4",
-  "source": "largest best acquisition K for sp-track"
- },
- "NumSpOverGenieMaxPct": {
-  "value": 2.2831050228310446,
-  "tex": "2.3\\%",
-  "source": "max sp-track over perfect-CSI throughput of the pilot-sparse frame"
- },
- "NumSpKSatDiff": {
-  "value": 0.012367788461538465,
-  "tex": "0.012",
-  "source": "max |K=4 - K=2| sp-track (bit/s/Hz)"
- },
- "NumSpKOneGainMax": {
-  "value": 0.025030048076922995,
-  "tex": "0.025",
-  "source": "max gain of best-K over K=1 sp-track (bit/s/Hz)"
- },
  "NumSpFromSnr": {
-  "value": 12,
-  "tex": "12",
+  "value": 10,
+  "tex": "10",
   "source": "lowest SNR where sp-track > track"
  },
  "NumSpTopSnr": {
-  "value": 10,
-  "tex": "10",
+  "value": 8,
+  "tex": "8",
   "source": "highest SNR below that"
  },
  "NumSpMaxAdvPct": {
-  "value": 2.9867971563105833,
+  "value": 3.025956600194313,
   "tex": "3.0\\%",
   "source": "max sp-track advantage"
  },
  "NumOverSpEightPct": {
-  "value": 33.25324013397404,
-  "tex": "33\\%",
+  "value": 4.336975583434488,
+  "tex": "4\\%",
   "source": "track/sp-track-1 at 8 dB"
  },
+ "NumSpOverGenieMaxPct": {
+  "value": 2.061997073884414,
+  "tex": "2.1\\%",
+  "source": "max sp-track over perfect CSI of the pilot-sparse frame"
+ },
  "NumSpSingleMaxDiff": {
-  "value": 0.0815685096153847,
-  "tex": "0.08",
+  "value": 0.16107572115384616,
+  "tex": "0.16",
   "source": "max |sp-track - sp| (bit/s/Hz)"
  },
+ "NumSptEpsList": {
+  "value": "0.15, 0.1, 0.1, 0.2, 0.2",
+  "tex": "0.15, 0.1, 0.1, 0.2, 0.2",
+  "source": "tune_v2: tuned pilot fraction per tuning SNR"
+ },
+ "NumSptKList": {
+  "value": "16, 16, 16, 8, 4",
+  "tex": "16, 16, 16, 8, 4",
+  "source": "tune_v2: tuned acquisition blocks per tuning SNR"
+ },
+ "NumSpItersSatDiff": {
+  "value": 0.001963141025641102,
+  "tex": "0.002",
+  "source": "tune: throughput gain from 16 to 20 iterations (single-block SP)"
+ },
+ "NumSplEpsList": {
+  "value": "0.15, 0.15, 0.2, 0.3, 0.2",
+  "tex": "0.15, 0.15, 0.2, 0.3, 0.2",
+  "source": "tune: low-latency pilot fraction per tuning SNR"
+ },
+ "NumSplFromSnr": {
+  "value": 10,
+  "tex": "10",
+  "source": "lowest SNR where low-latency sp-track > track"
+ },
+ "NumOverSplEightPct": {
+  "value": 6.550489048078223,
+  "tex": "7\\%",
+  "source": "track/sp-track-ll-1 at 8 dB"
+ },
  "NumOverInterpMinPct": {
-  "value": 8.589618267037636,
-  "tex": "9\\%",
+  "value": 7.525187290105939,
+  "tex": "8\\%",
   "source": "min track/best-interp-1, SNR>=6"
  },
  "NumOverInterpMaxPct": {
-  "value": 9.955539533765933,
-  "tex": "10\\%",
+  "value": 12.887537993920972,
+  "tex": "13\\%",
   "source": "max track/best-interp-1, SNR>=6"
  },
+ "NumOverPtrackMinPct": {
+  "value": 1.3637581277548882,
+  "tex": "1\\%",
+  "source": "min track/best-ptrack-1, SNR>=6"
+ },
+ "NumOverPtrackMaxPct": {
+  "value": 2.8265760375280946,
+  "tex": "3\\%",
+  "source": "max track/best-ptrack-1, SNR>=6"
+ },
+ "NumHybridMaxDiffPct": {
+  "value": 3.9579967689822304,
+  "tex": "4.0\\%",
+  "source": "max |hybrid/strict-1|, SNR>=4"
+ },
  "NumOverOfdmMinPct": {
-  "value": 2.5668329316818728,
+  "value": 3.0527358256994264,
   "tex": "3\\%",
   "source": "min track/ofdm-1, SNR>=6"
  },
  "NumOverOfdmMaxPct": {
-  "value": 4.835243553008595,
+  "value": 5.098930869333862,
   "tex": "5\\%",
   "source": "max track/ofdm-1, SNR>=6"
  },
@@ -345,14 +445,14 @@
   "source": "perfect-CSI ceiling ratio AFDM pilot frame vs OFDM training frame"
  },
  "NumOverOpenMinPct": {
-  "value": 3.7164647129417805,
-  "tex": "4\\%",
-  "source": "min track/best-open-1, SNR>=6"
+  "value": 6.873619883941884,
+  "tex": "7\\%",
+  "source": "paired: min track/best-open-1, SNR>=6"
  },
  "NumOverOpenMaxPct": {
-  "value": 8.657704654895682,
-  "tex": "9\\%",
-  "source": "max track/best-open-1, SNR>=6"
+  "value": 9.723401898149842,
+  "tex": "10\\%",
+  "source": "paired: max track/best-open-1, SNR>=6"
  },
  "NumOpenBestBpMax": {
   "value": 8,
@@ -360,223 +460,468 @@
   "source": "largest best open-loop Bp"
  },
  "NumOpenBestBpMin": {
-  "value": 2,
-  "tex": "2",
+  "value": 4,
+  "tex": "4",
   "source": "smallest best open-loop Bp"
+ },
+ "NumBpTwoSigTop": {
+  "value": 4,
+  "tex": "4",
+  "source": "paired: highest SNR where Bp=2 beats Bp=1 significantly"
  },
  "NumBpTwoBetterTop": {
   "value": 8,
   "tex": "8",
-  "source": "highest SNR where Bp=2 beats Bp=1"
+  "source": "paired: highest SNR where Bp=2 beats Bp=1 in the mean"
+ },
+ "NumBlerRatioMax": {
+  "value": 2.951219512195122,
+  "tex": "3",
+  "source": "max BLER ratio track/genie, 6-12 dB"
+ },
+ "NumSpOverGenieFromSnr": {
+  "value": 12,
+  "tex": "12",
+  "source": "lowest SNR where sp-track > genie of the pilot-sparse frame"
+ },
+ "NumHybridWorstSnr": {
+  "value": 6,
+  "tex": "6",
+  "source": "SNR of the largest hybrid loss"
+ },
+ "NumPtrackBestKList": {
+  "value": "4, 4, 8, 8, 8, 8, 8, 8, 8, 8",
+  "tex": "4, 4, 8, 8, 8, 8, 8, 8, 8, 8",
+  "source": "best periodic+tracker spacing per SNR"
+ },
+ "NumInterpBestKList": {
+  "value": "4, 4, 4, 4, 4, 4, 4, 4, 4, 4",
+  "tex": "4, 4, 4, 4, 4, 4, 4, 4, 4, 4",
+  "source": "best periodic interpolation spacing per SNR"
+ },
+ "NumUndetected": {
+  "value": 0,
+  "tex": "0",
+  "source": "m_main: blocks with CRC passed but payload wrong (proposed)"
+ },
+ "NumBlocksAll": {
+  "value": 41600,
+  "tex": "41600",
+  "source": "m_main: blocks of the proposed receiver, Bp=1 points"
  },
  "NumTimeTrack": {
-  "value": 22.751531875014305,
-  "tex": "23",
+  "value": 19.293458835959434,
+  "tex": "19",
   "source": "time track"
  },
  "NumTimeTrackMin": {
-  "value": 14.220239132642746,
-  "tex": "14",
+  "value": 15.13379369854927,
+  "tex": "15",
   "source": "time track min over SNR"
  },
  "NumTimeTrackMax": {
-  "value": 38.51535491943359,
-  "tex": "39",
+  "value": 27.927362039089203,
+  "tex": "28",
   "source": "time track max over SNR"
  },
- "NumTimeConv": {
-  "value": 6.506225138187408,
-  "tex": "7",
-  "source": "time conv"
- },
  "NumTimeConvDa": {
-  "value": 13.572157400846482,
+  "value": 13.577795053243639,
   "tex": "14",
   "source": "time conv-da"
  },
- "NumTimeSp": {
-  "value": 43.08106025791168,
-  "tex": "43",
-  "source": "time sp"
- },
  "NumTimeSpTrack": {
-  "value": 25.60892586565018,
-  "tex": "26",
-  "source": "time sp-track (best K)"
+  "value": 19.068338399291036,
+  "tex": "19",
+  "source": "time sp-track"
  },
  "NumTimeGenie": {
-  "value": 5.501316637635231,
+  "value": 5.708107134997844,
   "tex": "6",
   "source": "time genie"
  },
+ "NumAcqDetSix": {
+  "value": 84.25,
+  "tex": "84\\%",
+  "source": "m_main acq: fraction of true paths found at 6 dB"
+ },
+ "NumAcqMissSix": {
+  "value": 3.0521518219508503,
+  "tex": "3.1\\%",
+  "source": "m_main acq: missed channel energy at 6 dB"
+ },
+ "NumAcqDetHi": {
+  "value": 94.0625,
+  "tex": "94\\%",
+  "source": "m_main acq: min fraction found, SNR>=12"
+ },
+ "NumAcqMissHi": {
+  "value": 0.8475000543744443,
+  "tex": "0.85\\%",
+  "source": "m_main acq: max missed energy, SNR>=12"
+ },
+ "NumFinalDetHi": {
+  "value": 99.0625,
+  "tex": "99\\%",
+  "source": "m_main final: min fraction tracked, SNR>=12"
+ },
+ "NumFalseAcq": {
+  "value": 3.801875,
+  "tex": "3.8",
+  "source": "m_main acq: extra components per frame, SNR>=12"
+ },
+ "NumFalseFinal": {
+  "value": 1.2375,
+  "tex": "1.2",
+  "source": "m_main final: extra components per frame, SNR>=12"
+ },
+ "NumInsertPerFrame": {
+  "value": 3.86,
+  "tex": "3.9",
+  "source": "m_main: re-acquisition insertions per frame"
+ },
+ "NumMergePerFrame": {
+  "value": 4.799615384615384,
+  "tex": "4.8",
+  "source": "m_main: merges per frame"
+ },
+ "NumRhoMedFirstTen": {
+  "value": -6.647587650488335,
+  "tex": "\\ensuremath{-6.6}",
+  "source": "m_main diag: median rho(1), 10 dB"
+ },
+ "NumRhoMedLastTen": {
+  "value": -11.240187244824948,
+  "tex": "\\ensuremath{-11.2}",
+  "source": "m_main diag: median rho(15), 10 dB"
+ },
+ "NumRhoMedFirstSixteen": {
+  "value": -3.2399912407884286,
+  "tex": "\\ensuremath{-3.2}",
+  "source": "m_main diag: median rho(1), 16 dB"
+ },
+ "NumRhoMedLastSixteen": {
+  "value": -6.0906704599673525,
+  "tex": "\\ensuremath{-6.1}",
+  "source": "m_main diag: median rho(15), 16 dB"
+ },
+ "NumRhoFloorRiseDb": {
+  "value": 5.149516784857596,
+  "tex": "5.1",
+  "source": "median rho(15) at 16 dB minus at 10 dB"
+ },
+ "NumLockLossFrames": {
+  "value": 23,
+  "tex": "23",
+  "source": "m_main: frames with >=3 block errors (proposed), SNR>=12"
+ },
+ "NumHiFrames": {
+  "value": 1200,
+  "tex": "1200",
+  "source": "m_main: frames at SNR>=12"
+ },
+ "NumLockErrSharePct": {
+  "value": 87.3913043478261,
+  "tex": "87\\%",
+  "source": "m_main: share of block errors (SNR>=12) in those frames"
+ },
+ "NumIbiDb": {
+  "value": -42.109297839694776,
+  "tex": "\\ensuremath{-42}",
+  "source": "m_mismatch: median IBI / received power (49-tap filter)"
+ },
+ "NumCircMisDb": {
+  "value": -20.612429569118564,
+  "tex": "\\ensuremath{-21}",
+  "source": "m_mismatch: median ||H_bb - H_circ||^2/||H_bb||^2"
+ },
+ "NumRhoCircSixteen": {
+  "value": -25.10295567529386,
+  "tex": "\\ensuremath{-25.1}",
+  "source": "m_mismatch: median rho(15), matched model, 16 dB"
+ },
+ "NumBenchFifteenDb": {
+  "value": -28.504837306448366,
+  "tex": "\\ensuremath{-28.5}",
+  "source": "eq. (horizon): benchmark after 15 full-energy blocks"
+ },
+ "NumCircBenchGapDb": {
+  "value": 3.401881631154506,
+  "tex": "3.4",
+  "source": "m_mismatch: matched-model median rho(15) minus benchmark"
+ },
+ "NumMisFloorTenDb": {
+  "value": -10.612429569118564,
+  "tex": "\\ensuremath{-11}",
+  "source": "mismatch level relative to noise at 10 dB"
+ },
+ "NumMisGenieDiffPct": {
+  "value": 0.389353203772691,
+  "tex": "0.4\\%",
+  "source": "m_mismatch: max |circular/FIR - 1| perfect CSI"
+ },
+ "NumMisTrackDiffPct": {
+  "value": 0.9288793858880595,
+  "tex": "0.9\\%",
+  "source": "m_mismatch: max |circular/FIR - 1| proposed"
+ },
+ "NumTwoTrials": {
+  "value": 150,
+  "tex": "150",
+  "source": "m_two: trials per point"
+ },
+ "NumTwoCloseRatioPct": {
+  "value": 92.1677681083557,
+  "tex": "92\\%",
+  "source": "m_two: track/genie, equal delay, dk=0.05"
+ },
+ "NumTwoFarRatioPct": {
+  "value": 99.68665067945643,
+  "tex": "100\\%",
+  "source": "m_two: track/genie, equal delay, dk=1.6"
+ },
+ "NumTwoMinRatioPct": {
+  "value": 86.60489475274447,
+  "tex": "87\\%",
+  "source": "m_two: min track/genie, equal delay"
+ },
+ "NumTwoMinDk": {
+  "value": "0.1--0.2",
+  "tex": "0.1--0.2",
+  "source": "m_two: separation(s) at the minimum"
+ },
+ "NumTwoDelayRatioPct": {
+  "value": 98.27144078260045,
+  "tex": "98\\%",
+  "source": "m_two: min track/genie, delays one sample apart"
+ },
+ "NumJointPenaltyOneDb": {
+  "value": 12.52521257216737,
+  "tex": "13",
+  "source": "checks k6: median rho_J/rho_CR at the smallest dk, equal delay, L=1"
+ },
+ "NumJointPenaltyFourDb": {
+  "value": 5.759395816373633,
+  "tex": "6",
+  "source": "checks k6: median rho_J/rho_CR at the smallest dk, equal delay, L=4"
+ },
+ "NumJointDelayMaxDb": {
+  "value": 0.015994252457485526,
+  "tex": "0.02",
+  "source": "checks k6: max |rho_J/rho_CR| (dB), delays one sample apart"
+ },
  "NumFrameBestB": {
-  "value": 32,
-  "tex": "32",
-  "source": "e5_frame: B maximizing track throughput at 12 dB"
+  "value": 64,
+  "tex": "64",
+  "source": "m_frame: B maximizing track throughput at 12 dB"
  },
  "NumFrameGapLongPct": {
-  "value": 2.6519362083437303,
-  "tex": "2.7\\%",
-  "source": "e5_frame: track genie gap at largest B, 12 dB"
+  "value": 0.6483787706783595,
+  "tex": "0.6\\%",
+  "source": "m_frame: track genie gap at largest B, 12 dB"
  },
  "NumFrameLongB": {
   "value": 64,
   "tex": "64",
-  "source": "e5_frame: largest B"
+  "source": "m_frame: largest B"
  },
  "NumOpenLongTp": {
-  "value": 0.16185396634615387,
-  "tex": "0.16",
-  "source": "e5_frame: open-loop tp at largest B, 12 dB"
+  "value": 0.15230994591346156,
+  "tex": "0.15",
+  "source": "m_frame: open-loop tp at largest B, 12 dB"
  },
  "NumOpenShortTp": {
-  "value": 0.704375,
-  "tex": "0.70",
-  "source": "e5_frame: open-loop tp at smallest B, 12 dB"
+  "value": 0.7890985576923076,
+  "tex": "0.79",
+  "source": "m_frame: open-loop tp at smallest B, 12 dB"
  },
  "NumFrameShortB": {
   "value": 4,
   "tex": "4",
-  "source": "e5_frame: smallest B"
+  "source": "m_frame: smallest B"
  },
  "NumFrameTimeRatio": {
-  "value": 5.252969161172813,
-  "tex": "5.3",
-  "source": "e5_frame: track time B_max / B=16"
+  "value": 5.179430015189822,
+  "tex": "5.2",
+  "source": "m_frame: track time B_max / B=16"
  },
  "NumFrameTrials": {
-  "value": 100,
-  "tex": "100",
-  "source": "e5_frame: trials per point"
+  "value": 200,
+  "tex": "200",
+  "source": "m_frame: trials per point"
  },
  "NumFrameGapMinPct": {
-  "value": 0.1945975999629338,
-  "tex": "0.2\\%",
-  "source": "e5: min paired genie gap over B at 12 dB"
+  "value": 0.41555357672899973,
+  "tex": "0.4\\%",
+  "source": "m_frame: min paired genie gap over B at 12 dB"
  },
  "NumFrameGapMaxPct": {
-  "value": 4.813285794708198,
-  "tex": "4.8\\%",
-  "source": "e5: max paired genie gap over B at 12 dB"
+  "value": 2.8832429346274613,
+  "tex": "2.9\\%",
+  "source": "m_frame: max paired genie gap over B at 12 dB"
  },
  "NumFrameLossMin": {
-  "value": 3,
-  "tex": "3",
-  "source": "e5: min #frames (of trials) with track below genie, 12 dB"
+  "value": 2,
+  "tex": "2",
+  "source": "m_frame: min #frames with >=3 block errors (proposed), 12 dB"
  },
  "NumFrameLossMax": {
-  "value": 7,
-  "tex": "7",
-  "source": "e5: max #frames with track below genie, 12 dB"
+  "value": 11,
+  "tex": "11",
+  "source": "m_frame: max #frames with >=3 block errors (proposed), 12 dB"
  },
  "NumFrameBlerLongPct": {
-  "value": 3.65625,
-  "tex": "3.7\\%",
-  "source": "e5_frame: track BLER at largest B, 12 dB"
+  "value": 1.28125,
+  "tex": "1.3\\%",
+  "source": "m_frame: track BLER at largest B, 12 dB"
  },
  "NumFrameBlerMidPct": {
-  "value": 1.625,
-  "tex": "1.6\\%",
-  "source": "e5_frame: track BLER at B=16, 12 dB"
+  "value": 2.0625,
+  "tex": "2.1\\%",
+  "source": "m_frame: track BLER at B=16, 12 dB"
  },
  "NumRobTrials": {
-  "value": 150,
-  "tex": "150",
-  "source": "e6_robust: trials per point"
+  "value": 200,
+  "tex": "200",
+  "source": "m_robust: trials per point"
  },
  "NumRobBaseRatioPct": {
-  "value": 97.95441808331776,
+  "value": 98.34891632764734,
   "tex": "98\\%",
-  "source": "e6: reference track/genie"
+  "source": "m_robust: reference track/genie"
  },
  "NumRobMinRatioPct": {
-  "value": 93.96493594066084,
-  "tex": "94\\%",
-  "source": "e6: min track/genie over CFO, P, kappa_max variations"
+  "value": 95.45840699836981,
+  "tex": "95\\%",
+  "source": "m_robust: min track/genie over CFO, P, kappa_max variations"
  },
  "NumDriftHsrRatioPct": {
-  "value": 97.59013924322997,
-  "tex": "98\\%",
-  "source": "e6: track/genie at rho=0.005 (HSR value)"
+  "value": 95.41101356743815,
+  "tex": "95\\%",
+  "source": "m_robust: track/genie at rho=0.005"
  },
  "NumDriftHiDefault": {
-  "value": 0.6291586538461538,
+  "value": 0.6322295673076923,
   "tex": "0.63",
-  "source": "e6: track at rho=0.02, no window"
+  "source": "m_robust: track at rho=0.02"
  },
  "NumDriftHiWindow": {
-  "value": 0.8243229166666667,
+  "value": 0.8197235576923078,
   "tex": "0.82",
-  "source": "e6: track at rho=0.02, window 6"
+  "source": "m_robust: track at rho=0.02, window 6"
  },
  "NumDriftHiModel": {
-  "value": 0.879795673076923,
-  "tex": "0.88",
-  "source": "e6: track at rho=0.02, rate model"
+  "value": 0.8575,
+  "tex": "0.86",
+  "source": "m_robust: track at rho=0.02, rate model"
  },
  "NumDriftHiGenie": {
-  "value": 0.9021754807692306,
+  "value": 0.8972536057692306,
   "tex": "0.90",
-  "source": "e6: genie at rho=0.02"
+  "source": "m_robust: genie at rho=0.02"
+ },
+ "NumDriftHiPtrack": {
+  "value": 0.5927283653846154,
+  "tex": "0.59",
+  "source": "m_robust: periodic pilots (K=4) + tracker at rho=0.02"
  },
  "NumDriftZeroModelCostPct": {
-  "value": 5.355837385969908,
-  "tex": "5.4\\%",
-  "source": "e6: rate-model cost at rho=0"
+  "value": 1.095817508889918,
+  "tex": "1.1\\%",
+  "source": "m_robust: rate-model cost at rho=0"
  },
  "NumDriftZeroWindowCostPct": {
-  "value": 2.9210768888464855,
-  "tex": "2.9\\%",
-  "source": "e6: window cost at rho=0"
+  "value": 0.024190231984333455,
+  "tex": "0.0\\%",
+  "source": "m_robust: window cost at rho=0"
  },
  "NumPnHiTrack": {
-  "value": 0.6911097756410256,
-  "tex": "0.69",
-  "source": "e6: track at largest phase noise"
+  "value": 0.7139032451923076,
+  "tex": "0.71",
+  "source": "m_robust: track at largest phase noise"
  },
  "NumPnHiConv": {
-  "value": 0.5588221153846153,
-  "tex": "0.56",
-  "source": "e6: conv at largest phase noise"
+  "value": 0.5928966346153847,
+  "tex": "0.59",
+  "source": "m_robust: conv-da at largest phase noise"
  },
  "NumPnHiGenie": {
-  "value": 0.5365544871794872,
-  "tex": "0.54",
-  "source": "e6: deterministic genie at largest phase noise"
+  "value": 0.8997145432692308,
+  "tex": "0.90",
+  "source": "m_robust: phase-noise-aware genie at largest phase noise"
+ },
+ "NumPnHiGenieDet": {
+  "value": 0.5468539663461538,
+  "tex": "0.55",
+  "source": "m_robust: deterministic genie at largest phase noise"
  },
  "NumPnHiLw": {
   "value": "10^{-2}",
   "tex": "10^{-2}",
-  "source": "e6: largest linewidth/df"
+  "source": "m_robust: largest linewidth/df"
  },
  "NumBornQTrack": {
-  "value": 0.6811538461538461,
+  "value": 0.6813221153846155,
   "tex": "0.68",
-  "source": "e6: track, 25% born"
+  "source": "m_robust: track, 25% born"
  },
  "NumBornQTrackW": {
-  "value": 0.7208934294871794,
-  "tex": "0.72",
-  "source": "e6: track with per-block re-acq + window, 25% born"
+  "value": 0.7491977163461537,
+  "tex": "0.75",
+  "source": "m_robust: track with per-block re-acq + window, 25% born"
  },
  "NumBornQGenie": {
-  "value": 0.8567708333333334,
-  "tex": "0.86",
-  "source": "e6: genie, 25% born"
+  "value": 0.8470883413461539,
+  "tex": "0.85",
+  "source": "m_robust: genie, 25% born"
  },
  "NumBornQConv": {
-  "value": 0.5393870192307693,
-  "tex": "0.54",
-  "source": "e6: conv, 25% born"
+  "value": 0.5612830528846154,
+  "tex": "0.56",
+  "source": "m_robust: conv-da, 25% born"
+ },
+ "NumBornQPtrack": {
+  "value": 0.6911027644230768,
+  "tex": "0.69",
+  "source": "m_robust: ptrack4, 25% born"
  },
  "NumBornHTrack": {
-  "value": 0.4915144230769231,
-  "tex": "0.49",
-  "source": "e6: track, 50% born"
+  "value": 0.4567668269230769,
+  "tex": "0.46",
+  "source": "m_robust: track, 50% born"
  },
  "NumBornHConv": {
-  "value": 0.5179326923076922,
+  "value": 0.5224759615384615,
   "tex": "0.52",
-  "source": "e6: conv, 50% born"
+  "source": "m_robust: conv-da, 50% born"
+ },
+ "NumBornHPtrack": {
+  "value": 0.5003695913461538,
+  "tex": "0.50",
+  "source": "m_robust: ptrack4, 50% born"
+ },
+ "NumBornHTrackW": {
+  "value": 0.5269771634615384,
+  "tex": "0.53",
+  "source": "m_robust: per-block re-acq + window, 50% born"
+ },
+ "NumDriftGainTwoPct": {
+  "value": 2.9330017554125334,
+  "tex": "2.9\\%",
+  "source": "m_robust: best remedy gain at drift 0.002"
+ },
+ "NumDriftGainFivePct": {
+  "value": 3.4196865697345373,
+  "tex": "3.4\\%",
+  "source": "m_robust: best remedy gain at drift 0.005"
+ },
+ "NumDriftPtrackTenTp": {
+  "value": 0.7607451923076922,
+  "tex": "0.76",
+  "source": "m_robust: ptrack4 at drift 0.01"
+ },
+ "NumDriftTrackTenTp": {
+  "value": 0.7986057692307692,
+  "tex": "0.80",
+  "source": "m_robust: track at drift 0.01"
  }
 }

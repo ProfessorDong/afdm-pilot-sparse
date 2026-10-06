@@ -202,11 +202,97 @@ def e3(trials=300, horizon=24, track_blocks=24):
     return rows
 
 
+# ---------------------------------------------------------------- E4 / E5
+# E4: a weak path next to a strong one: is it RETAINED by the CFAR stopping rule
+#     AND in the correct cell?  Approximation (A4): the global integral starts at
+#     the detection threshold T (noise-variance units) instead of zero.
+# E5: false insertions of the acquisition under noise only and under one strong
+#     path (the first candidate is always kept: a nonempty channel is assumed).
+CELLS = S0.ell_max + 1, len(ACQ.KG)
+
+
+def p_retained(gam, B, T, M=M_EFF):
+    from scipy import integrate, stats
+    f = lambda s: stats.ncx2.pdf(2 * s, 2 * B, 2 * B * gam) * 2 * stats.gamma.cdf(s, B) ** M
+    mu, sd = B * (1 + gam), np.sqrt(B * (1 + 2 * gam))
+    lo, hi = max(T, mu - 12 * sd), max(T, mu + 12 * sd)
+    return integrate.quad(f, lo, hi, limit=400)[0] if hi > lo else 0.0
+
+
+def acq_threshold(B, pfa=1e-3):
+    from scipy.stats import chi2
+    return chi2.isf(pfa / (CELLS[0] * CELLS[1]), 2 * B) / 2
+
+
+def e4_trial(args):
+    gamma1_db, seed = args
+    rng = np.random.default_rng(seed)
+    S = S0
+    ls, lw = rng.choice(S.ell_max + 1, 2, replace=False)
+    ks, kw = rng.uniform(-S.alpha_max, S.alpha_max, 2)
+    sigma2 = 1.0
+    hs = np.sqrt(10 ** (25 / 10) * sigma2 / S.Ep) * np.exp(1j * rng.uniform(0, 2 * np.pi))
+    hw = np.sqrt(10 ** (gamma1_db / 10) * sigma2 / S.Ep) * np.exp(1j * rng.uniform(0, 2 * np.pi))
+    x = np.zeros((1, S.N), complex); x[0, S.m0] = np.sqrt(S.Ep)
+    Y = S.receive(S.channel(S.transmit(x), [ls, lw], [ks, kw], [hs, hw]), 1)
+    Y = Y + np.sqrt(sigma2 / 2) * (rng.standard_normal(Y.shape) + 1j * rng.standard_normal(Y.shape))
+    paths, _ = ACQ.run(Y, 8, None, sigma2=sigma2)
+    ok = any(l == lw and abs(k - kw) < 0.5 / S.beta for l, k in paths)
+    extra = sum(1 for l, k in paths if not ((l == lw and abs(k - kw) < 0.5 / S.beta) or
+                                           (l == ls and abs(k - ks) < 0.5 / S.beta)))
+    return dict(g=gamma1_db, ret=ok, extra=extra)
+
+
+def e5_trial(args):
+    kind, seed = args
+    rng = np.random.default_rng(seed)
+    S = S0
+    x = np.zeros((1, S.N), complex); x[0, S.m0] = np.sqrt(S.Ep)
+    if kind == "noise":
+        Y = np.zeros((1, S.N), complex)
+    else:
+        l, k = int(rng.integers(0, S.ell_max + 1)), rng.uniform(-S.alpha_max, S.alpha_max)
+        Y = S.receive(S.channel(S.transmit(x), [l], [k], [np.sqrt(10 ** 2.5 / S.Ep)]), 1)
+    Y = Y + np.sqrt(0.5) * (rng.standard_normal(Y.shape) + 1j * rng.standard_normal(Y.shape))
+    paths, _ = ACQ.run(Y, 8, None, sigma2=1.0)
+    return dict(kind=kind, n=len(paths))
+
+
+def e4(trials=1000):
+    from scipy.special import erf
+    jobs = [(g, 77 * t + 100000 * int(g + 20)) for g in (9, 12, 15, 18, 21) for t in range(trials)]
+    with Pool(18) as p:
+        res = p.map(e4_trial, jobs, chunksize=16)
+    T = acq_threshold(1)
+    rows = []
+    for g in sorted({r["g"] for r in res}):
+        rr = [r for r in res if r["g"] == g]
+        gam = 10 ** (g / 10)
+        snc = np.sqrt(3 / (2 * np.pi ** 2 * gam))
+        loc = float(erf(1 / (2 * np.sqrt(2) * S0.beta * snc)))
+        rows.append(dict(gamma1_db=g, trials=len(rr), p_retained=float(np.mean([r["ret"] for r in rr])),
+                         p_retained_formula=p_retained(gam, 1, T) * loc,
+                         p_cell_formula=p_global(gam, 1) * loc,
+                         extra_paths_mean=float(np.mean([r["extra"] for r in rr]))))
+    return dict(threshold=float(T), rows=rows)
+
+
+def e5(trials=4000):
+    jobs = [(k, 13 * t + (0 if k == "noise" else 999999)) for k in ("noise", "one") for t in range(trials)]
+    with Pool(18) as p:
+        res = p.map(e5_trial, jobs, chunksize=32)
+    out = {}
+    for k, forced in (("noise", 1), ("one", 1)):
+        n = np.array([r["n"] for r in res if r["kind"] == k])
+        out[k] = dict(trials=int(n.size), p_extra=float(np.mean(n > forced)), mean_extra=float(np.mean(n - forced)))
+    return out
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["e1", "e2", "e3"]
     path = OUT / "theory_check.json"
     res = json.load(open(path)) if path.exists() else {}
     for w in which:
-        res[w] = {"e1": e1, "e2": e2, "e3": e3}[w]()
+        res[w] = {"e1": e1, "e2": e2, "e3": e3, "e4": e4, "e5": e5}[w]()
         json.dump(res, open(path, "w"), indent=1)
         print(f"{w} done", flush=True)
