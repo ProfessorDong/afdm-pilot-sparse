@@ -320,13 +320,13 @@
   "source": "theory_check e5: trials (no false extra path observed)"
  },
  "NumTrackMaxDevPct": {
-  "value": 91.2645168725336,
-  "tex": "91\\%",
+  "value": 21.741586062785913,
+  "tex": "22\\%",
   "source": "theory_check e3: max rel. dev. tracking NMSE vs Thm 2"
  },
  "NumTrackMaxDevPctHi": {
-  "value": 14.870012158235934,
-  "tex": "15\\%",
+  "value": 5.1135578152297745,
+  "tex": "5\\%",
   "source": "theory_check e3: same, gamma1=20 dB"
  },
  "NumOffDesignDataSnr": {
@@ -340,8 +340,8 @@
   "source": "data SNR at gamma1=20 dB: 20 - 10log10(Ep)"
  },
  "NumPredTrials": {
-  "value": 274,
-  "tex": "274",
+  "value": 3603,
+  "tex": "3603",
   "source": "theory_check e3: in-cell trials per point (min)"
  },
  "NumEvalTrials": {

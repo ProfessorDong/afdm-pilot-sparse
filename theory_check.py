@@ -179,8 +179,9 @@ def e3_trial(args):
     return dict(g=gamma1_db, Bp=Bp, ol=ol, tr=tr)
 
 
-def e3(trials=300, horizon=24, track_blocks=24):
-    jobs = [(g, Bp, 97 * t + 11 * Bp + 5000 * int(g + 20), horizon, track_blocks)
+def e3(trials=4000, horizon=24, track_blocks=24):
+    # non-overlapping seed ranges per (SNR, Bp)
+    jobs = [(g, Bp, 10_000_000 * int(g + 20) + 1_000_000 * Bp + t, horizon, track_blocks)
             for g in (10, 20) for Bp in (1, 2, 4) for t in range(trials)]
     with Pool(18) as p:
         res = [r for r in p.map(e3_trial, jobs, chunksize=4) if r is not None]
