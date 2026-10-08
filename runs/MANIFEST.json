@@ -1,5 +1,5 @@
 {
- "commit": "8329f7e8764987faf7f12bc81af899712d43b938",
+ "commit": "2cd4ab5716145d49c87f6b011864782b858194cf",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2019,12 +2019,12 @@
   "REPLAY.json": "ac245e125f8132ddb970a06dd010951ee63401b50673f163be8a8c7b5626d625"
  },
  "outputs": {
-  "fig_bler.tex": "a6d14d823e619dab491f6b84f7d595f74f2c21622c0d7b4636085fcf534766a4",
+  "fig_bler.tex": "686c4b4431f6ce142052947c54631604fadacd1394707f0b1fe58182f81b84e9",
   "fig_diag.tex": "05d87cf9e09d622b6376950331da86bb084b0c6a4df0fd0692b6bcf8138d42f1",
-  "fig_frame.tex": "0a51c57c18a48190d030a00e0e46f185c335daa3099048506d18c33eeb7719dc",
+  "fig_frame.tex": "a257efb77c82e0e6ef2022ff55b1371b5d71c578327701f833283235ef9b59c5",
   "fig_system.tex": "2a8f60f6fe3666971d115e64fe78caecfd022e248b95b11e229e08c4a22fc7d0",
   "fig_theory.tex": "f18d5e47b6909119faf23fade61cb69e050160a3da8cf66ab72e6d4cdbc7aec1",
-  "fig_tp.tex": "e328daa8c5e32fcd1753c501409108656e418d92b5241147cc6decc5b80bfe23",
+  "fig_tp.tex": "9931c8cb4b60e49d2da200c99e3f83aa7cd79354fcbbde83de7117b6f606c5f5",
   "fig_two.tex": "c888b551c3f351793884fc01374573d27e04cf8ba8ffb0ca897cedfb16adae9f",
   "numbers.tex": "fbf779c722bb768412f5aa7750ab7c35a7db138a99d7c135aab094c571edca1c",
   "tab_paired.tex": "4388fbf07ce46e7305ad7ed49d670c24862d48246fb4ad64df66806951f2cde5",
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "3b6e8b750a6e97bbbb6ea86a295084c1d86cf89ed1592f14d8312124e0fa8425"
+ "manuscript_pdf_sha256": "79e3daa2fb382cb7b0343a1f0f0f108683df026ee7b86e6265d2ee6204958ee8"
 }
