@@ -1,5 +1,5 @@
 {
- "commit": "d76dc8c47245cae1b78fdc4e44f9b4c1c78d4e08",
+ "commit": "8f59880a7d8e9f851cffe92a7be08f8cffb27ca8",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "229921e6faec80a6a8b287a7d238fc716cf881bfcf400e55f2aa2da4eaef7487"
+ "manuscript_pdf_sha256": "6dff48eb6331e456e79b616f866eed05b7893a259724fb6122b27d815c05410f"
 }
