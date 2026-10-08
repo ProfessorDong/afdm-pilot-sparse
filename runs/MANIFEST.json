@@ -1,5 +1,5 @@
 {
- "commit": "83402c52f6d1ab16f8e14f78fa22e8be2fe79412",
+ "commit": "d76dc8c47245cae1b78fdc4e44f9b4c1c78d4e08",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2011,7 +2011,7 @@
   "checks.json": "6d3163ad79330a4629b8560f3a9e6a04f3a41443ab0df348abfbbe11799b2ff7",
   "oracle_guard.json": "7a7d2e68f9733203ad02f1439adbea14d897ccd324a3544bf58358041860e387",
   "numbers.json": "9eb4dc9cdf6f1a7844609abd462e7d5eb4df67eb7860d1ed3dacef6fe48daa86",
-  "paired.json": "daa88971b7bb85ecbf9c63422aaac527ab4511d1b82ba95d27d9016a13ffb9d9",
+  "paired.json": "9cd9ba4bd44feda27113962df051e0c1b7c36470a653fc8efbb0fa55c69716ed",
   "tune_v2_choice.json": "01b2a8fbac40bb99b82e95769dc99e3b3b4579c956bcb1f14c9a5df96124a74c",
   "physical_mapping.json": "68d2a9ef172b5cdab7a60556cb56a20480e48203939f165eadb5b79e2c624113",
   "fig_main_meta.json": "628284858c927d6a52afa353f32e1fc5608d27766a9504721d5ec708e960606e",
@@ -2027,10 +2027,10 @@
   "fig_tp.tex": "9931c8cb4b60e49d2da200c99e3f83aa7cd79354fcbbde83de7117b6f606c5f5",
   "fig_two.tex": "04819831e25fe8fae82c7935883032486fe7711d92f8f4d5632e86deddbbe2f3",
   "numbers.tex": "e551679b664923fa7e1eb5f36cd9ef108af007f23bb2172601648b9804ee9c13",
-  "tab_paired.tex": "4388fbf07ce46e7305ad7ed49d670c24862d48246fb4ad64df66806951f2cde5",
-  "tab_params.tex": "51308a8558f163886db4cc6b667abbb6eab5d8ade8d24243035b04033589fb7d",
-  "tab_receivers.tex": "44c0f43bceec14e036a5c9ce3030a1e7323a129fedc07aa4bc8a912a7c304e42",
-  "tab_robust.tex": "166c28b8393d5ca79f2e38d4fea11129a8b2c85ccdc14ab56ba37967badf75a7"
+  "tab_paired.tex": "fc0a3b64c283a9bbae38bfc04622879221f76a4f926b30ecf3ef9b5da4e7b977",
+  "tab_params.tex": "04b0ba67281292c4efd51300bff5116d0d0c09272a4e4693090ae8f60abdc476",
+  "tab_receivers.tex": "43b3bb45fd506f7d21237862694da3efd6436356ab5da428ef87a74753c12045",
+  "tab_robust.tex": "0cf357408924612ad8364ecfd9cd7c6764481b04f2d8496cb51fe45bf4796347"
  },
  "replay": {
   "m_main": {
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "ec4cdcd7070c39f400751dc80aaf2ffd4d212dd2b967648d4f3c23529ed2e871"
+ "manuscript_pdf_sha256": "229921e6faec80a6a8b287a7d238fc716cf881bfcf400e55f2aa2da4eaef7487"
 }
