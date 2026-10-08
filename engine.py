@@ -484,7 +484,6 @@ def simulate(cfg: Config, seed: int):
             tally("openloop", d0 + dd[Bp:], x, t1)
             timing["openloop"] += t_acq
         # proposed: strict (trusted aperture); ablation: hybrid (failed blocks kept with soft symbols)
-        # proposed: strict trusted aperture with rollback and split test; ablations
         variants = (("track", "strict", cfg.trk_policy, cfg.trk_split), ("track-hybrid", "hybrid", cfg.trk_policy, cfg.trk_split),
                     ("track-legacy", "strict", "legacy", False), ("track-keep", "strict", "keep", False),
                     ("track-validate", "strict", "validate", False), ("track-valsplit", "strict", "validate", True),

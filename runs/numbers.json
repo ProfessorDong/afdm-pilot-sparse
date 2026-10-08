@@ -274,6 +274,11 @@
   "tex": "two",
   "source": "mbtrack.Tracker.retries (word)"
  },
+ "NumRetriesDigit": {
+  "value": 2,
+  "tex": "2",
+  "source": "mbtrack.Tracker.retries (digit, for Algorithm 1)"
+ },
  "NumExclRadius": {
   "value": 0.12307692307692308,
   "tex": "0.12",
