@@ -1,0 +1,136 @@
+{
+ "name": "m_frame",
+ "trials": 200,
+ "procs": 18,
+ "seed0": 50001,
+ "base": {
+  "B": 16,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4
+ },
+ "grid": [
+  {
+   "snr_db": 6,
+   "B": 4,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 6,
+   "B": 8,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 6,
+   "B": 16,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 6,
+   "B": 32,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 6,
+   "B": 64,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 12,
+   "B": 4,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 12,
+   "B": 8,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 12,
+   "B": 16,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 12,
+   "B": 32,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  },
+  {
+   "snr_db": 12,
+   "B": 64,
+   "Bp": 1,
+   "receivers": [
+    "genie",
+    "conv-da",
+    "genie-conv",
+    "openloop",
+    "track"
+   ]
+  }
+ ]
+}

@@ -2,8 +2,8 @@
 
 - Path association (initial acquisition and final tracked set) against the true
   channel: a detected path (l, k) matches a true path (tau, kappa) if
-  |l - tau| < dl and |k - kappa| < 1/(2 beta), one to one, strongest true path
-  first. Reported: fraction of true paths detected, missed channel-energy
+  |l - tau| < dl and |k - kappa| < 1/(2 beta), by a maximum-cardinality one-to-one
+  assignment. Reported: fraction of true paths detected, missed channel-energy
   fraction, false (unmatched) paths per frame.
 - Prediction-error-to-noise ratio of each predicted block (tracker diagnostics).
 - Paired frame bootstrap of throughput ratios and differences: frames (channel
@@ -20,27 +20,29 @@ BETA = 520 / 512
 
 
 def associate(det, tau, kap, habs, dl, born=None):
-    """det: list of (l, k, ...). Returns (n_true, n_detected_true, missed_energy, n_false)."""
+    """Maximum-cardinality one-to-one association of detected components (l, k, ...)
+    with the true paths alive at the start of the frame: a pair is admissible if
+    |l - tau| < dl and |k - kappa| < 1/(2 beta); among maximum matchings, the one
+    with the largest matched channel power (then smallest normalized distance).
+    Returns (n_true, n_matched, missed_energy_fraction, n_unmatched_components)."""
+    from scipy.optimize import linear_sum_assignment
     alive = np.ones(len(tau), bool) if born is None else np.asarray(born) == 0
-    order = [p for p in np.argsort(-np.asarray(habs)) if alive[p]]
-    used = set()
-    hit = 0
-    missed = 0.0
-    for p in order:
-        best = None
+    tp = [p for p in range(len(tau)) if alive[p]]
+    pw = np.asarray(habs, float) ** 2
+    tot = float(sum(pw[p] for p in tp))
+    if not tp or not det:
+        return len(tp), 0, (1.0 if tp and tot > 0 else 0.0), len(det)
+    C = np.full((len(tp), len(det)), 1e6)
+    for a, p in enumerate(tp):
         for i, d in enumerate(det):
-            if i in used:
-                continue
-            if abs(d[0] - tau[p]) < dl and abs(d[1] - kap[p]) < 0.5 / BETA:
-                best = i
-                break
-        if best is None:
-            missed += habs[p] ** 2
-        else:
-            used.add(best)
-            hit += 1
-    tot = sum(habs[p] ** 2 for p in order)
-    return len(order), hit, missed / tot if tot > 0 else 0.0, len(det) - len(used)
+            dd, dk = abs(d[0] - tau[p]) / dl, abs(d[1] - kap[p]) * 2 * BETA
+            if dd < 1 and dk < 1:
+                C[a, i] = -(1e3 + pw[p] / tot) + 1e-3 * (dd + dk)
+    r, c = linear_sum_assignment(C)
+    ok = C[r, c] < 0
+    matched = {tp[a] for a in r[ok]}
+    missed = sum(pw[p] for p in tp if p not in matched)
+    return len(tp), int(ok.sum()), missed / tot if tot > 0 else 0.0, len(det) - int(ok.sum())
 
 
 def frames(name):

@@ -1,0 +1,261 @@
+{
+ "name": "tune_v4",
+ "trials": 30,
+ "procs": 18,
+ "seed0": 910001,
+ "seed_by": "snr",
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4
+ },
+ "grid": [
+  {
+   "snr_db": 4,
+   "sp_eps": 0.1,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.1,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.1,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.15,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.15,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.15,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.1,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.1,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.1,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.15,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.15,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.15,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.1,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.1,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.1,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.15,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.15,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.15,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 16,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 20,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  }
+ ]
+}

@@ -27,13 +27,17 @@ for r in res:
             if f"tp_sp-track{K}" not in r:
                 continue
             tp = r[f"tp_sp-track{K}"]
-            if s not in best_t or tp > best_t[s]["tp"]:
-                best_t[s] = {"spt_eps": r["spt_eps"], "K": K, "tp": tp}
-            if K <= 4 and (s not in best_l or tp > best_l[s]["tp"]):      # low-latency variant
-                best_l[s] = {"spl_eps": r["spt_eps"], "K": K, "tp": tp}
+            # ties (e.g. every configuration error-free on the tuning frames) are broken
+            # toward more acquisition blocks, then toward the larger pilot fraction
+            key = (tp, K, r["spt_eps"])
+            if s not in best_t or key > best_t[s]["key"]:
+                best_t[s] = {"spt_eps": r["spt_eps"], "K": K, "tp": tp, "key": key}
+            if K <= 4 and (s not in best_l or key > best_l[s]["key"]):      # low-latency variant
+                best_l[s] = {"spl_eps": r["spt_eps"], "K": K, "tp": tp, "key": key}
     if "tp_sp" in r and r["trials"] >= 30:
-        if s not in best_s or r["tp_sp"] > best_s[s]["tp"]:
-            best_s[s] = {"sp_eps": r["sp_eps"], "sp_iters": r["sp_iters"], "tp": r["tp_sp"]}
+        key = (r["tp_sp"], -r["sp_iters"], -r["sp_eps"])       # ties: fewer iterations, smaller fraction
+        if s not in best_s or key > best_s[s]["key"]:
+            best_s[s] = {"sp_eps": r["sp_eps"], "sp_iters": r["sp_iters"], "tp": r["tp_sp"], "key": key}
 warn = []
 for s, b in best_t.items():
     # K = 16 = B is the whole frame (structural maximum, not a grid boundary)
@@ -49,6 +53,9 @@ print("sp-track:", best_t)
 print("sp:", best_s)
 print("sp-track-ll:", best_l)
 print("BOUNDARY:", warn, "fails:", fails)
+for d in (best_t, best_s, best_l):
+    for v in d.values():
+        v.pop("key", None)
 json.dump({"sp_track": {str(k): v for k, v in best_t.items()}, "sp": {str(k): v for k, v in best_s.items()},
            "sp_track_ll": {str(k): v for k, v in best_l.items()},
            "boundary": [list(map(str, w)) for w in warn]}, open("runs/tune_v2_choice.json", "w"), indent=1)

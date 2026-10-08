@@ -64,6 +64,8 @@ class Config:
     diag: bool = False              # record tracker diagnostics (prediction error, CRC, insertions)
     tp_dk: float | None = None      # two-path study: Doppler separation (subcarrier spacings)
     tp_dl: float = 0.0              # two-path study: delay separation (samples)
+    trk_policy: str = "keep"        # failed-block model policy (mbtrack.Tracker.policy)
+    trk_split: bool = False         # local split test (ablation)
 
 
 def make_system(cfg: Config) -> MBAFDM:
@@ -388,7 +390,9 @@ def simulate(cfg: Config, seed: int):
             e = (Hp - H_true(b)) @ x[b]
             rho.append(float(np.vdot(e, e).real / (S.N * sigma2)))
         out = {"rho_pred": rho, "crc": T.crc_ok.astype(int).tolist(), "trusted": T.trusted.astype(int).tolist(),
-               "n_insert": T.n_insert, "n_merge": T.n_merge,
+               "n_insert": T.n_insert, "n_merge": T.n_merge, "n_split": T.n_split, "n_rollback": T.n_rollback,
+               "degraded": T.degraded.astype(int).tolist(),
+               "traj_k": [list(map(float, k)) for _, k, _ in T.traj_log] if hasattr(T, "traj_log") else None,
                "final": [(p[0], p[1], float(abs(g))) for p, g in zip(T.final[0], T.final[1])]}
         if Yn is not None:              # residual inter-block interference + delay-model mismatch
             ibi = [float(np.vdot(Yn[b] - H_true(b) @ x[b], Yn[b] - H_true(b) @ x[b]).real /
@@ -410,7 +414,8 @@ def simulate(cfg: Config, seed: int):
     def mkT(trust="strict"):
         return Tracker(S, soft=True, window=cfg.window, redetect=True, est_delay=cfg.frac_delay,
                        model_rho=cfg.model_rho, reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5,
-                       P_cap=P_cap, aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level, trust=trust)
+                       P_cap=P_cap, aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level, trust=trust,
+                       policy=cfg.trk_policy, split=cfg.trk_split)
 
     def genie_dets(Yx, knd, with_pn=True):
         pil = np.zeros(S.N, bool); pil[S.zero_set] = True
@@ -457,7 +462,9 @@ def simulate(cfg: Config, seed: int):
         dsp, xsp = _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay)
         tally("sp", dsp, xsp, t0, "S")
 
-    run_track = any(r in cfg.receivers for r in ("openloop", "track", "track-hybrid"))
+    run_track = any(r in cfg.receivers for r in ("openloop", "track", "track-hybrid", "track-legacy", "track-keep",
+                                                  "track-validate", "track-valsplit", "track-rollback",
+                                                  "track-keepsplit"))
     if run_track:
         t0 = time.time()
         paths0, h0 = acq.run(Y[:Bp], P_cap, P_known, sigma2=sigma2)
@@ -477,18 +484,27 @@ def simulate(cfg: Config, seed: int):
             tally("openloop", d0 + dd[Bp:], x, t1)
             timing["openloop"] += t_acq
         # proposed: strict (trusted aperture); ablation: hybrid (failed blocks kept with soft symbols)
-        for name, trust in (("track", "strict"), ("track-hybrid", "hybrid")):
+        # proposed: strict trusted aperture with rollback and split test; ablations
+        variants = (("track", "strict", cfg.trk_policy, cfg.trk_split), ("track-hybrid", "hybrid", cfg.trk_policy, cfg.trk_split),
+                    ("track-legacy", "strict", "legacy", False), ("track-keep", "strict", "keep", False),
+                    ("track-validate", "strict", "validate", False), ("track-valsplit", "strict", "validate", True),
+                    ("track-rollback", "strict", "rollback", False), ("track-keepsplit", "strict", "keep", True))
+        for name, trust, pol, sp in variants:
             if name not in cfg.receivers:
                 continue
             t1 = time.time()
             T = mkT(trust=trust)
+            T.policy, T.split = pol, sp
             if cfg.decision == "hard":
                 T.soft = False
             dets, traj = T.run_full(Y, kinds, paths0, h0, sigma2, codec=codec)
+            T.traj_log = traj
             tally(name, dets, x, t1)
             timing[name] += t_acq
             if cfg.diag:
                 res["diag-" + name] = diag(T, x, Yn if name == "track" else None)
+            elif cfg.tp_dk is not None:          # two-path study: Doppler trajectory of the model
+                res["traj-" + name] = [list(map(float, k)) for _, k, _ in traj]
 
     if "conv-da" in cfg.receivers or "genie-conv" in cfg.receivers:
         # conventional frame (pilot + guard in every block), same channel
@@ -581,7 +597,8 @@ def simulate(cfg: Config, seed: int):
         T = Tracker(So, soft=True, window=cfg.window, redetect=True,
                     est_delay=cfg.frac_delay, model_rho=cfg.model_rho,
                     reacq_every=cfg.reacq_every, kmax=cfg.kappa_max + 0.5, P_cap=P_cap,
-                    aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level, trust="strict")
+                    aperture_res=cfg.aperture_res, reacq_level=cfg.reacq_level, trust="strict",
+                    policy=cfg.trk_policy, split=cfg.trk_split)
         paths, g, _ = T.refit(Yo[:Bp], xo[:Bp], tb, paths)
         codec = make_codec() if (cfg.coded and cfg.decision == "decoded") else None
         if cfg.decision == "hard":

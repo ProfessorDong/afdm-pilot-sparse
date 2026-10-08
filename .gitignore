@@ -43,7 +43,7 @@ runs/*
 !runs/dev_c2p_irr.jsonl
 !runs/dev_c2p_irr.spec.json
 !runs/oracle_guard.json
-AFDM_TVT_*.md
+AFDM_TVT_*
 !runs/m_main.jsonl
 !runs/m_main.spec.json
 !runs/m_two.jsonl
@@ -64,3 +64,12 @@ AFDM_TVT_*.md
 !runs/checks.json
 !runs/paired.json
 !runs/fig_diag_meta.json
+!runs/dev_policy.jsonl
+!runs/dev_policy.spec.json
+!runs/dev_policy_two.jsonl
+!runs/dev_policy_two.spec.json
+!runs/dev_split.jsonl
+!runs/dev_split.spec.json
+!runs/dev_split_two.jsonl
+!runs/dev_split_two.spec.json
+!runs/MANIFEST.json

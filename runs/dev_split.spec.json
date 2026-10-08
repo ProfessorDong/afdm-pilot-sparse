@@ -1,0 +1,46 @@
+{
+ "name": "dev_split",
+ "trials": 150,
+ "procs": 18,
+ "seed0": 555001,
+ "seed_by": "snr",
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4
+ },
+ "grid": [
+  {
+   "snr_db": 6,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  },
+  {
+   "snr_db": 8,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  },
+  {
+   "snr_db": 12,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  },
+  {
+   "snr_db": 16,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  }
+ ]
+}

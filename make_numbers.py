@@ -134,6 +134,9 @@ put("NumGratRestrictDiffDb", max(abs(_rows[(B, l, True)] - _rows[(B, 3, False)])
 _fr = {r["N"]: r for r in _ck["k4"]["fixed_rate"]}
 put("NumGuardPctKiloFs", 100 * _fr[1024]["frac"], "checks k4: |Z|/N at N=1024, fixed sample rate and physical spreads", r"{:.0f}\%")
 put("NumGuardPctTwoKiloFs", 100 * _fr[2048]["frac"], "checks k4: |Z|/N at N=2048, same", r"{:.0f}\%")
+put("NumTxEnergyDevPct", 100 * max(abs(v["mean"] - 1) for v in _ck["k7"].values()), "checks k7: max |mean energy per sample - 1| over frame types", r"{:.2f}\%")
+put("NumWindowCapture", _ck["k8"]["min_capture_kmax"], "checks k8: min energy of the full-length atom captured by W, |kappa|<=kappa_max", "{:.3f}")
+put("NumWindowLossDb", _ck["k8"]["loss_db_kmax"], "checks k8: corresponding pilot-SNR loss", "{:.2f}")
 put("NumRmsDelayMed", _ck["k5"]["median"], "checks k5: median realized RMS delay spread (samples)", "{:.1f}")
 put("NumRmsDelayHi", _ck["k5"]["p90"], "checks k5: 90th percentile realized RMS delay spread (samples)", "{:.1f}")
 
@@ -163,6 +166,9 @@ _T = Tracker(S)
 put("NumMergeDl", _T.merge_dl, "mbtrack.Tracker.merge_dl", "{:g}")
 put("NumMergeDk", _T.merge_dk, "mbtrack.Tracker.merge_dk", "{:g}")
 put("NumRetries", ["zero", "one", "two", "three", "four"][_T.retries], "mbtrack.Tracker.retries (word)")
+put("NumExclRadius", 1 / (_T.reacq_window * beta), "1/(W_r beta): re-acquisition exclusion radius for a full window", "{:.2f}")
+put("NumResFrame", 1 / (16 * beta), "1/(B beta): Doppler resolution of a 16-block aperture", "{:.2f}")
+put("NumReacqWindow", _T.reacq_window, "mbtrack.Tracker.reacq_window", "{:d}")
 put("NumGnIters", ["zero", "one", "two", "three", "four", "five", "six"][_T.gn_iters], "mbtrack.Tracker.gn_iters (word)")
 
 # ------------------------------------------------------------------ theory validation
@@ -216,7 +222,7 @@ _MAIN = ("NumGainConvPct", "NumSnrGenieMatch", "NumGapGeniePct", "NumSpTopSnr", 
          "NumTimeConvDa", "NumTimeSpTrack", "NumTimeTrackMin", "NumTimeTrackMax", "NumSpOverGenieMaxPct",
          "NumOverPtrackMinPct", "NumOverPtrackMaxPct", "NumHybridMaxDiffPct", "NumSptEpsList", "NumSptKList",
          "NumSplEpsList", "NumSplFromSnr", "NumOverSplEightPct", "NumSpItersSatDiff",
-         "NumBpTwoSigTop", "NumBlerRatioMax", "NumSpOverGenieFromSnr", "NumHybridWorstSnr", "NumPtrackBestKList",
+         "NumBpTwoSigTop", "NumBpTwoSigLow", "NumBpTwoWorseFrom", "NumBpTwoWorsePct", "NumBlerRatioMax", "NumSpOverGenieFromSnr", "NumHybridMinPct", "NumHybridMaxPct", "NumPtrackBestKList",
          "NumInterpBestKList", "NumUndetected", "NumBlocksAll")
 
 
@@ -314,13 +320,21 @@ def _main():
     put("NumBpTwoSigTop", max(sig2) if sig2 else "--", "paired: highest SNR where Bp=2 beats Bp=1 significantly", "{}")
     b2 = [s for s in S_ if paired(pair_points(s, 2, "track"), "_b", "track", seed=s)["ratio"] > 0]
     put("NumBpTwoBetterTop", max(b2) if b2 else "--", "paired: highest SNR where Bp=2 beats Bp=1 in the mean", "{}")
+    put("NumBpTwoSigLow", min(sig2) if sig2 else "--", "paired: lowest SNR where Bp=2 beats Bp=1 significantly", "{}")
+    worse = {}
+    for s in S_:
+        d = paired(pair_points(s, 2, "track"), "_b", "track", seed=s)
+        if d["ratio_hi"] < 0:
+            worse[s] = d["ratio"]
+    put("NumBpTwoWorseFrom", min(worse) if worse else "--", "paired: lowest SNR where Bp=2 is significantly worse", "{}")
+    put("NumBpTwoWorsePct", -100 * min(worse.values()) if worse else 0.0, "paired: largest significant Bp=2 deficit", r"{:.1f}\%")
     bl = {s: by[s]["bler_track"] / max(by[s]["bler_genie"], 1e-9) for s in S_ if 6 <= s <= 12}
     put("NumBlerRatioMax", max(bl.values()), "max BLER ratio track/genie, 6-12 dB", "{:.0f}")
     over = [s for s in S_ if by[s]["tp_sp-track"] > ge[s]]
     put("NumSpOverGenieFromSnr", min(over), "lowest SNR where sp-track > genie of the pilot-sparse frame", "{:d}")
-    hy = {s: 1 - by[s]["tp_track-hybrid"] / tr[s] for s in S_ if s >= 4}
-    put("NumHybridWorstSnr", max(hy, key=hy.get), "SNR of the largest hybrid loss", "{:d}")
-    assert all(v >= -1e-9 for v in hy.values()), "hybrid better somewhere: revise text"
+    hy = {s: by[s]["tp_track-hybrid"] / tr[s] - 1 for s in S_ if s >= 4}
+    put("NumHybridMinPct", 100 * min(hy.values()), "min hybrid/strict-1, SNR>=4", r"{:+.1f}\%")
+    put("NumHybridMaxPct", 100 * max(hy.values()), "max hybrid/strict-1, SNR>=4", r"{:+.1f}\%")
     pk = {s: (4 if by[s]["tp_ptrack4"] >= by[s]["tp_ptrack8"] else 8) for s in S_}
     put("NumPtrackBestKList", ", ".join(str(pk[s]) for s in S_), "best periodic+tracker spacing per SNR")
     ik = {s: (4 if by[s]["tp_interp4"] >= by[s]["tp_interp8"] else 8) for s in S_}
@@ -343,10 +357,10 @@ def _main():
     put("NumTimeGenie", np.mean([by[s]["time_genie"] for s in S_]), "time genie", "{:.0f}")
 
 
-_DIAG = ("NumAcqDetSix", "NumAcqDetHi", "NumAcqMissSix", "NumAcqMissHi", "NumFinalDetHi", "NumFalseAcq", "NumFalseFinal",
+_DIAG = ("NumCapHitPct", "NumCapHitMaxPct", "NumRhoMeanLastTen", "NumRhoMeanLastSixteen", "NumAcqDetSix", "NumAcqDetHi", "NumAcqMissSix", "NumAcqMissHi", "NumFinalDetHi", "NumFalseAcq", "NumFalseFinal",
          "NumInsertPerFrame", "NumMergePerFrame", "NumRhoMedFirstTen", "NumRhoMedLastTen", "NumRhoMedFirstSixteen",
          "NumRhoMedLastSixteen", "NumRhoCircSixteen", "NumIbiDb", "NumCircMisDb", "NumMisGenieDiffPct",
-         "NumMisTrackDiffPct", "NumLockLossFrames", "NumHiFrames", "NumRhoFloorRiseDb", "NumLockErrSharePct", "NumBenchFifteenDb",
+         "NumMisTrackDiffPct", "NumLockLossFrames", "NumHiFrames", "NumBurstGenieOk", "NumBurstRhoHigh", "NumRhoFloorRiseDb", "NumLockErrSharePct", "NumBenchFifteenDb",
          "NumCircBenchGapDb", "NumMisFloorTenDb")
 
 
@@ -363,22 +377,36 @@ def _diag():
     put("NumAcqDetHi", 100 * min(a["p_detect"] for a in ahi), "m_main acq: min fraction found, SNR>=12", r"{:.0f}\%")
     put("NumAcqMissHi", 100 * max(a["missed_energy"] for a in ahi), "m_main acq: max missed energy, SNR>=12", r"{:.2f}\%")
     put("NumFinalDetHi", 100 * min(f["p_detect"] for f in fhi), "m_main final: min fraction tracked, SNR>=12", r"{:.0f}\%")
-    put("NumFalseAcq", np.mean([a["false_per_frame"] for a in ahi]), "m_main acq: extra components per frame, SNR>=12", "{:.1f}")
-    put("NumFalseFinal", np.mean([f["false_per_frame"] for f in fhi]), "m_main final: extra components per frame, SNR>=12", "{:.1f}")
-    allr = [r for s in pidx for r in fb[pidx[s]] if "diag-track" in r]
-    put("NumInsertPerFrame", np.mean([r["diag-track"]["n_insert"] for r in allr]), "m_main: re-acquisition insertions per frame", "{:.1f}")
-    put("NumMergePerFrame", np.mean([r["diag-track"]["n_merge"] for r in allr]), "m_main: merges per frame", "{:.1f}")
+    pooled_a = path_stats([r for s in hi for r in fb[pidx[s]]], "acq", 1.0)
+    pooled_f = path_stats([r for s in hi for r in fb[pidx[s]]], "diag-track", 0.5)
+    put("NumFalseAcq", pooled_a["false_per_frame"], "m_main acq: unmatched components per frame, pooled over frames, SNR>=12", "{:.1f}")
+    put("NumFalseFinal", pooled_f["false_per_frame"], "m_main final: unmatched components per frame, pooled, SNR>=12", "{:.1f}")
+    hif = [r for s in hi for r in fb[pidx[s]]]
+    capf = np.mean([len(r["acq"]) >= 8 for r in hif])
+    put("NumCapHitPct", 100 * capf, "m_main: frames whose acquisition reaches the cap P_max=8, SNR>=12, pooled", r"{:.0f}\%")
+    caps = [np.mean([len(r["acq"]) >= 8 for r in fb[pidx[s]]]) for s in pidx]
+    put("NumCapHitMaxPct", 100 * max(caps), "m_main: max over SNR of frames reaching the cap", r"{:.0f}\%")
+    hir = [r for s in hi for r in fb[pidx[s]] if "diag-track" in r]          # same population as above
+    put("NumInsertPerFrame", np.mean([r["diag-track"]["n_insert"] for r in hir]), "m_main: re-acquisition insertions per frame, SNR>=12", "{:.1f}")
+    put("NumMergePerFrame", np.mean([r["diag-track"]["n_merge"] for r in hir]), "m_main: merges per frame, SNR>=12", "{:.1f}")
+    if "n_split" in hir[0]["diag-track"]:
+        put("NumSplitPerFrame", np.mean([r["diag-track"]["n_split"] for r in hir]), "m_main: accepted splits per frame, SNR>=12", "{:.2f}")
     for s, nm in ((10, "Ten"), (16, "Sixteen")):
         R = np.array([r["diag-track"]["rho_pred"] for r in fb[pidx[s]]])
         med = 10 * np.log10(np.median(R, 0))
         put(f"NumRhoMedFirst{nm}", med[1], f"m_main diag: median rho(1), {s} dB", "{:.1f}")
         put(f"NumRhoMedLast{nm}", med[-1], f"m_main diag: median rho(15), {s} dB", "{:.1f}")
         NUM.setdefault("_last", {})[s] = med[-1]
+        put(f"NumRhoMeanLast{nm}", 10 * np.log10(np.mean(R[:, -1])), f"m_main diag: mean rho(15), {s} dB", "{:.1f}")
     put("NumRhoFloorRiseDb", NUM["_last"][16] - NUM["_last"][10], "median rho(15) at 16 dB minus at 10 dB", "{:.1f}")
     del NUM["_last"]
     nl = sum(1 for s in hi for r in fb[pidx[s]] if sum(r["track"]["blerr"]) >= 3)
     put("NumLockLossFrames", nl, "m_main: frames with >=3 block errors (proposed), SNR>=12", "{:d}")
     put("NumHiFrames", sum(len(fb[pidx[s]]) for s in hi), "m_main: frames at SNR>=12", "{:d}")
+    burst = [r for s in hi for r in fb[pidx[s]] if sum(r["track"]["blerr"]) >= 3]
+    put("NumBurstGenieOk", sum(1 for r in burst if sum(r["genie"]["blerr"]) <= 1), "m_main: of those, frames with <=1 block error under perfect CSI", "{:d}")
+    put("NumBurstRhoHigh", sum(1 for r in burst if np.median(r["diag-track"]["rho_pred"][1:]) > 1.0),
+        "m_main: of those, frames whose median prediction-error-to-noise ratio exceeds 0 dB", "{:d}")
     _e = [sum(r["track"]["blerr"]) for s in hi for r in fb[pidx[s]]]
     put("NumLockErrSharePct", 100 * sum(e for e in _e if e >= 3) / max(1, sum(_e)), "m_main: share of block errors (SNR>=12) in those frames", r"{:.0f}\%")
     sm, bm = frames("m_mismatch")
@@ -429,7 +457,7 @@ def _two():
     put("NumTwoMinRatioPct", 100 * mn, "m_two: min track/genie, equal delay", r"{:.0f}\%")
     put("NumTwoMinDk", f"{near[0]:g}" if len(near) == 1 else f"{near[0]:g}--{near[-1]:g}", "m_two: separation(s) at the minimum")
     put("NumTwoDelayRatioPct", 100 * min(f[(1.0, d)]["tp_track"] / f[(1.0, d)]["tp_genie"] for d in dks),
-        "m_two: min track/genie, delays one sample apart", r"{:.0f}\%")
+        "m_two: min track/genie, delays one sample apart", r"{:.1f}\%")
     ck = json.load(open(RUNS / "checks.json"))["k6"]
     for L, nm in ((1, "One"), (4, "Four")):
         rr = sorted([r for r in ck if r["dl"] == 0 and r["L"] == L], key=lambda r: r["dk"])
@@ -439,7 +467,7 @@ def _two():
     put("NumJointDelayMaxDb", _jd, "checks k6: max |rho_J/rho_CR| (dB), delays one sample apart", "{:.2f}")
 
 
-_FRAME = ("NumFrameBestB", "NumFrameGapLongPct", "NumFrameLongB", "NumOpenLongTp", "NumOpenShortTp", "NumFrameShortB",
+_FRAME = ("NumFrameBurstSharePct", "NumFrameBestB", "NumFrameGapLongPct", "NumFrameLongB", "NumOpenLongTp", "NumOpenShortTp", "NumFrameShortB",
           "NumFrameTimeRatio", "NumFrameTrials", "NumFrameBlerLongPct", "NumFrameBlerMidPct", "NumFrameGapMinPct",
           "NumFrameGapMaxPct", "NumFrameLossMin", "NumFrameLossMax")
 
@@ -459,7 +487,7 @@ def _frame():
     put("NumFrameTimeRatio", t12[max(t12)]["time_track"] / t12[16]["time_track"], "m_frame: track time B_max / B=16", "{:.1f}")
     put("NumFrameTrials", min(r["trials"] for r in e5), "m_frame: trials per point", "{:d}")
     spec, fb = frames("m_frame")
-    gaps, nfr = [], []
+    gaps, nfr, shares = [], [], []
     for i, g in enumerate(spec["grid"]):
         if g["snr_db"] != 12:
             continue
@@ -468,8 +496,13 @@ def _frame():
         d = np.array([(sum(r["genie"]["goodbits"]) - sum(r["track"]["goodbits"])) / den for r in rs])
         gaps.append(100 * d.mean() / np.mean([sum(r["genie"]["goodbits"]) / den for r in rs]))
         nfr.append(int(sum(1 for r in rs if sum(r["track"]["blerr"]) >= 3)))
+        if g["B"] >= 8:
+            dd = np.array([sum(r["genie"]["goodbits"]) - sum(r["track"]["goodbits"]) for r in rs], float)
+            bur = np.array([sum(r["track"]["blerr"]) >= 3 for r in rs])
+            shares.append(dd[bur].sum() / dd.sum() if dd.sum() > 0 else 1.0)
     put("NumFrameGapMinPct", min(gaps), "m_frame: min paired genie gap over B at 12 dB", r"{:.1f}\%")
     put("NumFrameGapMaxPct", max(gaps), "m_frame: max paired genie gap over B at 12 dB", r"{:.1f}\%")
+    put("NumFrameBurstSharePct", 100 * min(shares), "m_frame: min share of the genie gap in frames with >=3 block errors, B>=8, 12 dB", r"{:.0f}\%")
     put("NumFrameLossMin", min(nfr), "m_frame: min #frames with >=3 block errors (proposed), 12 dB", "{:d}")
     put("NumFrameLossMax", max(nfr), "m_frame: max #frames with >=3 block errors (proposed), 12 dB", "{:d}")
     put("NumFrameBlerLongPct", 100 * t12[max(t12)]["bler_track"], "m_frame: track BLER at largest B, 12 dB", r"{:.1f}\%")
@@ -532,14 +565,67 @@ def _rob():
     g5 = 100 * max(f6(rho_max=0.005, model_rho=True)["tp_track"], f6(rho_max=0.005, window=6)["tp_track"]) / f6(rho_max=0.005)["tp_track"] - 100
     put("NumDriftGainTwoPct", g2, "m_robust: best remedy gain at drift 0.002", r"{:.1f}\%")
     put("NumDriftGainFivePct", g5, "m_robust: best remedy gain at drift 0.005", r"{:.1f}\%")
+    # paired comparisons of the drift remedies (seed_by snr: every point uses the same channels)
+    from diagnostics import paired
+    spec_r, fb_r = frames("m_robust")
+    gi = {}
+    for i, g in enumerate(spec_r["grid"]):
+        key = (g.get("rho_max", 0.0), g.get("window"), bool(g.get("model_rho", False)), g.get("pn_var"),
+               g.get("born_frac"), g.get("P"), g.get("kappa_max"), g.get("cfo"), g.get("reacq_every"))
+        gi[key] = i
+
+    def pr(rho, var):
+        base = (rho, None, False, None, None, None, None, None, None)
+        alt = (rho, 6, False, None, None, None, None, None, None) if var == "window" else \
+            (rho, None, True, None, None, None, None, None, None)
+        ra = {r["seed"]: r for r in fb_r[gi[base]]}
+        rb = {r["seed"]: r for r in fb_r[gi[alt]]}
+        rows = [{**ra[k], "_b": rb[k]["track"]} for k in ra if k in rb]
+        assert len(rows) == len(ra), "drift variants not paired"
+        return paired(rows, "_b", "track", seed=int(1000 * rho) + 1)
+    for rho, nm in ((0.0, "Zero"), (0.002, "Two"), (0.005, "Five"), (0.02, "Twenty")):
+        for var, vn in (("window", "Win"), ("rate", "Rate")):
+            d = pr(rho, var)
+            put(f"NumDrift{vn}{nm}Pct", 100 * d["ratio"], f"m_robust paired: {var}/default-1 at drift {rho}", r"{:+.1f}\%")
+            put(f"NumDrift{vn}{nm}Ci", f"[{100 * d['ratio_lo']:+.1f}, {100 * d['ratio_hi']:+.1f}]",
+                f"m_robust paired: 95% bootstrap interval, {var}, drift {rho}")
     put("NumDriftPtrackTenTp", f6(rho_max=0.01)["tp_ptrack4"], "m_robust: ptrack4 at drift 0.01", "{:.2f}")
     put("NumDriftTrackTenTp", f6(rho_max=0.01)["tp_track"], "m_robust: track at drift 0.01", "{:.2f}")
+
+
+# ------------------------------------------------------------------ receiver design choices (held-out seeds)
+@_guard(("NumRollbackTwoPct", "NumRollbackEightPct", "NumKeepMinPct", "NumKeepMaxPct", "NumValidateMinPct",
+         "NumValidateMaxPct", "NumSplitMinPct", "NumSplitMaxPct", "NumDevTrials"), "dev_policy")
+def _design():
+    from diagnostics import paired
+    def pr(name, a, b):
+        spec, fb = frames(name)
+        out = {}
+        for i, g in enumerate(spec["grid"]):
+            d = paired(fb[i], a, b, seed=1)
+            out[(g.get("snr_db"), g.get("tp_dk"))] = d["ratio"]
+        return out
+    rb2 = pr("dev_policy_two", "track-rollback", "track-keep")
+    rb = pr("dev_policy", "track-rollback", "track-keep")
+    put("NumRollbackTwoPct", -100 * min(rb2.values()), "dev_policy_two: largest loss of reverting to the committed path set vs keep", r"{:.0f}\%")
+    put("NumRollbackEightPct", -100 * rb[(8, None)], "dev_policy: loss of reverting vs keep at 8 dB", r"{:.1f}\%")
+    kp = list(pr("dev_policy", "track-keep", "track-legacy").values()) + list(pr("dev_policy_two", "track-keep", "track-legacy").values())
+    put("NumKeepMinPct", 100 * min(kp), "dev_policy: min keep/legacy-1", r"{:+.1f}\%")
+    put("NumKeepMaxPct", 100 * max(kp), "dev_policy: max keep/legacy-1", r"{:+.1f}\%")
+    vk = list(pr("dev_policy", "track-validate", "track-keep").values()) + list(pr("dev_policy_two", "track-validate", "track-keep").values())
+    put("NumValidateMinPct", 100 * min(vk), "dev_policy: min validate/keep-1", r"{:+.1f}\%")
+    put("NumValidateMaxPct", 100 * max(vk), "dev_policy: max validate/keep-1", r"{:+.1f}\%")
+    sv = list(pr("dev_split", "track-keepsplit", "track-keep").values()) + list(pr("dev_split_two", "track-keepsplit", "track-keep").values())
+    put("NumSplitMinPct", 100 * min(sv), "dev_split: min keep+split/keep-1", r"{:+.1f}\%")
+    put("NumSplitMaxPct", 100 * max(sv), "dev_split: max keep+split/keep-1", r"{:+.1f}\%")
+    put("NumDevTrials", min(len(v) for nm in ("dev_policy", "dev_policy_two") for v in frames(nm)[1].values()), "dev_policy: frames per point (min)", "{:d}")
 
 
 # ------------------------------------------------------------------ write
 lines = ["% GENERATED by make_numbers.py -- do not edit by hand.\n"]
 for k in sorted(NUM):
     lines.append(f"\\newcommand{{\\{k}}}{{{NUM[k]['tex']}}}  % {NUM[k]['source']}\n")
+OUT.parent.mkdir(exist_ok=True)
 OUT.write_text("".join(lines))
 json.dump({k: {"value": v["value"], "tex": v["tex"], "source": v["source"]} for k, v in NUM.items()},
           open(RUNS / "numbers.json", "w"), indent=1, default=float)

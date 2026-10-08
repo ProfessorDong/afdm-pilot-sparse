@@ -1,0 +1,43 @@
+{
+ "name": "dev_split_two",
+ "trials": 100,
+ "procs": 18,
+ "seed0": 556001,
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4,
+  "snr_db": 12,
+  "P": 2
+ },
+ "grid": [
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.1,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.2,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  },
+  {
+   "tp_dl": 0.0,
+   "tp_dk": 0.4,
+   "receivers": [
+    "track-keep",
+    "track-keepsplit"
+   ]
+  }
+ ]
+}

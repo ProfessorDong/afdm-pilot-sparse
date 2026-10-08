@@ -10,6 +10,7 @@ from mbafdm import MBAFDM
 
 ROOT = Path(__file__).resolve().parent
 PAPER = ROOT / "paper"
+PAPER.mkdir(exist_ok=True)
 C0 = 299_792_458.0
 
 
@@ -44,7 +45,7 @@ def main():
         (r"Delays", r"$\mathcal{U}[0,\ell_{\max}-\tfrac12]$, fractional"),
         (r"Doppler", r"$\kappa_{\max}\cos\vartheta$, $\vartheta$ uniform"),
         (r"Power-delay profile", fr"$\propto e^{{-\ell/{cfg.tau_rms:g}}}$, Rayleigh gains"),
-        (r"RMS delay spread (realized)", fr"median {ck['median']:.1f}, 90\% {ck['p90']:.1f}"),
+        (r"RMS delay spread, realized (samples)", fr"median {ck['median']:.1f}, 90\% {ck['p90']:.1f}"),
         (r"Frame", fr"$B={cfg.B}$ blocks"),
         (r"Code (rate 1/2)", fr"memory {K - 1}, ({G[0]:o},{G[1]:o})$_8$, zero tail"),
         (r"CRC-16", r"0x1021, init.\ 0xFFFF"),
@@ -52,11 +53,11 @@ def main():
         (r"$P_\mathrm{fa}$; re-acq.\ period $R$; retries", fr"$10^{{-3}}$; {cfg.reacq_every} blocks; {_T.retries}"),
         (r"Re-acq.\ $W_\mathrm{r}$, $M_\mathrm{os}$, $\kappa_\mathrm{s}$", fr"{_T.reacq_window}, 64, {cfg.kappa_max + 0.5:g}"),
         (r"\emph{HSR}: $f_\mathrm{c}$, $\Delta f$", r"5.9\,GHz, 1\,kHz"),
-        (r"\quad speed; max.\ excess delay", f"{hsr['v_kmh']:.0f}\\,km/h; {hsr['tau_us']:.1f}\\,$\\mu$s"),
+        (r"\quad speed; max.\ delay (bound)", f"{hsr['v_kmh']:.0f}\\,km/h; {hsr['tau_us']:.1f}\\,$\\mu$s"),
         (r"\quad block; frame ($B=16$, 64)", f"{hsr['Tblk_ms']:.2f}\\,ms; {hsr['frame16_ms']:.2f}, {hsr['frame64_ms']:.0f}\\,ms"),
         (r"\quad Doppler rate at 100\,m", f"{hsr['rho']:.4f} per block"),
         (r"\emph{V2V}: $f_\mathrm{c}$, $\Delta f$ ($\kappa_{\max}=1$)", r"60\,GHz, 15\,kHz"),
-        (r"\quad relative speed; max.\ excess delay", f"{v2v['v_kmh']:.0f}\\,km/h; {v2v['tau_us']:.2f}\\,$\\mu$s"),
+        (r"\quad relative speed; max.\ delay (bound)", f"{v2v['v_kmh']:.0f}\\,km/h; {v2v['tau_us']:.2f}\\,$\\mu$s"),
         (r"\quad block; frame ($B=16$)", f"{1e3*v2v['Tblk_ms']:.1f}\\,$\\mu$s; {v2v['frame16_ms']:.2f}\\,ms"),
         (r"\quad Doppler rate at 20\,m", f"{v2v['rho']:.5f} per block"),
     ]
@@ -122,12 +123,14 @@ def robust_table():
     for r in rows:
         tex.append(" & ".join(r) + " \\\\\n")
     tex.append("\\bottomrule\n\\end{tabular}\n\n\\smallskip\n\\parbox{\\columnwidth}{\\scriptsize "
-               "Reference: $P=4$, $\\kappa_{\\max}=3$. CFO in subcarrier spacings; drift: Doppler rate in subcarrier spacings per block; "
-               "PN: Wiener phase noise of linewidth relative to $\\Delta f$, increment variance $2\\pi\\,\\mathrm{linewidth}/(N\\Delta f)$ "
-               "per sample, one trajectory shared by all receivers of a trial; perfect CSI knows it, $^\\dagger$knows only the "
-               "deterministic channel. Born: fraction of paths appearing during the frame. Pilot every block: data-aided. "
-               "Window: sliding window of 6 blocks (8 with re-acquisition every block for path births); rate: Doppler-rate model. "
-               "Periodic + tracker: a pilot block every 4 blocks with the proposed tracker. "
+               "Reference: $P=4$, $\\kappa_{\\max}=3$; all entries use the same channel realizations (paired). CFO in subcarrier spacings. "
+               "Drift: each path's Doppler rate drawn uniformly in $[-\\eta_{\\max},\\eta_{\\max}]$, $\\eta_{\\max}$ given in subcarrier spacings per block. "
+               "PN: Wiener phase noise of normalized linewidth $\\lambda_\\mathrm{PN}=\\Delta\\nu_\\mathrm{PN}/\\Delta f$ (increment variance "
+               "$2\\pi\\lambda_\\mathrm{PN}/N$ per sample), one trajectory shared by all receivers of a trial; perfect CSI knows it, "
+               "$^\\dagger$knows only the deterministic channel. Born: a fraction of the paths, chosen at random, appears at a block drawn "
+               "uniformly from $B_\\mathrm{p}+1$ to $B-1$ and is absent before. Pilot every block: data-aided. Window: sliding window of 6 blocks "
+               "(8 with re-acquisition every block for path births); rate: Doppler-rate model. Periodic + tracker: a pilot block every "
+               "4 blocks with the proposed tracker. "
                f"Each entry averages {n} channel realizations; the standard errors of the proposed receiver's entries are "
                f"{min(se):.2f}--{max(se):.2f}\\,bit/s/Hz.}}\n\\end{{table}}\n")
     (PAPER / "tab_robust.tex").write_text("".join(tex))

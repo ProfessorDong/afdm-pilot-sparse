@@ -128,7 +128,7 @@ class Tracker:
     def __init__(self, S: MBAFDM, soft=True, window=None, gn_iters=3, redetect=True,
                  est_delay=False, model_rho=False, reacq_every=0, reacq_window=8,
                  reacq_pfa=1e-3, kmax=None, P_cap=8, retries=2, aperture_res=True, reacq_level="residual",
-                 trust="hybrid"):
+                 trust="hybrid", policy="keep", split=False, split_pfa=1e-3):
         self.S, self.soft, self.window = S, soft, window
         self.gn_iters, self.redetect = gn_iters, redetect
         self.est_delay, self.model_rho = est_delay, model_rho
@@ -143,6 +143,18 @@ class Tracker:
         # 'strict': it is used only while that block is being retried, then excluded
         # (pilot blocks always stay: their pilot is known)
         self.trust = trust
+        # strict mode, model proposed while a finally failing block was retried:
+        #   'legacy'  : refit the proposal on the trusted blocks (no other check)
+        #   'keep'    : as legacy, plus a refit after a successful retry and, with no
+        #               trusted block in the window, the committed model is kept
+        #   'validate': as keep, but the proposal replaces the committed model only if
+        #               its trusted-only fit is better by a per-component penalty
+        #   'rollback': always restore the committed model
+        self.policy = policy
+        # local one-versus-two-component test on the trusted aperture
+        self.split, self.split_pfa = split, split_pfa
+        self.n_split = 0                                 # accepted splits
+        self.n_rollback = 0                              # rollbacks after a final CRC failure
         self.n_insert = 0                                # paths added by re-acquisition
         self.n_merge = 0                                 # merges of paths within one resolution cell
 
@@ -198,6 +210,39 @@ class Tracker:
         l, k = best[1]
         self.n_insert += 1
         return paths + [(l, k, 0.0)]
+
+    # ---------- local split test ----------
+    def split_test(self, Y, X, blocks, paths, h, sigma2):
+        """Try replacing each tracked component by two at +-1/(2 W beta) in Doppler
+        (W: time span of the aperture) and refit; accept the largest cost reduction
+        if it exceeds the residual-calibrated threshold of a 3-parameter addition.
+        Returns (paths, h, accepted)."""
+        S = self.S
+        if len(paths) >= self.P_cap or not len(paths):
+            return paths, h, False
+        from scipy.stats import chi2
+        _, _, c0 = self.refit(Y, X, blocks, paths, iters=0)
+        n_obs = Y.size
+        lvl = max(sigma2, c0)                                    # residual-calibrated level
+        thr = 0.5 * lvl * chi2.isf(self.split_pfa / len(paths), 3)
+        dk = 0.5 / (self.span(blocks) * S.beta)
+        best = None
+        for p, pa in enumerate(paths):
+            l, k = pa[0], pa[1]
+            r = pa[2] if len(pa) > 2 else 0.0
+            trial = [q for i, q in enumerate(paths) if i != p] + [(l, k - dk, r), (l, k + dk, r)]
+            n_merge = self.n_merge
+            tp, th, c1 = self.refit(Y, X, blocks, trial)
+            self.n_merge = n_merge                               # trial merges are not counted
+            if len(tp) <= len(paths):
+                continue                                         # the pair merged back
+            gain = (c0 - c1) * n_obs
+            if gain > thr and (best is None or gain > best[0]):
+                best = (gain, tp, th)
+        if best is None:
+            return paths, h, False
+        self.n_split += 1
+        return best[1], best[2], True
 
     # ---------- parametric refit ----------
     def refit(self, Y, X, blocks, paths, iters=None, rows=None):
@@ -303,6 +348,7 @@ class Tracker:
         h = np.asarray(h, complex)
 
         def detect(b):
+            self.current_block = b                 # exposed for decoder hooks and tests
             H = channel_matrix(S, A[b], [p[0] for p in paths], [p[1] for p in paths], h,
                                [p[2] for p in paths])
             if kinds[b] == "T":
@@ -354,8 +400,10 @@ class Tracker:
                     break
                 paths, h, _ = self.refit(Y[blocks], Xs[blocks], A[blocks], new)
 
+        self.degraded = np.zeros(B, bool)          # no trusted block left in the window
         for b in range(B):
             self.pred[b] = (list(paths), h.copy())
+            committed = (list(paths), h.copy())        # state that predicted block b
             dets[b], Xs[b] = detect(b)
             if b + 1 < n_known:
                 continue
@@ -365,10 +413,17 @@ class Tracker:
             periodic = self.reacq_every and kinds[b] in "DS" and (b + 1 - n_known) % self.reacq_every == 0
             for attempt in range(1 + (self.retries if codec is not None else 0)):
                 paths, h, _ = self.refit(Y[blocks], Xs[blocks], A[blocks], paths)
+                fitted_verified = bool(self.crc_ok[b])     # symbols of block b in this fit
                 # data-aided re-acquisition: after the pilot block(s) are decoded (finds
                 # weak paths the single-pilot search missed), periodically, and on CRC failure
                 if self.reacq_every and (last_known or periodic or not self.crc_ok[b]):
                     reacq_loop(b, blocks)
+                    if self.split and (periodic or last_known):
+                        tb = blocks[[self.trusted[q] and (q != b or self.crc_ok[b]) for q in blocks]]
+                        if tb.size:
+                            paths, h, ok = self.split_test(Y[tb], Xs[tb], A[tb], paths, h, sigma2)
+                            if ok:
+                                paths, h, _ = self.refit(Y[blocks], Xs[blocks], A[blocks], paths)
                 if kinds[b] == "T":
                     break
                 if (self.redetect and (kinds[b] in "DS" or b >= n_known)) or not self.crc_ok[b] or last_known:
@@ -376,12 +431,34 @@ class Tracker:
                         if kinds[bb] != "T":
                             dets[bb], Xs[bb] = detect(bb)
                 if self.crc_ok[b]:
+                    if not fitted_verified and self.policy != "legacy":
+                        # passed only on re-detection: refit with its verified symbols before committing
+                        paths, h, _ = self.refit(Y[blocks], Xs[blocks], A[blocks], paths)
                     break
             if self.trust == "strict" and not self.crc_ok[b] and kinds[b] in "DS":
-                # failed block: leave the aperture and restore the last trusted fit
+                # failed block: leave the aperture; restore the committed model and refit it
+                # on the trusted blocks of the window (none: keep it and flag degraded lock)
                 self.trusted[b] = False
                 tb = np.array([q for q in range(lo, b + 1) if self.trusted[q]])
-                if tb.size:
+                if not tb.size:
+                    self.degraded[b] = True
+                    if self.policy != "legacy":
+                        paths, h = committed
+                elif self.policy == "rollback":
+                    paths, h, _ = self.refit(Y[tb], Xs[tb], A[tb], committed[0])
+                    self.n_rollback += 1
+                elif self.policy == "validate":
+                    pp, hp, cp = self.refit(Y[tb], Xs[tb], A[tb], paths)
+                    pc, hc, cc = self.refit(Y[tb], Xs[tb], A[tb], committed[0])
+                    from scipy.stats import chi2
+                    lvl = max(sigma2, cc)
+                    pen = 0.5 * lvl * chi2.isf(self.split_pfa, 3) / Y[tb].size   # per component, per sample
+                    if cp + pen * len(pp) <= cc + pen * len(pc):
+                        paths, h = pp, hp
+                    else:
+                        paths, h = pc, hc
+                        self.n_rollback += 1
+                else:
                     paths, h, _ = self.refit(Y[tb], Xs[tb], A[tb], paths)
             traj.append((b, [p[1] for p in paths], h.copy()))
         self.final = (list(paths), np.asarray(h).copy())

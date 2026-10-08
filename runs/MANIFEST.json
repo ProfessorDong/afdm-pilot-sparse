@@ -1,0 +1,2034 @@
+{
+ "commit": "6cc5922b67fd6e20356be82dd7ff40b7d1ba9f22",
+ "uncommitted_changes": true,
+ "environment": {
+  "python": "3.12.13",
+  "numpy": "2.2.6",
+  "scipy": "1.17.1",
+  "platform": "Linux-6.11.0-29-generic-x86_64-with-glibc2.39",
+  "processor": "x86_64"
+ },
+ "sweeps": {
+  "m_main": {
+   "sha256": "9b554bf2e5de990751653d5e69923e8adc9b0e48802df8e1b4435856a4b6b287",
+   "spec_sha256": "5add5b041557b655196b590eabce6dba46e3439ea9c9ac789a3490d7621302ad",
+   "records": 8600,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 12,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 13,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 14,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 15,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 16,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 17,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 18,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 19,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 20,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 21,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 22,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 23,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 24,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 25,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 26,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 27,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 28,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 29,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 30,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 31,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 32,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 33,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 34,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 35,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 36,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 37,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 38,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 39,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    }
+   ]
+  },
+  "m_two": {
+   "sha256": "9161a0a7063aec7f4de46db987b5ddc1a6036b76a870aedd834f84f2587a9f63",
+   "spec_sha256": "eb0092af6b2b251beaa8bfa097c28881f86b6f35efe928df425201c2e6bfb008",
+   "records": 1800,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    }
+   ]
+  },
+  "m_mismatch": {
+   "sha256": "530cfc2f7363a3d55eb00c2cf1e5f32a3f97255aaf2b52858fe31e7b156a8e44",
+   "spec_sha256": "791eb1084c33118424efb91b9737647d3de03e8760950e1bc6541504af3d9f35",
+   "records": 1800,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    }
+   ]
+  },
+  "m_robust": {
+   "sha256": "cf0cf12a1338ce60c34270eb9633324a460b35892c67eba048358cca0d249267",
+   "spec_sha256": "e91e4d3f7e7ac9794cd0c13d92d249ef197a52b790f7034115ca2fac7880c390",
+   "records": 6000,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 12,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 13,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 14,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 15,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 16,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 17,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 18,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 19,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 20,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 21,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 22,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 23,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 24,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 25,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 26,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 27,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 28,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 29,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    }
+   ]
+  },
+  "m_frame": {
+   "sha256": "35d161abad2ba44853cf77dfb3fb949494923c035be126f046f17d7fe32871a6",
+   "spec_sha256": "21fd6a280074dac19cf560485b8db32d4f98484379702321767e18f8ad280a2a",
+   "records": 2000,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    }
+   ]
+  },
+  "tune_v2": {
+   "sha256": "ac9d98297ee0a49a850da5a1133d50f481eb9445ad7ed8419dbe270225607ecb",
+   "spec_sha256": "1e511125fbe634e9ef512d34dca24634b4b846f4166c8d331c63663e35e0b653",
+   "records": 2550,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 12,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 13,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 14,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 15,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 16,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 17,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 18,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 19,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 20,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 21,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 22,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 23,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 24,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 25,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 26,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 27,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 28,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 29,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 30,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 31,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 32,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 33,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 34,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 35,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 36,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 37,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 38,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 39,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 40,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 41,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 42,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 43,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 44,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 45,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 46,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 47,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 48,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 49,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 50,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 51,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 52,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 53,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 54,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 55,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 56,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 57,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 58,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 59,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 60,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 61,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 62,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 63,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 64,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 65,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 66,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 67,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 68,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 69,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 70,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 71,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 72,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 73,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 74,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 75,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 76,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 77,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 78,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 79,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 80,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 81,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 82,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 83,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 84,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 85,
+     "attempted": 0,
+     "completed": 0,
+     "failed": 0
+    },
+    {
+     "point": 86,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 87,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 88,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 89,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 90,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 91,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 92,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 93,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 94,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    }
+   ]
+  },
+  "tune_v3": {
+   "sha256": "9c9e7af07a06e75b0171dd663dc00a828fc035dd7909355483d8c4863619e853",
+   "spec_sha256": "5adcd7b522b830ec9f74cd32f66b1a288d4e95de3edf225cd1af03defc445e4d",
+   "records": 2350,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 12,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 13,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 14,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 15,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 16,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 17,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 18,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 19,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 20,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 21,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 22,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 23,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 24,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 25,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 26,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 27,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 28,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 29,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 30,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 31,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 32,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 33,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 34,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 35,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 36,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 37,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 38,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 39,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 40,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 41,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 42,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 43,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 44,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 45,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 46,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 47,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 48,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 49,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 50,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 51,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 52,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 53,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 54,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 55,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 56,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 57,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 58,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 59,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 60,
+     "attempted": 40,
+     "completed": 40,
+     "failed": 0
+    },
+    {
+     "point": 61,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 62,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 63,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 64,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 65,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 66,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 67,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 68,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 69,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    }
+   ]
+  },
+  "tune_v4": {
+   "sha256": "86fcc6d4a9dd62caf46e3564fbd40719776d38c099168b35fa014a1ae4ed8725",
+   "spec_sha256": "ac580ecac49af1b5802c3a338acd62d9329c9431c8cee3759f4ea42ca870141b",
+   "records": 810,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 4,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 5,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 6,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 7,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 8,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 9,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 10,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 11,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 12,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 13,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 14,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 15,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 16,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 17,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 18,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 19,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 20,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 21,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 22,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 23,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 24,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 25,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    },
+    {
+     "point": 26,
+     "attempted": 30,
+     "completed": 30,
+     "failed": 0
+    }
+   ]
+  },
+  "dev_c2p_ref": {
+   "sha256": "763e04ac944371bf6edeec723255c84d76722e805ca22acdd1fb1e6df57bf03f",
+   "spec_sha256": "3cab3cbcd31676067e5ab48e1d3353a2d46a4dead46f39df45c3f602d6a0e8a5",
+   "records": 240,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 120,
+     "completed": 120,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 120,
+     "completed": 120,
+     "failed": 0
+    }
+   ]
+  },
+  "dev_c2p_irr": {
+   "sha256": "8a4847bb98231638f24b87cc265630b9c294f1e431ab1e598ac64c4fd352351f",
+   "spec_sha256": "3c5608864ce7550cc8ccae73a723e7a8a656432c14a017d01431ce6355e254fe",
+   "records": 240,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 120,
+     "completed": 120,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 120,
+     "completed": 120,
+     "failed": 0
+    }
+   ]
+  },
+  "dev_policy": {
+   "sha256": "b85c5059f450d4823d9a227409181edf0ef0d0dbc2e231b8f1b99fccac2d23a5",
+   "spec_sha256": "5132abdb6764787d2a386077808603d826e2a7f7618ffa1288fe95558db2f12c",
+   "records": 600,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    }
+   ]
+  },
+  "dev_policy_two": {
+   "sha256": "c34f459078f59aef66551591e46848fa9c47ef2108f4280acbe0cf98a91d3ed7",
+   "spec_sha256": "7f8e7028a2ff6f1c621f50da7e24e1fe366d83b64f44866e7d7ace3b6ace488b",
+   "records": 300,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 100,
+     "completed": 100,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 100,
+     "completed": 100,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 100,
+     "completed": 100,
+     "failed": 0
+    }
+   ]
+  },
+  "dev_split": {
+   "sha256": "193bae26f4f5b06306566cbcf3ca760d04e1b255d80ddb66335ca0bf338bfb91",
+   "spec_sha256": "d566a68338c11e1ee9d8286e84f52e1b93def1904db035620708f8ff09014233",
+   "records": 600,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 150,
+     "completed": 150,
+     "failed": 0
+    }
+   ]
+  },
+  "dev_split_two": {
+   "sha256": "e4417ae900fb468559e545e873c18972cb793d2f58f9a63f09d9980572ad1ca2",
+   "spec_sha256": "fa6026d9260f2449bec3b78dc23f569d0e8b5f3caacc44a00c84a6046e84dd4c",
+   "records": 300,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 100,
+     "completed": 100,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 100,
+     "completed": 100,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 100,
+     "completed": 100,
+     "failed": 0
+    }
+   ]
+  }
+ },
+ "artifacts": {
+  "theory_check.json": "e9a670f7d300e207722272805c275877973b91593a1eef8872fada6f313395c9",
+  "checks.json": "7c4adb0f6925073ad0dab8bbd25b33fa2baedf0b67f56c9c98e6e16957cb7fce",
+  "oracle_guard.json": "7a7d2e68f9733203ad02f1439adbea14d897ccd324a3544bf58358041860e387",
+  "numbers.json": "f522bb66dcfdf3fcaeb8ba83389b9f1540d7f1e4c18726dcee297dd75f08f029",
+  "paired.json": "daa88971b7bb85ecbf9c63422aaac527ab4511d1b82ba95d27d9016a13ffb9d9",
+  "tune_v2_choice.json": "01b2a8fbac40bb99b82e95769dc99e3b3b4579c956bcb1f14c9a5df96124a74c",
+  "physical_mapping.json": "68d2a9ef172b5cdab7a60556cb56a20480e48203939f165eadb5b79e2c624113",
+  "fig_main_meta.json": "8079a1b75ea4af8ddda0c8f9d567f9f98cde527a56b47468de8034bc1ded4158",
+  "fig_diag_meta.json": "35971cfd91005c11a329a77f8c968a7206f268a58d46e2362339a0c6644e640d"
+ },
+ "outputs": {
+  "fig_bler.tex": "a6d14d823e619dab491f6b84f7d595f74f2c21622c0d7b4636085fcf534766a4",
+  "fig_diag.tex": "05d87cf9e09d622b6376950331da86bb084b0c6a4df0fd0692b6bcf8138d42f1",
+  "fig_frame.tex": "0a51c57c18a48190d030a00e0e46f185c335daa3099048506d18c33eeb7719dc",
+  "fig_system.tex": "85b32a9c531addae64a9cf8459a2c8f3a5756948db3a5b573a2f08632222f73a",
+  "fig_theory.tex": "c7bbbca9e1b1503c7fc061a2eddeba113af771d6e40a53e596fee4d8abf975c2",
+  "fig_tp.tex": "e328daa8c5e32fcd1753c501409108656e418d92b5241147cc6decc5b80bfe23",
+  "fig_two.tex": "c888b551c3f351793884fc01374573d27e04cf8ba8ffb0ca897cedfb16adae9f",
+  "numbers.tex": "29ffa25ad2317ff0bb286d55961cbafdeb8f7c34de171b2b524855b6a75db44d",
+  "tab_paired.tex": "4388fbf07ce46e7305ad7ed49d670c24862d48246fb4ad64df66806951f2cde5",
+  "tab_params.tex": "51308a8558f163886db4cc6b667abbb6eab5d8ade8d24243035b04033589fb7d",
+  "tab_receivers.tex": "44c0f43bceec14e036a5c9ce3030a1e7323a129fedc07aa4bc8a912a7c304e42",
+  "tab_robust.tex": "9f4e55f4a614150da3ab246a1b1ca434c312b2a6c5ccb1831b836112ca7633e5"
+ }
+}

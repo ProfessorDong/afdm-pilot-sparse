@@ -219,6 +219,59 @@ def k6():
     return rows
 
 
+# ------------------------------------------------------------------ K7 / K8
+def k7(frames=400):
+    """Average transmitted energy per sample, CP included, of the compared frames
+    (coded payload), relative to the nominal 1 per sample."""
+    from engine import Payload, build_frame, ofdm_system
+    cfg = Config(coded=True)
+    S = make_system(cfg)
+    So = ofdm_system(cfg)
+    rng = np.random.default_rng(7)
+    out = {k: [] for k in ("proposed", "per_block", "superimposed_0.1", "superimposed_0.3", "ofdm")}
+    B = 16
+    for _ in range(frames):
+        pay = Payload(True, rng)
+        x = build_frame(S, "P" + "D" * (B - 1), pay, "A")
+        out["proposed"].append(np.mean(np.abs(S.transmit(x)) ** 2))
+        x = build_frame(S, "P" * B, pay, "C")
+        out["per_block"].append(np.mean(np.abs(S.transmit(x)) ** 2))
+        for eps in (0.1, 0.3):
+            d = np.stack([pay.symbols(("S", b), S.N) for b in range(B)])
+            xs = np.sqrt(1 - eps) * d
+            xs[:, S.m0] += np.sqrt(eps * S.N)
+            out[f"superimposed_{eps}"].append(np.mean(np.abs(S.transmit(xs)) ** 2))
+        xo = np.stack([So.data_block(rng)] + [pay.symbols(("O", b), S.N) for b in range(1, B)])
+        out["ofdm"].append(np.mean(np.abs(So.transmit(xo)) ** 2))
+    return {k: dict(mean=float(np.mean(v)), se=float(np.std(v) / np.sqrt(len(v))),
+                    p1=float(np.percentile(v, 1)), p99=float(np.percentile(v, 99))) for k, v in out.items()}
+
+
+def k8():
+    """Energy of the unit-norm full-length pilot response captured by the window W,
+    integer delays 0..ell_max, Doppler over the searched range."""
+    S = MBAFDM()
+    e = np.zeros(S.N, complex); e[S.m0] = 1
+    s0 = S.idaft(e)
+    n = np.arange(S.Ncp, S.Ncp + S.N)
+    mn = (2.0, None)
+    for l in range(S.ell_max + 1):
+        for k in np.linspace(-S.alpha_max - 0.6, S.alpha_max + 0.6, 721):
+            a = S.daft(np.roll(s0, l) * np.exp(1j * 2 * np.pi * k * n / S.N))
+            c = float(np.sum(np.abs(a[S.W]) ** 2))
+            if c < mn[0]:
+                mn = (c, (l, float(k)))
+    mk = (2.0, None)
+    for l in range(S.ell_max + 1):
+        for k in np.linspace(-S.alpha_max, S.alpha_max, 601):
+            a = S.daft(np.roll(s0, l) * np.exp(1j * 2 * np.pi * k * n / S.N))
+            c = float(np.sum(np.abs(a[S.W]) ** 2))
+            if c < mk[0]:
+                mk = (c, (l, float(k)))
+    return dict(min_capture=mn[0], at=mn[1], loss_db=float(10 * np.log10(mn[0])),
+                min_capture_kmax=mk[0], at_kmax=mk[1], loss_db_kmax=float(10 * np.log10(mk[0])))
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["k1", "k2", "k3", "k4", "k5", "k6"]
     res = json.load(open(OUT)) if OUT.exists() else {}

@@ -1,0 +1,673 @@
+{
+ "name": "tune_v3",
+ "trials": 40,
+ "procs": 18,
+ "seed0": 910001,
+ "seed_by": "snr",
+ "base": {
+  "B": 16,
+  "Bp": 1,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4
+ },
+ "grid": [
+  {
+   "snr_db": 4,
+   "spt_eps": 0.05,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 4,
+   "spt_eps": 0.1,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 4,
+   "spt_eps": 0.15,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 4,
+   "spt_eps": 0.2,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 4,
+   "spt_eps": 0.3,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 4,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 6,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 8,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.3,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.3,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.4,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 4,
+   "sp_eps": 0.4,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "spt_eps": 0.05,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 8,
+   "spt_eps": 0.1,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 8,
+   "spt_eps": 0.15,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 8,
+   "spt_eps": 0.2,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 8,
+   "spt_eps": 0.3,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 4,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 6,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 8,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.3,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.3,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.4,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 8,
+   "sp_eps": 0.4,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "spt_eps": 0.05,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 12,
+   "spt_eps": 0.1,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 12,
+   "spt_eps": 0.15,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 12,
+   "spt_eps": 0.2,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 12,
+   "spt_eps": 0.3,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 4,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 6,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 8,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.3,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.3,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.4,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 12,
+   "sp_eps": 0.4,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "spt_eps": 0.05,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 16,
+   "spt_eps": 0.1,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 16,
+   "spt_eps": 0.15,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 16,
+   "spt_eps": 0.2,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 16,
+   "spt_eps": 0.3,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 4,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 6,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 8,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.3,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.3,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.4,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 16,
+   "sp_eps": 0.4,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "spt_eps": 0.05,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 20,
+   "spt_eps": 0.1,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 20,
+   "spt_eps": 0.15,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 20,
+   "spt_eps": 0.2,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 20,
+   "spt_eps": 0.3,
+   "receivers": [
+    "sp-track4",
+    "sp-track8",
+    "sp-track16"
+   ],
+   "trials": 40
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.2,
+   "sp_iters": 4,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.2,
+   "sp_iters": 6,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.2,
+   "sp_iters": 8,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.2,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.2,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.3,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.3,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.4,
+   "sp_iters": 10,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  },
+  {
+   "snr_db": 20,
+   "sp_eps": 0.4,
+   "sp_iters": 12,
+   "receivers": [
+    "sp"
+   ],
+   "trials": 30
+  }
+ ]
+}

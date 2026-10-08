@@ -267,12 +267,12 @@
     "track",
     "track-hybrid"
    ],
-   "spt_eps": 0.2,
-   "sp_acq_blocks": 8,
-   "sp_eps": 0.3,
-   "sp_iters": 6,
-   "spl_eps": 0.3,
-   "spl_K": 2
+   "spt_eps": 0.3,
+   "sp_acq_blocks": 16,
+   "sp_eps": 0.4,
+   "sp_iters": 4,
+   "spl_eps": 0.4,
+   "spl_K": 4
   },
   {
    "snr_db": 20,
@@ -296,11 +296,11 @@
     "track",
     "track-hybrid"
    ],
-   "spt_eps": 0.2,
-   "sp_acq_blocks": 4,
+   "spt_eps": 0.3,
+   "sp_acq_blocks": 16,
    "sp_eps": 0.3,
-   "sp_iters": 8,
-   "spl_eps": 0.2,
+   "sp_iters": 6,
+   "spl_eps": 0.5,
    "spl_K": 4
   },
   {

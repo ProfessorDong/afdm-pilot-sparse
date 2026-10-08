@@ -5,16 +5,22 @@ Reference implementation and artifacts for
 > **Pilot-Sparse AFDM with Decision-Directed Doppler Tracking for High-Mobility Links**
 > L. Dong, submitted to IEEE Transactions on Vehicular Technology.
 
-An embedded-pilot AFDM block spends a third of its chirps on the null guard
-around the pilot. Consecutive blocks see each path through the same delay and
-Doppler, so a path's coefficient advances by a deterministic phase
+An embedded-pilot AFDM block spends a third of its chirps on the pilot and the
+null region around it. Consecutive blocks see each path through the same delay
+and Doppler, so a path's coefficient advances by a deterministic phase
 `exp(j 2 pi kappa b beta)`, `beta = (N + Ncp)/N`, from block to block. One
-pilot block acquires every path; the receiver then predicts, detects, decodes
-and appends each guard-free data block and refits the path parameters.
+pilot block initializes the detectable paths; the receiver then predicts,
+detects and decodes each block carrying data on all chirps, appends it to a
+trusted aperture if its CRC passes, refits the path parameters, and re-acquires
+missed paths from the decoded data.
 
 ## Status
 
-The manuscript's LaTeX sources are not included here. Every simulation
+The manuscript's LaTeX sources are not included here; the generators write
+their outputs (numbers.tex, fig_*.tex, tab_*.tex) to `paper/`, which they create
+if needed. `python make_manifest.py` writes `runs/MANIFEST.json` with the commit,
+environment, SHA-256 and completed/failed trial counts of every sweep, and the
+hashes of the generated outputs. Every simulation
 artifact that the paper's numbers, figures and tables are computed from is in
 `runs/`. The scripts that
 write the paper's numbers, figures and tables (`make_*.py`) target a `paper/`
@@ -67,7 +73,9 @@ python theory_check.py && python checks.py && python oracle_guard.py
 python make_numbers.py && python make_figures.py && python make_tables.py && python make_tables.py robust
 ```
 
-Seeds are fixed in the specs; sweeps resume from their JSON-lines files after an
+The 16 and 20 dB points of `m_main` were recomputed after the tie-breaking rule of
+`pick_v2.py` was fixed (ties toward more acquisition blocks); the earlier rows are
+kept in `runs/superseded/m_main_points8-9_tiebreak.jsonl`. Seeds are fixed in the specs; sweeps resume from their JSON-lines files after an
 interruption. CPU only; one BLAS thread per worker. The full set of sweeps takes
 about three days on 18 cores.
 
