@@ -93,9 +93,13 @@ for _ in range(200):
 put("NumLeakIntDb", 10 * np.log10(np.sum(leak) / np.sum(pil)), "data leakage into W, integer delays, xi=2, 200 draws", "{:.0f}")
 
 # ------------------------------------------------------------------ grating-region peak sidelobe
-_gp = json.load(open(RUNS / "grating_peak.json"))
+_k9 = json.load(open(RUNS / "checks.json"))["k9"]
 for _B, _nm in (("2", "Two"), ("16", "Sixteen")):
-    put(f"NumGratPeak{_nm}Db", _gp[_B], f"grating_peak.json: max |chi_B| over Delta in [0.6,1.4], B={_B}", "{:.1f}")
+    put(f"NumGratPeak{_nm}Db", _k9[_B]["full_max_db"], f"checks k9: max full-length grating-region peak over the delay/Doppler sweep, Bp={_B}", "{:.1f}")
+put("NumGratWinDiffLowDb", max(_k9[b]["max_abs_diff_db"] for b in ("2", "4")), "checks k9: max |window - full| peak, Bp<=4", "{:.1f}")
+put("NumGratWinDiffSixteenDb", _k9["16"]["max_abs_diff_db"], "checks k9: max |window - full| peak, Bp=16", "{:.1f}")
+put("NumGratWinSixteenDb", _k9["16"]["win_max_db"], "checks k9: max window grating-region peak, Bp=16", "{:.1f}")
+put("NumGratCases", _k9["n_cases"], "checks k9: delay/Doppler cases in the sweep", "{:d}")
 
 # ------------------------------------------------------------------ exact rho (Cor. 2) as simulated
 def _rho(blocks_w, bnext, P=4):
@@ -106,6 +110,16 @@ def _rho(blocks_w, bnext, P=4):
     tb = np.sum(w * t) / np.sum(w); st = np.sum(w * (t - tb) ** 2) / np.sum(w)
     tn = (bnext * (S.N + S.Ncp) + S.Ncp + np.arange(S.N)) / S.N
     return P / (2 * np.sum(w)) * (2 + np.mean((tn - tb) ** 2) / st)
+def rho_cr_set(idx, E, b):
+    """Benchmark for known blocks at absolute indices idx (generalizes eq. (horizon))."""
+    idx = np.asarray(idx, float)
+    return P / (2 * idx.size * E) * (2 + (beta ** 2 * (b - idx.mean()) ** 2 + vu) / (beta ** 2 * idx.var() + vu))
+
+
+assert abs(rho_cr_set(range(4), S.N, 9) - rho_cr(4, S.N, 9)) < 1e-15
+put("NumSparseBenchDb", 10 * np.log10(rho_cr_set([0, 4, 8, 12], S.N, 15)), "benchmark, known blocks 0,4,8,12, block 15", "{:.1f}")
+put("NumContigBenchDb", 10 * np.log10(rho_cr_set([0, 1, 2, 3], S.N, 15)), "benchmark, known blocks 0..3, block 15", "{:.1f}")
+put("NumAmbigPeriodFour", 1 / (4 * beta), "slow-time ambiguity period 1/(K beta), K=4", "{:.2f}")
 for (L, b), nm in (((1, 1), "OneData"), ((2, 2), "TwoExact"), ((10, 10), "TenExact")):
     v = rho_cr(L, S.N, b)
     assert abs(v - _rho([(q, S.N) for q in range(L)], b)) / v < 1e-6     # eq. (horizon) = direct moments
@@ -129,8 +143,6 @@ put("NumLeakMeanDb", _ck["k2"]["leak_to_pilot_db_mean"], "checks k2: mean data l
 put("NumLeakNoiseMedDb", _ck["k2"]["leak_to_noise20_db_median"], "checks k2: median leakage per chirp / noise at 20 dB", "{:.1f}")
 put("NumLeakNoiseHiDb", _ck["k2"]["leak_to_noise20_db_p95"], "checks k2: 95th percentile, same", "{:+.1f}")
 _rows = {(r["Bp"], r["ell"], r["restricted"]): r["peak_db"] for r in _ck["k3"]["rows"]}
-put("NumGratRestrictDiffDb", max(abs(_rows[(B, l, True)] - _rows[(B, 3, False)]) for B in (2, 4, 16) for l in (3, 3.5)),
-    "checks k3: max |restricted/fractional - full| grating peak, Bp<=16", "{:.1f}")
 _fr = {r["N"]: r for r in _ck["k4"]["fixed_rate"]}
 put("NumGuardPctKiloFs", 100 * _fr[1024]["frac"], "checks k4: |Z|/N at N=1024, fixed sample rate and physical spreads", r"{:.0f}\%")
 put("NumGuardPctTwoKiloFs", 100 * _fr[2048]["frac"], "checks k4: |Z|/N at N=2048, same", r"{:.0f}\%")

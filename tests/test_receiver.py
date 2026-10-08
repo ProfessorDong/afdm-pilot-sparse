@@ -58,3 +58,32 @@ def test_all_receivers_run():
               "ofdm-track", "conv-da"):
         assert k in r, k
     assert len(r["diag-track"]["rho_pred"]) == 6
+
+
+def test_rate_aware_merge_keeps_opposite_rates():
+    """Equal initial Doppler, opposite Doppler rates: distinct atoms, must not merge."""
+    S = make_system(Config())
+    rng = np.random.default_rng(1)
+    B = 16
+    X = np.exp(1j * np.pi / 4 * (2 * rng.integers(0, 4, (B, S.N)) + 1))
+    bl = np.arange(B)
+    true = [(3.0, 0.4, 0.02), (3.0, 0.4, -0.02)]
+    Y = 0.7 * apply_path(S, 3.0, 0.4, X, bl, rho=0.02) + 0.6j * apply_path(S, 3.0, 0.4, X, bl, rho=-0.02)
+    T = Tracker(S, P_cap=8, model_rho=True)
+    out, _, _ = T.refit(Y, X, bl, true)
+    assert len(out) == 2 and T.n_merge == 0
+
+
+def test_rate_aware_exclusion_covers_drifting_path():
+    """A well-fitted drifting path must not be re-detected at its window-centre Doppler."""
+    S = make_system(Config())
+    rng = np.random.default_rng(2)
+    B = 16
+    X = np.exp(1j * np.pi / 4 * (2 * rng.integers(0, 4, (B, S.N)) + 1))
+    bl = np.arange(B)
+    s2 = 10 ** (-1.2)
+    Y = apply_path(S, 3.0, 0.4, X, bl, rho=0.02)
+    Y = Y + np.sqrt(s2 / 2) * (rng.standard_normal(Y.shape) + 1j * rng.standard_normal(Y.shape))
+    T = Tracker(S, P_cap=8, model_rho=True)
+    new = T.reacquire(Y[8:], X[8:], bl[8:], [(3.0, 0.4, 0.02)], np.array([0.95 + 0j]), s2)
+    assert len(new) == 1

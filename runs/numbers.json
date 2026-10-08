@@ -80,14 +80,49 @@
   "source": "data leakage into W, integer delays, xi=2, 200 draws"
  },
  "NumGratPeakTwoDb": {
-  "value": -12.889345118511988,
-  "tex": "\\ensuremath{-12.9}",
-  "source": "grating_peak.json: max |chi_B| over Delta in [0.6,1.4], B=2"
+  "value": -12.822476921141213,
+  "tex": "\\ensuremath{-12.8}",
+  "source": "checks k9: max full-length grating-region peak over the delay/Doppler sweep, Bp=2"
  },
  "NumGratPeakSixteenDb": {
-  "value": -30.029243209331135,
-  "tex": "\\ensuremath{-30.0}",
-  "source": "grating_peak.json: max |chi_B| over Delta in [0.6,1.4], B=16"
+  "value": -29.363492333907967,
+  "tex": "\\ensuremath{-29.4}",
+  "source": "checks k9: max full-length grating-region peak over the delay/Doppler sweep, Bp=16"
+ },
+ "NumGratWinDiffLowDb": {
+  "value": 0.1696441322414568,
+  "tex": "0.2",
+  "source": "checks k9: max |window - full| peak, Bp<=4"
+ },
+ "NumGratWinDiffSixteenDb": {
+  "value": 2.5938416829934923,
+  "tex": "2.6",
+  "source": "checks k9: max |window - full| peak, Bp=16"
+ },
+ "NumGratWinSixteenDb": {
+  "value": -27.435423214024397,
+  "tex": "\\ensuremath{-27.4}",
+  "source": "checks k9: max window grating-region peak, Bp=16"
+ },
+ "NumGratCases": {
+  "value": 116,
+  "tex": "116",
+  "source": "checks k9: delay/Doppler cases in the sweep"
+ },
+ "NumSparseBenchDb": {
+  "value": -22.294263191323953,
+  "tex": "\\ensuremath{-22.3}",
+  "source": "benchmark, known blocks 0,4,8,12, block 15"
+ },
+ "NumContigBenchDb": {
+  "value": -8.672552369051118,
+  "tex": "\\ensuremath{-8.7}",
+  "source": "benchmark, known blocks 0..3, block 15"
+ },
+ "NumAmbigPeriodFour": {
+  "value": 0.24615384615384617,
+  "tex": "0.25",
+  "source": "slow-time ambiguity period 1/(K beta), K=4"
  },
  "NumRhoOneDataDb": {
   "value": -12.213407609561829,
@@ -168,11 +203,6 @@
   "value": 2.624552553138497,
   "tex": "+2.6",
   "source": "checks k2: 95th percentile, same"
- },
- "NumGratRestrictDiffDb": {
-  "value": 0.5627152123587926,
-  "tex": "0.6",
-  "source": "checks k3: max |restricted/fractional - full| grating peak, Bp<=16"
  },
  "NumGuardPctKiloFs": {
   "value": 26.46484375,
@@ -900,7 +930,7 @@
   "source": "m_robust: track at rho=0.02, window 6"
  },
  "NumDriftHiModel": {
-  "value": 0.8729176682692308,
+  "value": 0.8749789663461539,
   "tex": "0.87",
   "source": "m_robust: track at rho=0.02, rate model"
  },
@@ -915,8 +945,8 @@
   "source": "m_robust: periodic pilots (K=4) + tracker at rho=0.02"
  },
  "NumDriftZeroModelCostPct": {
-  "value": 0.0,
-  "tex": "0.0\\%",
+  "value": 0.1696599529799725,
+  "tex": "0.2\\%",
   "source": "m_robust: rate-model cost at rho=0"
  },
  "NumDriftZeroWindowCostPct": {
@@ -1000,8 +1030,8 @@
   "source": "m_robust: best remedy gain at drift 0.002"
  },
  "NumDriftGainFivePct": {
-  "value": 2.171878847574476,
-  "tex": "2.2\\%",
+  "value": 1.8271361733563083,
+  "tex": "1.8\\%",
   "source": "m_robust: best remedy gain at drift 0.005"
  },
  "NumDriftWinZeroPct": {
@@ -1015,13 +1045,13 @@
   "source": "m_robust paired: 95% bootstrap interval, window, drift 0.0"
  },
  "NumDriftRateZeroPct": {
-  "value": 0.0,
-  "tex": "+0.0\\%",
+  "value": -0.1696599529799725,
+  "tex": "\\ensuremath{-0.2\\%}",
   "source": "m_robust paired: rate/default-1 at drift 0.0"
  },
  "NumDriftRateZeroCi": {
-  "value": "[-0.8, +1.0]",
-  "tex": "[-0.8, +1.0]",
+  "value": "[-1.1, +0.9]",
+  "tex": "[-1.1, +0.9]",
   "source": "m_robust paired: 95% bootstrap interval, rate, drift 0.0"
  },
  "NumDriftWinTwoPct": {
@@ -1035,13 +1065,13 @@
   "source": "m_robust paired: 95% bootstrap interval, window, drift 0.002"
  },
  "NumDriftRateTwoPct": {
-  "value": -0.27069486404833754,
-  "tex": "\\ensuremath{-0.3\\%}",
+  "value": -0.6090634441087595,
+  "tex": "\\ensuremath{-0.6\\%}",
   "source": "m_robust paired: rate/default-1 at drift 0.002"
  },
  "NumDriftRateTwoCi": {
-  "value": "[-1.3, +0.5]",
-  "tex": "[-1.3, +0.5]",
+  "value": "[-1.9, +0.5]",
+  "tex": "[-1.9, +0.5]",
   "source": "m_robust paired: 95% bootstrap interval, rate, drift 0.002"
  },
  "NumDriftWinFivePct": {
@@ -1055,13 +1085,13 @@
   "source": "m_robust paired: 95% bootstrap interval, window, drift 0.005"
  },
  "NumDriftRateFivePct": {
-  "value": 2.171878847574482,
-  "tex": "+2.2\\%",
+  "value": 1.827136173356303,
+  "tex": "+1.8\\%",
   "source": "m_robust paired: rate/default-1 at drift 0.005"
  },
  "NumDriftRateFiveCi": {
-  "value": "[+1.2, +3.3]",
-  "tex": "[+1.2, +3.3]",
+  "value": "[+0.8, +3.0]",
+  "tex": "[+0.8, +3.0]",
   "source": "m_robust paired: 95% bootstrap interval, rate, drift 0.005"
  },
  "NumDriftWinTwentyPct": {
@@ -1075,13 +1105,13 @@
   "source": "m_robust paired: 95% bootstrap interval, window, drift 0.02"
  },
  "NumDriftRateTwentyPct": {
-  "value": 37.4068801112472,
-  "tex": "+37.4\\%",
+  "value": 37.731351190279106,
+  "tex": "+37.7\\%",
   "source": "m_robust paired: rate/default-1 at drift 0.02"
  },
  "NumDriftRateTwentyCi": {
-  "value": "[+32.7, +42.1]",
-  "tex": "[+32.7, +42.1]",
+  "value": "[+33.0, +42.3]",
+  "tex": "[+33.0, +42.3]",
   "source": "m_robust paired: 95% bootstrap interval, rate, drift 0.02"
  },
  "NumDriftPtrackTenTp": {

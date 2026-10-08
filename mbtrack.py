@@ -158,6 +158,16 @@ class Tracker:
         self.n_insert = 0                                # paths added by re-acquisition
         self.n_merge = 0                                 # merges of paths within one resolution cell
 
+    def kappa_center(self, path, blocks):
+        """Doppler of a (possibly drifting) path at the centre of an aperture:
+        kappa + rho * t_c / T_b, with t_c the mean absolute sample time. Equal to
+        kappa for constant-Doppler paths."""
+        if len(path) < 3 or path[2] == 0.0:
+            return path[1]
+        Tb = self.S.N + self.S.Ncp
+        tc = np.mean(np.atleast_1d(blocks)) * Tb + self.S.Ncp + self.S.N / 2
+        return path[1] + path[2] * tc / Tb
+
     @staticmethod
     def span(blocks):
         """Time span of an aperture in blocks (contiguous: its length)."""
@@ -197,7 +207,10 @@ class Tracker:
             sc[~sel] = 0
             for p in paths:
                 if abs(l - p[0]) < 1.0:
-                    sc[np.abs(kg - p[1]) < dk_dup] = 0
+                    # exclusion centred on the path's Doppler at the window centre and
+                    # widened by its drift across the window (no change for rho = 0)
+                    rp = p[2] if len(p) > 2 else 0.0
+                    sc[np.abs(kg - self.kappa_center(p, blocks)) < dk_dup + abs(rp) * span / 2] = 0
             i = int(np.argmax(sc))
             if sc[i] > best[0]:
                 best = (sc[i], (float(l), float(kg[i])))
@@ -311,9 +324,14 @@ class Tracker:
         if P > 1:
             # Doppler resolution sharpens with the aperture: ~1/(|A| beta) subcarrier spacings
             dk = self.merge_dk / self.span(blocks) if self.aperture_res else self.merge_dk
+            kc = [self.kappa_center(out[q], blocks) for q in range(P)]
+            span = self.span(blocks)
             for i in range(P):
                 for j in range(i + 1, P):
-                    if abs(ell[i] - ell[j]) < self.merge_dl and abs(kap[i] - kap[j]) < dk:
+                    # Doppler compared at the aperture centre, and the rate difference
+                    # must not separate the pair across the aperture (rho = 0: unchanged)
+                    if abs(ell[i] - ell[j]) < self.merge_dl and abs(kc[i] - kc[j]) < dk \
+                            and abs(rho[i] - rho[j]) * span < dk:
                         drop = i if abs(g[i]) < abs(g[j]) else j
                         self.n_merge += 1
                         keep = [out[q] for q in range(P) if q != drop]

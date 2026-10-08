@@ -123,7 +123,7 @@ def robust_table():
     for r in rows:
         tex.append(" & ".join(r) + " \\\\\n")
     tex.append("\\bottomrule\n\\end{tabular}\n\n\\smallskip\n\\parbox{\\columnwidth}{\\scriptsize "
-               "Reference: $P=4$, $\\kappa_{\\max}=3$; all entries use the same channel realizations (paired). CFO in subcarrier spacings. "
+               "Reference: $P=4$, $\\kappa_{\\max}=3$; all receivers of a condition see the same channel realizations. CFO in subcarrier spacings. "
                "Drift: each path's Doppler rate drawn uniformly in $[-\\eta_{\\max},\\eta_{\\max}]$, $\\eta_{\\max}$ given in subcarrier spacings per block. "
                "PN: Wiener phase noise of normalized linewidth $\\lambda_\\mathrm{PN}=\\Delta\\nu_\\mathrm{PN}/\\Delta f$ (increment variance "
                "$2\\pi\\lambda_\\mathrm{PN}/N$ per sample), one trajectory shared by all receivers of a trial; perfect CSI knows it, "

@@ -272,6 +272,42 @@ def k8():
                 min_capture_kmax=mk[0], at_kmax=mk[1], loss_db_kmax=float(10 * np.log10(mk[0])))
 
 
+# ------------------------------------------------------------------ K9
+def k9():
+    """Deterministic sweep of the grating-region peak of the multi-block ambiguity,
+    full-length versus pilot-window (restricted, normalized) response: delays
+    0..ell_max in quarter samples, reference Dopplers -3, -1, 0.3, 2, Bp = 2, 4, 16,
+    Doppler differences in [0.6, 1.4] (plus 1/beta)."""
+    S = MBAFDM()
+    e = np.zeros(S.N, complex); e[S.m0] = 1
+    s0 = S.idaft(e)
+    n = np.arange(S.Ncp, S.Ncp + S.N)
+    ds = np.union1d(np.linspace(0.6, 1.4, 801), [1 / S.beta])
+    ph = np.exp(1j * 2 * np.pi * ds[:, None] * n[None, :] / S.N)
+    kk = np.fft.fftfreq(S.N) * S.N
+    rows = []
+    for l in np.arange(0, S.ell_max + 0.01, 0.25):
+        s = np.fft.ifft(np.fft.fft(s0) * np.exp(-1j * 2 * np.pi * kk * l / S.N))
+        for k0 in (-3.0, -1.0, 0.3, 2.0):
+            base = s * np.exp(1j * 2 * np.pi * k0 * n / S.N)
+            a0 = S.daft(base); a1 = S.daft(base[None, :] * ph)
+            full = np.abs(a1 @ a0.conj()) / np.sqrt(np.sum(np.abs(a1) ** 2, 1) * np.vdot(a0, a0).real)
+            w0, w1 = a0[S.W], a1[:, S.W]
+            win = np.abs(w1 @ w0.conj()) / np.sqrt(np.sum(np.abs(w1) ** 2, 1) * np.vdot(w0, w0).real)
+            for Bp in (2, 4, 16):
+                A = np.abs(np.sin(np.pi * Bp * S.beta * ds) / (Bp * np.sin(np.pi * S.beta * ds) + 1e-300))
+                A[np.abs(np.sin(np.pi * S.beta * ds)) < 1e-12] = 1.0
+                pf, pw = float(np.max(full * A)), float(np.max(win * A))
+                rows.append(dict(ell=float(l), k0=k0, Bp=Bp, full_db=20 * np.log10(pf), win_db=20 * np.log10(pw)))
+    out = {}
+    for Bp in (2, 4, 16):
+        rr = [r for r in rows if r["Bp"] == Bp]
+        out[str(Bp)] = dict(full_max_db=max(r["full_db"] for r in rr), win_max_db=max(r["win_db"] for r in rr),
+                            max_abs_diff_db=max(abs(r["win_db"] - r["full_db"]) for r in rr))
+    out["n_cases"] = len(rows) // 3
+    return out
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["k1", "k2", "k3", "k4", "k5", "k6"]
     res = json.load(open(OUT)) if OUT.exists() else {}

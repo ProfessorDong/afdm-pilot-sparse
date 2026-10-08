@@ -18,7 +18,7 @@ PAPER = ROOT / "paper"
 SWEEPS = ["m_main", "m_two", "m_mismatch", "m_robust", "m_frame", "tune_v2", "tune_v3", "tune_v4",
           "dev_c2p_ref", "dev_c2p_irr", "dev_policy", "dev_policy_two", "dev_split", "dev_split_two"]
 SINGLE = ["theory_check.json", "checks.json", "oracle_guard.json", "numbers.json", "paired.json",
-          "tune_v2_choice.json", "physical_mapping.json", "fig_main_meta.json", "fig_diag_meta.json"]
+          "tune_v2_choice.json", "physical_mapping.json", "fig_main_meta.json", "fig_diag_meta.json", "REPLAY.json"]
 
 
 def sha(p):
@@ -58,6 +58,12 @@ def main():
     for f in SINGLE:
         if (RUNS / f).exists():
             man["artifacts"][f] = sha(RUNS / f)
+    if (RUNS / "REPLAY.json").exists():
+        rp = json.load(open(RUNS / "REPLAY.json"))
+        man["replay"] = {k: {"replayed": v["replayed"], "mismatched": len(v["mismatched"])} for k, v in rp.items()}
+    pdf = PAPER / "AFDM_TVT.pdf"
+    if pdf.exists():
+        man["manuscript_pdf_sha256"] = sha(pdf)
     if PAPER.exists():
         for p in sorted(PAPER.glob("*.tex")):
             if p.name.startswith(("numbers", "fig_", "tab_")):

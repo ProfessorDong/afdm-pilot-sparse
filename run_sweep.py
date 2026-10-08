@@ -37,6 +37,16 @@ def job(args):
     return r
 
 
+def code_sha():
+    """SHA-256 over the simulation sources: a sweep may only be resumed by the code
+    that started it (set FORCE_RESUME=1 to override deliberately)."""
+    import hashlib
+    h = hashlib.sha256()
+    for f in ("engine.py", "mbtrack.py", "mbafdm.py", "coding.py"):
+        h.update(open(Path(__file__).resolve().parent / f, "rb").read())
+    return h.hexdigest()
+
+
 def main():
     spec = json.load(open(sys.argv[1]))
     out = RUNS / f"{spec['name']}.jsonl"
@@ -60,6 +70,13 @@ def main():
             if (i, seed) not in done:
                 jobs.append((i, cfgd, seed))
     meta = RUNS / f"{spec['name']}.spec.json"
+    sha = code_sha()
+    if done and meta.exists():
+        old = json.load(open(meta)).get("code_sha")
+        if old is not None and old != sha and os.environ.get("FORCE_RESUME") != "1":
+            sys.exit(f"{spec['name']}: code changed since this sweep started ({old[:12]} -> {sha[:12]}); "
+                     "use a new run name or FORCE_RESUME=1")
+    spec["code_sha"] = sha
     json.dump(spec, open(meta, "w"), indent=1)
     print(f"{spec['name']}: {len(jobs)} jobs ({len(done)} already done)", flush=True)
     t0 = time.time()
