@@ -864,6 +864,16 @@
   "tex": "200",
   "source": "m_frame: trials per point"
  },
+ "NumFrameGapSixMinPct": {
+  "value": 9.478138222849065,
+  "tex": "9\\%",
+  "source": "m_frame: min genie gap over B at 6 dB"
+ },
+ "NumFrameGapSixMaxPct": {
+  "value": 13.075232678386762,
+  "tex": "13\\%",
+  "source": "m_frame: max genie gap over B at 6 dB"
+ },
  "NumFrameGapMinPct": {
   "value": 0.27703571781933317,
   "tex": "0.3\\%",

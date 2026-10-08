@@ -481,7 +481,7 @@ def _two():
 
 _FRAME = ("NumFrameBurstSharePct", "NumFrameBestB", "NumFrameGapLongPct", "NumFrameLongB", "NumOpenLongTp", "NumOpenShortTp", "NumFrameShortB",
           "NumFrameTimeRatio", "NumFrameTrials", "NumFrameBlerLongPct", "NumFrameBlerMidPct", "NumFrameGapMinPct",
-          "NumFrameGapMaxPct", "NumFrameLossMin", "NumFrameLossMax")
+          "NumFrameGapMaxPct", "NumFrameLossMin", "NumFrameLossMax", "NumFrameGapSixMinPct", "NumFrameGapSixMaxPct")
 
 
 @_guard(_FRAME, "m_frame")
@@ -512,6 +512,10 @@ def _frame():
             dd = np.array([sum(r["genie"]["goodbits"]) - sum(r["track"]["goodbits"]) for r in rs], float)
             bur = np.array([sum(r["track"]["blerr"]) >= 3 for r in rs])
             shares.append(dd[bur].sum() / dd.sum() if dd.sum() > 0 else 1.0)
+    t6 = {r["B"]: r for r in e5 if r["snr_db"] == 6}
+    g6 = [100 * (1 - t6[B]["tp_track"] / t6[B]["tp_genie"]) for B in t6]
+    put("NumFrameGapSixMinPct", min(g6), "m_frame: min genie gap over B at 6 dB", r"{:.0f}\%")
+    put("NumFrameGapSixMaxPct", max(g6), "m_frame: max genie gap over B at 6 dB", r"{:.0f}\%")
     put("NumFrameGapMinPct", min(gaps), "m_frame: min paired genie gap over B at 12 dB", r"{:.1f}\%")
     put("NumFrameGapMaxPct", max(gaps), "m_frame: max paired genie gap over B at 12 dB", r"{:.1f}\%")
     put("NumFrameBurstSharePct", 100 * min(shares), "m_frame: min share of the genie gap in frames with >=3 block errors, B>=8, 12 dB", r"{:.0f}\%")
