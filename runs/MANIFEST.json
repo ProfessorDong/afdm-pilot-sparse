@@ -1,5 +1,5 @@
 {
- "commit": "b986f8178618cb0b966464bcb67833537bb5150f",
+ "commit": "32a116f10fb97c36c7c8915f8d44804302cc61fb",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2025,7 +2025,7 @@
   "fig_system.tex": "2a8f60f6fe3666971d115e64fe78caecfd022e248b95b11e229e08c4a22fc7d0",
   "fig_theory.tex": "f18d5e47b6909119faf23fade61cb69e050160a3da8cf66ab72e6d4cdbc7aec1",
   "fig_tp.tex": "9931c8cb4b60e49d2da200c99e3f83aa7cd79354fcbbde83de7117b6f606c5f5",
-  "fig_two.tex": "0f4d46419ef211089da9c44e2e17fa58ea2d636950078d428bec82deb6c25528",
+  "fig_two.tex": "04819831e25fe8fae82c7935883032486fe7711d92f8f4d5632e86deddbbe2f3",
   "numbers.tex": "c5cc90b4da2483b5bb2d709f8df41f57a5ff6d99987ea2f2c92fd2ca88ba4ed7",
   "tab_paired.tex": "4388fbf07ce46e7305ad7ed49d670c24862d48246fb4ad64df66806951f2cde5",
   "tab_params.tex": "51308a8558f163886db4cc6b667abbb6eab5d8ade8d24243035b04033589fb7d",
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "576fb0a5fd8c8d45c4efaa7bc5dbc0253b6e3f788a61b8b0828ffc344f6ec208"
+ "manuscript_pdf_sha256": "94b73238feba8a6dbe91eda1f9c0a9a0b6659bfb2cd5725cb670776c3bfdfc7d"
 }
