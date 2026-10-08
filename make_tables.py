@@ -4,6 +4,8 @@ parameters cannot drift from the simulated ones."""
 import json
 from pathlib import Path
 
+import numpy as np
+
 from coding import BlockCode, K, G
 from engine import Config
 from mbafdm import MBAFDM
@@ -33,6 +35,8 @@ def main():
     _T = Tracker(S)
     import inspect
     assert inspect.signature(Tracker.reacquire).parameters["M"].default == 64
+    from engine import Acquirer
+    assert inspect.signature(Acquirer.run).parameters["pfa"].default == _T.reacq_pfa  # one P_fa for both searches
     kp = BlockCode(S.data_idx.size).k_payload
     kd = BlockCode(S.N).k_payload
     hsr = physical(5.9e9, 1e3, cfg.N, cfg.Ncp, cfg.kappa_max, cfg.ell_max, 100.0)
@@ -41,7 +45,7 @@ def main():
         (r"Chirps $N$, CP $N_\mathrm{cp}$, $\beta$", f"{cfg.N}, {cfg.Ncp}, {S.beta:.4f}"),
         (r"$\alpha_{\max}$, $\xi$, $Q$, $\ell_{\max}$, $\kappa_{\max}$", f"{cfg.alpha_max}, {cfg.xi}, {S.Q}, {cfg.ell_max}, {cfg.kappa_max:g}"),
         (r"Reserved $|\mathcal{Z}|$, pilot energy $E_\mathrm{p}$", f"{len(S.zero_set)} chirps, {S.Ep:.0f}"),
-        (r"Paths $P$ (estimated, cap $P_{\max}$)", f"{cfg.P} ({cfg.P_max})"),
+        (r"Paths $P$; order cap $P_{\max}$", f"{cfg.P}; {cfg.P_max}"),
         (r"Delays", r"$\mathcal{U}[0,\ell_{\max}-\tfrac12]$, fractional"),
         (r"Doppler", r"$\kappa_{\max}\cos\vartheta$, $\vartheta$ uniform"),
         (r"Power-delay profile", fr"$\propto e^{{-\ell/{cfg.tau_rms:g}}}$, Rayleigh gains"),
@@ -50,7 +54,7 @@ def main():
         (r"Code (rate 1/2)", fr"memory {K - 1}, ({G[0]:o},{G[1]:o})$_8$, zero tail"),
         (r"CRC-16", r"0x1021, init.\ 0xFFFF"),
         (r"Payload per pilot / data block", f"{kp} / {kd} bits"),
-        (r"$P_\mathrm{fa}$; re-acq.\ period $R$; retries", fr"$10^{{-3}}$; {cfg.reacq_every} blocks; {_T.retries}"),
+        (r"$P_\mathrm{fa}$; re-acq.\ period $R$; retries", fr"$10^{{{int(round(np.log10(_T.reacq_pfa)))}}}$; {cfg.reacq_every} blocks; {_T.retries}"),
         (r"Re-acq.\ $W_\mathrm{r}$, $M_\mathrm{os}$, $\kappa_\mathrm{s}$", fr"{_T.reacq_window}, 64, {cfg.kappa_max + 0.5:g}"),
         (r"\emph{HSR}: $f_\mathrm{c}$, $\Delta f$", r"5.9\,GHz, 1\,kHz"),
         (r"\quad speed; max.\ delay (bound)", f"{hsr['v_kmh']:.0f}\\,km/h; {hsr['tau_us']:.1f}\\,$\\mu$s"),
@@ -93,7 +97,7 @@ def robust_table():
     rows = []
 
     def row(label, base, w=None, m=None, genie_det=False):
-        gen = f(g(base, "genie")) + (f" ({f(g(base, 'genie-det'))}$^\\dagger$)" if genie_det else "")
+        gen = f(g(base, "genie")) + (f" ({f(g(base, 'genie-det'))}$^\\mathrm{{a}}$)" if genie_det else "")
         rows.append((label, gen, f(g(base, "conv-da")), f(g(base, "track")), f(g(w, "track")), f(g(m, "track")),
                      f(g(base, "ptrack4"))))
     base = find(rho_max=0.0)
@@ -127,7 +131,7 @@ def robust_table():
                "Drift: each path's Doppler rate drawn uniformly in $[-\\eta_{\\max},\\eta_{\\max}]$, $\\eta_{\\max}$ given in subcarrier spacings per block. "
                "PN: Wiener phase noise of normalized linewidth $\\lambda_\\mathrm{PN}=\\Delta\\nu_\\mathrm{PN}/\\Delta f$ (increment variance "
                "$2\\pi\\lambda_\\mathrm{PN}/N$ per sample), one trajectory shared by all receivers of a trial; perfect CSI knows it, "
-               "$^\\dagger$knows only the deterministic channel. Born: a fraction of the paths, chosen at random, appears at a block drawn "
+               "$^\\mathrm{a}$knows only the deterministic channel. Born: a fraction of the paths, chosen at random, appears at a block drawn "
                "uniformly from $B_\\mathrm{p}+1$ to $B-1$ and is absent before. Pilot every block: data-aided. Window: sliding window of 6 blocks "
                "(8 with re-acquisition every block for path births); rate: Doppler-rate model. Periodic + tracker: a pilot block every "
                "4 blocks with the proposed tracker. "
