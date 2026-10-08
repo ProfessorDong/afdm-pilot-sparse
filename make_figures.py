@@ -375,7 +375,8 @@ def fig_two():
                "height=0.56\\columnwidth, xlabel={Doppler separation $\\Delta\\kappa$}, ylabel={Throughput (bit/s/Hz)}, "
                "grid=both, grid style={black!12}, xmin=0.04, xmax=2, ymin=0, ymax=1, "
                f"legend style={{font=\\scriptsize, at={{(0.985,0.015)}}, anchor=south east, legend columns=2, {leg}}}, "
-               "legend cell align=left, tick label style={font=\\footnotesize}, label style={font=\\footnotesize}, "
+               "legend cell align=left, legend image code/.code={\\draw[mark repeat=2, mark phase=2] plot coordinates {(0cm,0cm) (0.25cm,0cm) (0.5cm,0cm)};}, "
+               "tick label style={font=\\footnotesize}, label style={font=\\footnotesize}, "
                "title={(b) two equal-power paths, 12\\,dB}, title style={font=\\footnotesize, yshift=-3pt}]\n")
     for dl, ls in ((0.0, "solid"), (1.0, "densely dashed")):
         rr = sorted([r for r in res if r["tp_dl"] == dl], key=lambda r: r["tp_dk"])
@@ -383,7 +384,7 @@ def fig_two():
             tex.append(f"\\addplot[color={c}, {ls}, thick, mark={mk}, mark size=1.4pt, mark options={{solid}}] coordinates {{"
                        + " ".join(f"({r['tp_dk']:g},{r['tp_' + rx]:.4f})" for r in rr) + "};\n")
             lab = {"genie": "Perfect CSI", "track": "Proposed", "conv-da": "Pilot every block"}[rx]
-            tex.append(f"\\addlegendentry{{{lab}, $\\Delta\\ell={int(dl)}$}}\n")
+            tex.append(f"\\addlegendentry{{{lab}, $\\Delta\\ell{{=}}{int(dl)}$}}\n")
     n = min(r["trials"] for r in res)
     nd = min(r["draws"] for r in ck)
     tex.append("\\end{semilogxaxis}\n\\end{tikzpicture}\n")
