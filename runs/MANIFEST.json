@@ -1,5 +1,5 @@
 {
- "commit": "6172bc34e788faff2c4caffa34d25e4a93e7321c",
+ "commit": "b986f8178618cb0b966464bcb67833537bb5150f",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2010,7 +2010,7 @@
   "theory_check.json": "fb9bf779817aada8d0aa693730458d77dfddd04324c5771b7470f9306a4693e9",
   "checks.json": "6d3163ad79330a4629b8560f3a9e6a04f3a41443ab0df348abfbbe11799b2ff7",
   "oracle_guard.json": "7a7d2e68f9733203ad02f1439adbea14d897ccd324a3544bf58358041860e387",
-  "numbers.json": "6326d457e1649e811afe6ca3335300b00cab19a3caa86772a6007e6f8ccc015b",
+  "numbers.json": "fbbbed02203247a87362020093b6789cddcf7bbfea170dcb423a0997fd93a35e",
   "paired.json": "daa88971b7bb85ecbf9c63422aaac527ab4511d1b82ba95d27d9016a13ffb9d9",
   "tune_v2_choice.json": "01b2a8fbac40bb99b82e95769dc99e3b3b4579c956bcb1f14c9a5df96124a74c",
   "physical_mapping.json": "68d2a9ef172b5cdab7a60556cb56a20480e48203939f165eadb5b79e2c624113",
@@ -2021,12 +2021,12 @@
  "outputs": {
   "fig_bler.tex": "d15529b781e424912d4542c30800bbf4be946945340513a67694c5e8c8693e39",
   "fig_diag.tex": "d754eecacec687f74a27b55a0d0e67e70da08cdc93929b2fb82823d883ee8281",
-  "fig_frame.tex": "a257efb77c82e0e6ef2022ff55b1371b5d71c578327701f833283235ef9b59c5",
+  "fig_frame.tex": "71b0ae9234b2d4b2cf99813e2d6f97202d76e831c13990bb5d216e316ea6a6d9",
   "fig_system.tex": "2a8f60f6fe3666971d115e64fe78caecfd022e248b95b11e229e08c4a22fc7d0",
   "fig_theory.tex": "f18d5e47b6909119faf23fade61cb69e050160a3da8cf66ab72e6d4cdbc7aec1",
   "fig_tp.tex": "9931c8cb4b60e49d2da200c99e3f83aa7cd79354fcbbde83de7117b6f606c5f5",
   "fig_two.tex": "0f4d46419ef211089da9c44e2e17fa58ea2d636950078d428bec82deb6c25528",
-  "numbers.tex": "b3bee89b5463d9048595c059b362793d86c39653a33ec916197533e195cc23d7",
+  "numbers.tex": "c5cc90b4da2483b5bb2d709f8df41f57a5ff6d99987ea2f2c92fd2ca88ba4ed7",
   "tab_paired.tex": "4388fbf07ce46e7305ad7ed49d670c24862d48246fb4ad64df66806951f2cde5",
   "tab_params.tex": "51308a8558f163886db4cc6b667abbb6eab5d8ade8d24243035b04033589fb7d",
   "tab_receivers.tex": "44c0f43bceec14e036a5c9ce3030a1e7323a129fedc07aa4bc8a912a7c304e42",
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "36f8246daa9f9def85624f5191731d5768bf986f1f0a5fe34d758ebfb06a0681"
+ "manuscript_pdf_sha256": "576fb0a5fd8c8d45c4efaa7bc5dbc0253b6e3f788a61b8b0828ffc344f6ec208"
 }
