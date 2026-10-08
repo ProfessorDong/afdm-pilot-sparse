@@ -199,23 +199,28 @@ def joint_rho(S, paths, h, L, b_next, rng, draws=4):
     return vals, dec, conds
 
 
-def k6():
+def k6(draws=400):
+    """Joint versus decoupled benchmark for two paths. Every draw takes an independent
+    geometry (integer delay, first Doppler shift, relative phase) and training data, so
+    the median is over geometries as well as data."""
     S = make_system(Config())
     rng = np.random.default_rng(6)
     rows = []
-    geoms = [(2, 0.4, 1.1), (4, -1.3, 2.3), (1, 1.7, 0.4), (5, -0.2, 4.0)]   # (delay, kappa_1, phase)
     for dl in (0, 1):
         for L in (1, 2, 4, 8):
             for dk in np.round(np.logspace(np.log10(0.02), np.log10(2.0), 13), 4):
                 rj, rd, cc = [], [], []
-                for l0, k0, ph in geoms:
-                    paths = [(l0, k0), (l0 + dl, k0 + dk)]
-                    h = np.array([1, np.exp(1j * ph)]) / np.sqrt(2)
-                    a, b, c = joint_rho(S, paths, h, L, L, rng, draws=12)
+                for _ in range(draws):
+                    l0 = int(rng.integers(0, S.ell_max + 1 - dl))
+                    k0 = rng.uniform(-S.alpha_max, S.alpha_max - dk)
+                    h = np.array([1, np.exp(1j * rng.uniform(0, 2 * np.pi))]) / np.sqrt(2)
+                    a, b, c = joint_rho(S, [(l0, k0), (l0 + dl, k0 + dk)], h, L, L, rng, draws=1)
                     rj += a; rd += b; cc += c
-                rows.append(dict(dl=dl, L=L, dk=float(dk), rho_joint=float(np.median(rj)),
+                r = 10 * np.log10(np.array(rj) / np.array(rd))
+                rows.append(dict(dl=dl, L=L, dk=float(dk), draws=draws, rho_joint=float(np.median(rj)),
                                  rho_decoupled=float(np.median(rd)), cond=float(np.median(cc)),
-                                 ratio_db_median=float(np.median(10 * np.log10(np.array(rj) / np.array(rd))))))
+                                 ratio_db_median=float(np.median(r)),
+                                 ratio_db_q25=float(np.percentile(r, 25)), ratio_db_q75=float(np.percentile(r, 75))))
     return rows
 
 

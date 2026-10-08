@@ -810,18 +810,18 @@
   "source": "m_two: min track/genie, delays one sample apart"
  },
  "NumJointPenaltyOneDb": {
-  "value": 12.52521257216737,
-  "tex": "13",
+  "value": 12.416678205581787,
+  "tex": "12",
   "source": "checks k6: median rho_J/rho_CR at the smallest dk, equal delay, L=1"
  },
  "NumJointPenaltyFourDb": {
-  "value": 5.759395816373633,
+  "value": 5.660296741229742,
   "tex": "6",
   "source": "checks k6: median rho_J/rho_CR at the smallest dk, equal delay, L=4"
  },
  "NumJointDelayMaxDb": {
-  "value": 0.015994252457485526,
-  "tex": "0.02",
+  "value": 0.011926048730598344,
+  "tex": "0.01",
   "source": "checks k6: max |rho_J/rho_CR| (dB), delays one sample apart"
  },
  "NumFrameBestB": {
