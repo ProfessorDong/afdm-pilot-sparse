@@ -1,5 +1,5 @@
 {
- "commit": "8ea1a541c1829ee63b6f45897b97b907313649e8",
+ "commit": "5ef0a224e3a7ef9975820ef07411ce1771db929f",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2022,7 +2022,7 @@
   "fig_bler.tex": "a6d14d823e619dab491f6b84f7d595f74f2c21622c0d7b4636085fcf534766a4",
   "fig_diag.tex": "05d87cf9e09d622b6376950331da86bb084b0c6a4df0fd0692b6bcf8138d42f1",
   "fig_frame.tex": "0a51c57c18a48190d030a00e0e46f185c335daa3099048506d18c33eeb7719dc",
-  "fig_system.tex": "85b32a9c531addae64a9cf8459a2c8f3a5756948db3a5b573a2f08632222f73a",
+  "fig_system.tex": "2a8f60f6fe3666971d115e64fe78caecfd022e248b95b11e229e08c4a22fc7d0",
   "fig_theory.tex": "c7bbbca9e1b1503c7fc061a2eddeba113af771d6e40a53e596fee4d8abf975c2",
   "fig_tp.tex": "e328daa8c5e32fcd1753c501409108656e418d92b5241147cc6decc5b80bfe23",
   "fig_two.tex": "c888b551c3f351793884fc01374573d27e04cf8ba8ffb0ca897cedfb16adae9f",
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "d946fce5c7c5af9e948eff0141a1495e40d87d867e1256c4117885d6d652554f"
+ "manuscript_pdf_sha256": "ae2241a911c81d56079feb6266d2888f6e097507c8b7d3aeffa1bc993da91f6a"
 }
