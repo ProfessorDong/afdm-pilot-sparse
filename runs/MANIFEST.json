@@ -1,5 +1,5 @@
 {
- "commit": "e9f875665d9a3eb6015e8104b1c42e0046661962",
+ "commit": "89bc09bf2ec876570b16e1cb1685c7a753f0102f",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -2020,7 +2020,7 @@
  },
  "outputs": {
   "fig_bler.tex": "d15529b781e424912d4542c30800bbf4be946945340513a67694c5e8c8693e39",
-  "fig_diag.tex": "05d87cf9e09d622b6376950331da86bb084b0c6a4df0fd0692b6bcf8138d42f1",
+  "fig_diag.tex": "d754eecacec687f74a27b55a0d0e67e70da08cdc93929b2fb82823d883ee8281",
   "fig_frame.tex": "a257efb77c82e0e6ef2022ff55b1371b5d71c578327701f833283235ef9b59c5",
   "fig_system.tex": "2a8f60f6fe3666971d115e64fe78caecfd022e248b95b11e229e08c4a22fc7d0",
   "fig_theory.tex": "f18d5e47b6909119faf23fade61cb69e050160a3da8cf66ab72e6d4cdbc7aec1",
@@ -2090,5 +2090,5 @@
    "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "a565919e385a9e987054caf443e7f04e085dbf0ac692561639a3c819539bd01c"
+ "manuscript_pdf_sha256": "e366cd4c0d17dff5bd5a0e221abf9142af66882d11bb878d828aa540c4c0bd52"
 }
