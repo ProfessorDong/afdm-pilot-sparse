@@ -21,7 +21,8 @@ from engine import Config, simulate  # noqa: E402
 
 RUNS = Path(__file__).resolve().parent / "runs"
 SWEEPS = ["m_main", "m_two", "m_mismatch", "m_robust", "m_frame", "dev_policy", "dev_policy_two",
-          "dev_split", "dev_split_two", "dev_c2p_ref", "dev_c2p_irr", "tune_v2", "tune_v3", "tune_v4"]
+          "dev_split", "dev_split_two", "dev_c2p_ref", "dev_c2p_irr", "tune_v2", "tune_v3", "tune_v4",
+          "tune_v5", "tune_v6", "m_main_mp", "m_main_lo"]
 FIELDS = ("err", "blerr", "goodbits")
 
 

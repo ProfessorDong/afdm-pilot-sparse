@@ -61,6 +61,15 @@ AFDM_TVT_*
 !runs/tune_v4.jsonl
 !runs/tune_v4.spec.json
 !runs/tune_v2_choice.json
+!runs/tune_v5.jsonl
+!runs/tune_v5.spec.json
+!runs/tune_v6.jsonl
+!runs/tune_v6.spec.json
+!runs/m_main_mp.jsonl
+!runs/m_main_mp.spec.json
+!runs/m_main_lo.jsonl
+!runs/m_main_lo.spec.json
+!runs/tune_v5_choice.json
 !runs/checks.json
 !runs/paired.json
 !runs/fig_diag_meta.json

@@ -54,5 +54,21 @@
  "tune_v4": {
   "replayed": 27,
   "mismatched": []
+ },
+ "tune_v5": {
+  "replayed": 90,
+  "mismatched": []
+ },
+ "tune_v6": {
+  "replayed": 60,
+  "mismatched": []
+ },
+ "m_main_mp": {
+  "replayed": 8,
+  "mismatched": []
+ },
+ "m_main_lo": {
+  "replayed": 4,
+  "mismatched": []
  }
 }

@@ -53,6 +53,11 @@ class Config:
     spt_eps: float | None = None    # superimposed pilot + tracker: pilot fraction (None -> sp_eps)
     spl_eps: float = 0.15           # low-latency variant 'sp-track-ll' (acquisition from spl_K blocks)
     spl_K: int = 4
+    # number of equally spaced superimposed pilot chirps sharing the pilot energy eps*N
+    # (Zheng et al., TVT 2025, use several); 1 = the single pilot chirp at m0
+    sp_M: int = 1                   # single-block iterative version 'sp'
+    spt_M: int = 1                  # superimposed pilot + tracker ('sp-track', 'sp-trackK')
+    spl_M: int = 1                  # low-latency variant 'sp-track-ll'
     aperture_res: bool = True       # Doppler resolution thresholds shrink with the aperture
     reacq_level: str = "residual"   # re-acquisition CFAR level: 'noise' or 'residual'
     receivers: tuple = ("genie", "conv", "sp", "openloop", "track")
@@ -188,6 +193,7 @@ class Acquirer:
         # guard chirps outside W: noise (+ tiny leakage) only -> noise estimate
         self.G = np.setdiff1d(S.zero_set, S.W)
         self.G = self.G[self.G != S.m0]
+        self.Wsel = S.W                        # chirps on which the pilot response is read
 
     def atom(self, l, k):
         return self.S.atoms([l], [k])[0, 0]
@@ -236,7 +242,7 @@ class Acquirer:
     def run(self, Yfull, P_max, P_known=None, pfa=1e-3, sweeps=2, sigma2=None):
         """Greedy extraction; order = P_known if given, else CFAR on the
         non-coherent map with the guard-based noise estimate."""
-        y = Yfull[:, self.S.W]
+        y = Yfull[:, self.Wsel]
         B = y.shape[0]
         s2 = self.noise_var(Yfull) if sigma2 is None else sigma2
         cells = self.L * len(self.KG)
@@ -263,6 +269,67 @@ class Acquirer:
                 paths[p] = (l, float(self.fit_kappa(rp, l, paths[p][1])))
         g, _ = self.ls(y, paths)
         return paths, g / np.sqrt(self.S.Ep)
+
+
+
+def sp_pilot(S: MBAFDM, eps, M=1):
+    """Superimposed pilot of total energy eps*N on M equally spaced chirps m0 + jN/M.
+    The pilot windows W + jN/M must be disjoint, so N/M >= |W|."""
+    assert S.N % M == 0 and S.N // M >= len(S.W), "pilot windows would overlap"
+    pos = (S.m0 + np.arange(M) * (S.N // M)) % S.N
+    x = np.zeros(S.N, complex)
+    x[pos] = np.sqrt(eps * S.N / M)
+    return x
+
+
+class MultiPilotAcquirer(Acquirer):
+    """Acquisition for a superimposed pilot on M > 1 equally spaced chirps: the atoms are
+    the responses to the unit-norm pilot pattern read on the union of the M pilot
+    windows, and the interference-plus-noise level is measured on all other chirps."""
+
+    def __init__(self, S: MBAFDM, M, kstep=0.02, kpad=0.6):
+        self.S = S
+        self.M = M
+        self.L = S.ell_max + 1
+        self.KG = np.arange(-S.alpha_max - kpad, S.alpha_max + kpad + 1e-9, kstep)
+        self.kstep = kstep
+        self.p = sp_pilot(S, 1.0 / S.N, M)                     # unit-norm pattern
+        self.Wsel = np.concatenate([(S.W + j * (S.N // M)) % S.N for j in range(M)])
+        assert len(np.unique(self.Wsel)) == len(self.Wsel)
+        mask = np.ones(S.N, bool)
+        mask[self.Wsel] = False
+        self.G = np.flatnonzero(mask)
+        A = self._atoms(range(self.L), self.KG)
+        self.An = A / np.linalg.norm(A, axis=-1, keepdims=True)
+
+    def _atoms(self, ells, kappas):
+        S = self.S
+        s = S.idaft(self.p)
+        n_abs = np.arange(S.Ncp, S.Ncp + S.N)
+        kappas = np.atleast_1d(kappas)
+        out = np.empty((len(ells), len(kappas), len(self.Wsel)), complex)
+        for i, l in enumerate(ells):
+            ph = np.exp(1j * 2 * np.pi * np.outer(kappas, n_abs) / S.N)
+            out[i] = S.daft(np.roll(s, int(l))[None, :] * ph)[:, self.Wsel]
+        return out
+
+    def atom(self, l, k):
+        return self._atoms([l], [k])[0, 0]
+
+
+_MPA = {}
+
+
+def sp_acquirer(S: MBAFDM, acq: Acquirer, M):
+    """The single-pilot acquirer for M = 1 (unchanged); a cached multi-pilot one otherwise."""
+    if M == 1:
+        return acq
+    key = (S.N, S.Ncp, S.alpha_max, S.xi, S.ell_max, S.m0, M)
+    if key not in _MPA:
+        _MPA[key] = MultiPilotAcquirer(S, M)
+    acq_m = _MPA[key]
+    acq_m.S = S              # the cached atoms depend only on the design; S.Ep etc. are this trial's
+    return acq_m
 
 
 def known_block_acquire(S: MBAFDM, Y, X, blocks, P, kmax, kstep=0.02, sigma2=None, pfa=1e-3):
@@ -456,11 +523,19 @@ def simulate(cfg: Config, seed: int):
             kk = np.array([p[1] for p in paths])
             ests.append(([p[0] for p in paths], kk, h * np.exp(-1j * 2 * np.pi * kk * b * S.beta)))
         tally("conv", detect_frame(S, Yc, "P" * B, lambda b: ests[b], sigma2), xc, t0, "C")
+    elif "rng:conv" in cfg.receivers:
+        # draw-only token: the random draws of the skipped frame (payload, noise), so that
+        # a rerun of a subset of receivers sees exactly the random stream of the full run
+        build_frame(S, "P" * B, pay, "C"); awgn(rng, (B, S.N), sigma2)
 
     if "sp" in cfg.receivers:
         t0 = time.time()
         dsp, xsp = _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay)
         tally("sp", dsp, xsp, t0, "S")
+    elif "rng:sp" in cfg.receivers:
+        for b in range(B):
+            pay.symbols(("S", b), S.N)
+        awgn(rng, (B, S.N), sigma2)
 
     run_track = any(r in cfg.receivers for r in ("openloop", "track", "track-hybrid", "track-legacy", "track-keep",
                                                   "track-validate", "track-valsplit", "track-rollback",
@@ -522,31 +597,41 @@ def simulate(cfg: Config, seed: int):
                 d, _ = mkT().run_full(Yc2[b:b + 1], "P", paths, h, sigma2, codec=codec_da)
                 dets.append(d[0])
             tally("conv-da", dets, xc2, t0, "C2")
+    elif "rng:conv-da" in cfg.receivers:
+        build_frame(S, "P" * B, pay, "C2"); awgn(rng, (B, S.N), sigma2)
 
     # superimposed pilot in every block, processed by the same multi-block tracker and
     # acquired from the first K blocks: (name, pilot fraction, K); variants with the same
     # pilot fraction share one transmitted frame
-    spv = [(r, cfg.sp_eps if cfg.spt_eps is None else cfg.spt_eps, int(r[8:]))
+    spv = [(r, cfg.sp_eps if cfg.spt_eps is None else cfg.spt_eps, int(r[8:]), cfg.spt_M)
            for r in cfg.receivers if r.startswith("sp-track") and r[8:].isdigit()]
     if "sp-track" in cfg.receivers:
-        spv.append(("sp-track", cfg.sp_eps if cfg.spt_eps is None else cfg.spt_eps, max(1, int(cfg.sp_acq_blocks))))
+        spv.append(("sp-track", cfg.sp_eps if cfg.spt_eps is None else cfg.spt_eps, max(1, int(cfg.sp_acq_blocks)),
+                    cfg.spt_M))
     if "sp-track-ll" in cfg.receivers:
-        spv.append(("sp-track-ll", cfg.spl_eps, cfg.spl_K))
+        spv.append(("sp-track-ll", cfg.spl_eps, cfg.spl_K, cfg.spl_M))
     frames_sp = {}
-    for name, eps, Kb in spv:
-        if eps not in frames_sp:
+    for name, eps, Kb, M in spv:
+        if (eps, M) not in frames_sp:
             a_d = np.sqrt(1 - eps)
-            tag = "ST" if not frames_sp else f"ST{len(frames_sp)}"
+            if M == 1:
+                n1 = sum(1 for key in frames_sp if key[1] == 1)
+                tag = "ST" if not n1 else f"ST{n1}"
+            else:
+                tag = f"STM{M}_{len(frames_sp)}"
             d = np.stack([pay.symbols((tag, b), S.N) for b in range(B)])
             xs = a_d * d
-            xs[:, S.m0] += np.sqrt(eps * S.N)
-            frames_sp[eps] = (tag, d, rx(S, xs) + awgn(rng, (B, S.N), sigma2))
-        tag, d, Ys = frames_sp[eps]
+            if M == 1:
+                xs[:, S.m0] += np.sqrt(eps * S.N)
+            else:
+                xs += sp_pilot(S, eps, M)[None, :]
+            frames_sp[(eps, M)] = (tag, d, rx(S, xs) + awgn(rng, (B, S.N), sigma2))
+        tag, d, Ys = frames_sp[(eps, M)]
         t1 = time.time()
         Ep0 = S.Ep; S.Ep = eps * S.N
-        paths, h = acq.run(Ys[:Kb], P_cap, P_known)          # CFAR level measured: data + noise
+        paths, h = sp_acquirer(S, acq, M).run(Ys[:Kb], P_cap, P_known)   # CFAR level measured: data + noise
         S.Ep = Ep0
-        dets, _ = mkT().run_full(Ys, "S" * B, paths, h, sigma2, codec=codec_da, sp_eps=eps, n_acq=Kb)
+        dets, _ = mkT().run_full(Ys, "S" * B, paths, h, sigma2, codec=codec_da, sp_eps=eps, n_acq=Kb, sp_M=M)
         tally(name, dets, d, t1, tag)
 
     for K in (2, 4, 8):
@@ -692,11 +777,17 @@ def _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay):
     from mbtrack import apply_path
     B = cfg.B
     eps = cfg.sp_eps
+    M = cfg.sp_M
     a_d = np.sqrt(1 - eps)
     Ep = eps * S.N
+    xsp = sp_pilot(S, eps, M)
     d = np.stack([pay.symbols(("S", b), S.N) for b in range(B)])
     x = a_d * d
-    x[:, S.m0] += np.sqrt(Ep)
+    if M == 1:
+        x[:, S.m0] += np.sqrt(Ep)
+    else:
+        x += xsp[None, :]
+    acq = sp_acquirer(S, acq, M)
     Y = rx(S, x) + awgn(rng, (B, S.N), sigma2)
     codec = make_codec() if cfg.coded else None
     T = Tracker(S, est_delay=cfg.frac_delay, gn_iters=4, kmax=cfg.kappa_max + 0.5, P_cap=P_cap)
@@ -712,7 +803,7 @@ def _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay):
         paths = [(p[0], p[1], 0.0) for p in paths]
         for it in range(cfg.sp_iters + 1):
             H = channel_matrix(S, b, [p[0] for p in paths], [p[1] for p in paths], g)
-            r = Y[b] - H[:, S.m0] * np.sqrt(Ep)
+            r = Y[b] - (H[:, S.m0] * np.sqrt(Ep) if M == 1 else H @ xsp)
             hd, xm, xv, _, zu, v = lmmse_soft(H * a_d, r, None, None, sigma2, idx)
             if it == cfg.sp_iters:
                 det = (hd, zu, v, idx)
@@ -726,7 +817,10 @@ def _superimposed(S, cfg, rx, rng, sigma2, acq, P_cap, P_known, pay):
                 if xr is not None:
                     xs = xr
             X = (a_d * xs)[None, :].astype(complex)
-            X[0, S.m0] += np.sqrt(Ep)
+            if M == 1:
+                X[0, S.m0] += np.sqrt(Ep)
+            else:
+                X[0] += xsp
             for _ in range(P_cap):                      # add paths the pilot window missed
                 res = Y[b:b + 1] - sum(gg * apply_path(S, p[0], p[1], X, [b]) for p, gg in zip(paths, g)) \
                     if paths else Y[b:b + 1]

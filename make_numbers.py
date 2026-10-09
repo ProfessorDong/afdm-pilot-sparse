@@ -226,6 +226,28 @@ def _guard(names, src):
     return deco
 
 
+_MP = ("NumSptMList", "NumSplMList", "NumSpMList", "NumMpMaxGainPct", "NumMpMaxLossPct", "NumMpSigCount", "NumMpTrials")
+
+
+@_guard(_MP, "pick_v3 / tune_v5, tune_v6")
+def _multipilot():
+    """Held-out choice of the number M of superimposed pilot chirps (pick_v3)."""
+    c = json.load(open(RUNS / "tune_v5_choice.json"))
+    ch, pp = c["choice"], c["paired_best_M_vs_M1"]
+    order = lambda d: sorted(d, key=float)
+    put("NumSptMList", ", ".join(str(ch["sp_track"][k]["M"]) for k in order(ch["sp_track"])), "pick_v3: tuned M per tuning SNR, sp-track")
+    put("NumSplMList", ", ".join(str(ch["sp_track_ll"][k]["M"]) for k in order(ch["sp_track_ll"])), "pick_v3: tuned M, low-latency")
+    put("NumSpMList", ", ".join(str(ch["sp"][k]["M"]) for k in order(ch["sp"])), "pick_v3: tuned M, single-block")
+    rel = [v for lab in pp.values() for d in lab.values() for v in d.values()]
+    put("NumMpMaxGainPct", 100 * max(v["rel"] for v in rel),
+        "pick_v3: largest held-out gain of the best M>1 over the best M=1 (paired)", r"{:.1f}\%")
+    put("NumMpMaxLossPct", -100 * min(v["rel"] for v in rel),
+        "pick_v3: largest held-out loss of the best M>1 against the best M=1 (paired)", r"{:.1f}\%")
+    put("NumMpSigCount", sum(1 for v in rel if v["rel"] > 0 and v["ci95"][0] > 0),
+        "pick_v3: comparisons in which the best M>1 is ahead with a 95% interval above zero", "{:d}")
+    put("NumMpTrials", min(c2["n_seeds"] for lab in ch.values() for c2 in lab.values()),
+        "pick_v3: held-out seeds per comparison (min)", "{:d}")
+
 _MAIN = ("NumGainConvPct", "NumSnrGenieMatch", "NumGapGeniePct", "NumSpTopSnr", "NumSpFromSnr", "NumSpMaxAdvPct",
          "NumOverSpEightPct", "NumOverConvEightPct", "NumGenieRatioEightPct", "NumGenieRatioSixPct",
          "NumOverOfdmMinPct", "NumOverOfdmMaxPct", "NumOfdmBetterSnr", "NumOverOpenMinPct",

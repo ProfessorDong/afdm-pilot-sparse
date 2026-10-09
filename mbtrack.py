@@ -340,7 +340,7 @@ class Tracker:
 
     # ---------- sequential receiver over a frame ----------
     def run_full(self, Y, kinds, paths, h, sigma2, xknown=None, codec=None, blocks_abs=None,
-                 sp_eps=None, n_acq=None):
+                 sp_eps=None, n_acq=None, sp_M=1):
         """kinds per block: 'P' pilot(+guard)+data, 'T' fully known training,
         'D' data on all chirps. Pilot/training blocks are detected with the
         acquisition estimate; each data block is predicted, detected, appended
@@ -359,6 +359,9 @@ class Tracker:
         if sp_eps is not None:                      # superimposed-pilot blocks 'S'
             a_d = np.sqrt(1 - sp_eps)
             xsp = np.zeros(N, complex); xsp[S.m0] = np.sqrt(sp_eps * N)
+            if sp_M > 1:                            # pilot energy shared by M equally spaced chirps
+                pos = (S.m0 + np.arange(sp_M) * (N // sp_M)) % N
+                xsp = np.zeros(N, complex); xsp[pos] = np.sqrt(sp_eps * N / sp_M)
         Xs = np.zeros((B, N), complex)
         dets = [None] * B
         traj = []
@@ -373,7 +376,7 @@ class Tracker:
                 return None, xknown[b]
             if kinds[b] == "S":
                 idx = np.arange(N)
-                r = Y[b] - H[:, S.m0] * xsp[S.m0]
+                r = Y[b] - (H[:, S.m0] * xsp[S.m0] if sp_M == 1 else H @ xsp)
                 hd, xm, xv, _, zu, v = lmmse_soft(H * a_d, r, None, None, sigma2, idx)
                 xs = xsp.copy()
                 if codec is not None:

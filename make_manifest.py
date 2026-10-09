@@ -16,9 +16,10 @@ ROOT = Path(__file__).resolve().parent
 RUNS = ROOT / "runs"
 PAPER = ROOT / "paper"
 SWEEPS = ["m_main", "m_two", "m_mismatch", "m_robust", "m_frame", "tune_v2", "tune_v3", "tune_v4",
-          "dev_c2p_ref", "dev_c2p_irr", "dev_policy", "dev_policy_two", "dev_split", "dev_split_two"]
+          "dev_c2p_ref", "dev_c2p_irr", "dev_policy", "dev_policy_two", "dev_split", "dev_split_two",
+          "tune_v5", "tune_v6", "m_main_mp", "m_main_lo"]
 SINGLE = ["theory_check.json", "checks.json", "oracle_guard.json", "numbers.json", "paired.json",
-          "tune_v2_choice.json", "physical_mapping.json", "fig_main_meta.json", "fig_diag_meta.json", "REPLAY.json"]
+          "tune_v2_choice.json", "tune_v5_choice.json", "physical_mapping.json", "fig_main_meta.json", "fig_diag_meta.json", "REPLAY.json"]
 
 
 def sha(p):

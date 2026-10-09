@@ -35,12 +35,15 @@
     "track",
     "track-hybrid"
    ],
-   "spt_eps": 0.15,
+   "spt_eps": 0.1,
    "sp_acq_blocks": 16,
    "sp_eps": 0.15,
    "sp_iters": 16,
    "spl_eps": 0.15,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 2,
+   "spt_M": 2,
+   "spl_M": 1
   },
   {
    "snr_db": 2,
@@ -64,12 +67,15 @@
     "track",
     "track-hybrid"
    ],
-   "spt_eps": 0.15,
+   "spt_eps": 0.1,
    "sp_acq_blocks": 16,
    "sp_eps": 0.15,
    "sp_iters": 16,
    "spl_eps": 0.15,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 2,
+   "spt_M": 2,
+   "spl_M": 1
   },
   {
    "snr_db": 4,
@@ -93,12 +99,15 @@
     "track",
     "track-hybrid"
    ],
-   "spt_eps": 0.15,
+   "spt_eps": 0.1,
    "sp_acq_blocks": 16,
    "sp_eps": 0.15,
    "sp_iters": 16,
    "spl_eps": 0.15,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 2,
+   "spt_M": 2,
+   "spl_M": 1
   },
   {
    "snr_db": 6,
@@ -122,12 +131,15 @@
     "track",
     "track-hybrid"
    ],
-   "spt_eps": 0.15,
+   "spt_eps": 0.1,
    "sp_acq_blocks": 16,
    "sp_eps": 0.15,
    "sp_iters": 16,
    "spl_eps": 0.15,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 2,
+   "spt_M": 2,
+   "spl_M": 1
   },
   {
    "snr_db": 8,
@@ -156,7 +168,10 @@
    "sp_eps": 0.2,
    "sp_iters": 20,
    "spl_eps": 0.15,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 1,
+   "spt_M": 4,
+   "spl_M": 1
   },
   {
    "snr_db": 10,
@@ -185,7 +200,10 @@
    "sp_eps": 0.2,
    "sp_iters": 20,
    "spl_eps": 0.15,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 1,
+   "spt_M": 4,
+   "spl_M": 1
   },
   {
    "snr_db": 12,
@@ -214,7 +232,10 @@
    "sp_eps": 0.2,
    "sp_iters": 16,
    "spl_eps": 0.2,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 4,
+   "spt_M": 2,
+   "spl_M": 1
   },
   {
    "snr_db": 14,
@@ -243,7 +264,10 @@
    "sp_eps": 0.2,
    "sp_iters": 16,
    "spl_eps": 0.2,
-   "spl_K": 4
+   "spl_K": 4,
+   "sp_M": 4,
+   "spt_M": 2,
+   "spl_M": 1
   },
   {
    "snr_db": 16,

@@ -349,6 +349,41 @@
   "tex": "3603",
   "source": "theory_check e3: in-cell trials per point (min)"
  },
+ "NumSptMList": {
+  "value": "2, 4, 2, 1, 1",
+  "tex": "2, 4, 2, 1, 1",
+  "source": "pick_v3: tuned M per tuning SNR, sp-track"
+ },
+ "NumSplMList": {
+  "value": "1, 1, 1, 1, 1",
+  "tex": "1, 1, 1, 1, 1",
+  "source": "pick_v3: tuned M, low-latency"
+ },
+ "NumSpMList": {
+  "value": "2, 1, 4, 1, 1",
+  "tex": "2, 1, 4, 1, 1",
+  "source": "pick_v3: tuned M, single-block"
+ },
+ "NumMpMaxGainPct": {
+  "value": 5.000000000000004,
+  "tex": "5.0\\%",
+  "source": "pick_v3: largest held-out gain of the best M>1 over the best M=1 (paired)"
+ },
+ "NumMpMaxLossPct": {
+  "value": 11.340206185567004,
+  "tex": "11.3\\%",
+  "source": "pick_v3: largest held-out loss of the best M>1 against the best M=1 (paired)"
+ },
+ "NumMpSigCount": {
+  "value": 0,
+  "tex": "0",
+  "source": "pick_v3: comparisons in which the best M>1 is ahead with a 95% interval above zero"
+ },
+ "NumMpTrials": {
+  "value": 30,
+  "tex": "30",
+  "source": "pick_v3: held-out seeds per comparison (min)"
+ },
  "NumEvalTrials": {
   "value": 200,
   "tex": "200",
@@ -415,12 +450,12 @@
   "source": "highest SNR below that"
  },
  "NumSpMaxAdvPct": {
-  "value": 3.14126479664687,
-  "tex": "3.1\\%",
+  "value": 3.2181994728811114,
+  "tex": "3.2\\%",
   "source": "max sp-track advantage"
  },
  "NumOverSpEightPct": {
-  "value": 4.733576150006735,
+  "value": 4.713800172637028,
   "tex": "5\\%",
   "source": "track/sp-track-1 at 8 dB"
  },
@@ -430,8 +465,8 @@
   "source": "max sp-track over perfect CSI of the pilot-sparse frame"
  },
  "NumSpSingleMaxDiff": {
-  "value": 0.16107572115384616,
-  "tex": "0.16",
+  "value": 0.18374999999999997,
+  "tex": "0.18",
   "source": "max |sp-track - sp| (bit/s/Hz)"
  },
  "NumSptEpsList": {
@@ -495,7 +530,7 @@
   "source": "min track/ofdm-1, SNR>=6"
  },
  "NumOverOfdmMaxPct": {
-  "value": 4.261996598069051,
+  "value": 4.417109309477185,
   "tex": "4\\%",
   "source": "max track/ofdm-1, SNR>=6"
  },
@@ -575,8 +610,8 @@
   "source": "max hybrid/strict-1, SNR>=4"
  },
  "NumPtrackBestKList": {
-  "value": "4, 4, 4, 8, 8, 8, 8, 8, 8, 8",
-  "tex": "4, 4, 4, 8, 8, 8, 8, 8, 8, 8",
+  "value": "8, 4, 4, 8, 8, 8, 8, 8, 8, 8",
+  "tex": "8, 4, 4, 8, 8, 8, 8, 8, 8, 8",
   "source": "best periodic+tracker spacing per SNR"
  },
  "NumInterpBestKList": {
@@ -615,7 +650,7 @@
   "source": "time conv-da"
  },
  "NumTimeSpTrack": {
-  "value": 18.624481258630755,
+  "value": 18.574448439061644,
   "tex": "19",
   "source": "time sp-track"
  },
