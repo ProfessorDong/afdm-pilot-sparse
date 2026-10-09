@@ -69,6 +69,9 @@ AFDM_TVT_*
 !runs/m_main_mp.spec.json
 !runs/m_main_lo.jsonl
 !runs/m_main_lo.spec.json
+!runs/superseded/
+runs/superseded/*
+!runs/superseded/m_main_before_multipilot.jsonl
 !runs/tune_v5_choice.json
 !runs/checks.json
 !runs/paired.json

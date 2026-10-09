@@ -44,6 +44,11 @@ checks.py        numerical checks: Kaufman Jacobian, leakage, ambiguity, guard s
                  RMS delay spread, joint two-path Cramer-Rao benchmark
 oracle_guard.py  bound on the saving of an ideal adaptive guard
 pick_v2.py       tuned superimposed-pilot configurations (held-out seeds) -> specs/m_main.json
+pick_v3.py       held-out choice of the number M of superimposed pilot chirps (rule fixed in
+                 its docstring before the M > 1 results were seen)
+merge_multipilot.py  merges the rerun of the superimposed receivers into runs/m_main.jsonl
+replay.py        re-simulates the first trial of every grid point and compares it with the
+                 recorded row (runs/REPLAY.json); make_manifest.py writes runs/MANIFEST.json
 make_numbers.py  every number quoted in the paper's text -> paper/numbers.tex
 make_figures.py  every figure and the paired-interval table -> paper/fig_*.tex, tab_paired.tex
 make_tables.py   parameter table and impairment table
@@ -57,12 +62,18 @@ proto/           development gates (not used by the paper)
 
 ```bash
 pip install -r requirements.txt
-python -m pytest tests -q                    # smoke test (~10 s)
+python -m pytest tests -q                    # unit tests (~30 s)
 python run_sweep.py specs/tune_v2.json       # superimposed-pilot tuning, held-out seeds
 python run_sweep.py specs/tune_v3.json       #   grid extension beyond the first boundaries
 python run_sweep.py specs/tune_v4.json       #   grid extension (single-block iterations)
 python pick_v2.py                            # writes the tuned settings into specs/m_main.json
 python run_sweep.py specs/m_main.json        # Figs. 3-5, Table III: all receivers, same channels
+python run_sweep.py specs/tune_v5.json       # superimposed pilot on M = 2, 4 chirps + tracker, held-out
+python run_sweep.py specs/tune_v6.json       #   single-block version, held-out
+python pick_v3.py                            # held-out choice of M (runs/tune_v5_choice.json)
+python run_sweep.py specs/m_main_mp.json     # superimposed receivers with the chosen M, evaluation seeds
+python run_sweep.py specs/m_main_lo.json     # receivers whose random stream shifted (0-6 dB)
+python merge_multipilot.py                   # merges both into runs/m_main.jsonl
 python run_sweep.py specs/m_two.json         # Fig. 6(b): two closely spaced paths
 python run_sweep.py specs/m_mismatch.json    # matched-model control (Fig. 5)
 python run_sweep.py specs/m_robust.json      # Table IV
@@ -71,11 +82,16 @@ python run_sweep.py specs/dev_c2p_ref.json   # paired c2 check (held-out seeds)
 python run_sweep.py specs/dev_c2p_irr.json
 python theory_check.py && python checks.py && python oracle_guard.py
 python make_numbers.py && python make_figures.py && python make_tables.py && python make_tables.py robust
+python replay.py && python make_manifest.py  # provenance: re-simulation check and manifest
 ```
 
 The 16 and 20 dB points of `m_main` were recomputed after the tie-breaking rule of
 `pick_v2.py` was fixed (ties toward more acquisition blocks); the earlier rows are
-kept in `runs/superseded/m_main_points8-9_tiebreak.jsonl`. Seeds are fixed in the specs; sweeps resume from their JSON-lines files after an
+kept in `runs/superseded/m_main_points8-9_tiebreak.jsonl`. The superimposed-pilot rows of
+`m_main` come from `m_main_mp` and `m_main_lo` (merged by `merge_multipilot.py` into
+`runs/superseded/m_main_before_multipilot.jsonl`); the reruns use draw-only receiver tokens
+(`rng:conv`, `rng:sp`, `rng:conv-da`) that reproduce the random stream of a full run, and
+`replay.py` confirms that a full run of `specs/m_main.json` reproduces the merged rows. Seeds are fixed in the specs; sweeps resume from their JSON-lines files after an
 interruption. CPU only; one BLAS thread per worker. The full set of sweeps takes
 about three days on 18 cores.
 
