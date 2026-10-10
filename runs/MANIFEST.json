@@ -1,5 +1,5 @@
 {
- "commit": "0756e0b767637b49f62b55ce5e52d04210599e81",
+ "commit": "a588f86feba1e8b8139a5ff0c2dc41c0418e27f1",
  "uncommitted_changes": false,
  "environment": {
   "python": "3.12.13",
@@ -3008,32 +3008,84 @@
      "failed": 0
     }
    ]
+  },
+  "m_cap": {
+   "sha256": "ae70fa319e97acfaee5d805053cb246750a9031277eea6e3471600c3b311c13d",
+   "spec_sha256": "8abd6710695a4bd8359031b63399f080c15b68205ef9dee805e4f4432df430a0",
+   "records": 1600,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    },
+    {
+     "point": 2,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    },
+    {
+     "point": 3,
+     "attempted": 400,
+     "completed": 400,
+     "failed": 0
+    }
+   ]
+  },
+  "m_cap_p8": {
+   "sha256": "cd7b0d88269a36651758726797d24473fda180a5c41bc67f53cb8cc148498b23",
+   "spec_sha256": "08f178c4e87d5a869ec69e2c95eba1a74b98854eb6e40f7c3eaa5af17462dd79",
+   "records": 400,
+   "failed_total": 0,
+   "points": [
+    {
+     "point": 0,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    },
+    {
+     "point": 1,
+     "attempted": 200,
+     "completed": 200,
+     "failed": 0
+    }
+   ]
   }
  },
  "artifacts": {
   "theory_check.json": "fb9bf779817aada8d0aa693730458d77dfddd04324c5771b7470f9306a4693e9",
-  "checks.json": "6d3163ad79330a4629b8560f3a9e6a04f3a41443ab0df348abfbbe11799b2ff7",
+  "checks.json": "e55f8428589f988a456603522b6b035a6d0debbf420ecfd732304f99ca61c463",
   "oracle_guard.json": "7a7d2e68f9733203ad02f1439adbea14d897ccd324a3544bf58358041860e387",
-  "numbers.json": "f51719db2eaf5aff5c6f844e50730d81c490cc99f3e05419d1338e0136d8900e",
+  "numbers.json": "b12323281c083c4256ea20c8c273977824e6c057d8f11bb448fd4e352a0e3d53",
   "paired.json": "9230fc9b8aeda5616d68aa7396b402e08dd9df743561efb42b2f33407ba4769f",
   "tune_v2_choice.json": "01b2a8fbac40bb99b82e95769dc99e3b3b4579c956bcb1f14c9a5df96124a74c",
   "tune_v5_choice.json": "d1b988184d6bef42ca917d352af0fadafd174045091edbd8970c4166ea399606",
   "physical_mapping.json": "68d2a9ef172b5cdab7a60556cb56a20480e48203939f165eadb5b79e2c624113",
   "fig_main_meta.json": "6b126e54510d6df3085bbd5df67c39eb4b3a4f817fb9c8117c129308ada164ba",
   "fig_diag_meta.json": "35971cfd91005c11a329a77f8c968a7206f268a58d46e2362339a0c6644e640d",
-  "REPLAY.json": "886845278593cce9d6128dae70bec36e573f940e98d8a132ef4374dcca8152c0"
+  "REPLAY.json": "0d9b726205e55fd14874ab89f93938681a783e6893529e1c574825e1b6d7d3cd"
  },
  "outputs": {
   "fig_bler.tex": "f54406585bef35c6c7142a7a38bd54db109e51c03cc0dd03b186163820bf86b5",
   "fig_diag.tex": "d754eecacec687f74a27b55a0d0e67e70da08cdc93929b2fb82823d883ee8281",
   "fig_frame.tex": "71b0ae9234b2d4b2cf99813e2d6f97202d76e831c13990bb5d216e316ea6a6d9",
-  "fig_system.tex": "2a8f60f6fe3666971d115e64fe78caecfd022e248b95b11e229e08c4a22fc7d0",
+  "fig_system.tex": "a52c1d59489b7915c629940bf97c8c7989ca5076407530d4e99547b908acdff7",
   "fig_theory.tex": "f18d5e47b6909119faf23fade61cb69e050160a3da8cf66ab72e6d4cdbc7aec1",
   "fig_tp.tex": "dc226977946de8994bb0bc157eac52d7e6b088a57401609fac8bf99eec7c926f",
-  "fig_two.tex": "04819831e25fe8fae82c7935883032486fe7711d92f8f4d5632e86deddbbe2f3",
-  "numbers.tex": "2576e47eb92f2b613fa71f047c09dc16be292b191c32e7fbdf393ab3e0bb9f64",
+  "fig_two.tex": "8b612115e25f7c37b471920526ca52fee01ac74bcace4fd0c4710a352dd13dce",
+  "numbers.tex": "691b87eb34bcb1a350d22d7b306b0e748439c0c8411ceb70b6b2e2279bbafbfe",
   "tab_paired.tex": "42a9ab3d6e34f1811907e0f14b0a92286e88980b5404308873b218c17106d440",
-  "tab_params.tex": "04b0ba67281292c4efd51300bff5116d0d0c09272a4e4693090ae8f60abdc476",
+  "tab_params.tex": "d8566fa3eb3f65f6289ce813466a9f7f0bad95be5adaf94627ba81bb8e4a1b6a",
   "tab_receivers.tex": "6b751461d9c27642055d02b4cc0fd42fa93788dc1cccd792ddde0fbf96544569",
   "tab_robust.tex": "0cf357408924612ad8364ecfd9cd7c6764481b04f2d8496cb51fe45bf4796347"
  },
@@ -3109,7 +3161,15 @@
   "m_main_lo": {
    "replayed": 4,
    "mismatched": 0
+  },
+  "m_cap": {
+   "replayed": 4,
+   "mismatched": 0
+  },
+  "m_cap_p8": {
+   "replayed": 2,
+   "mismatched": 0
   }
  },
- "manuscript_pdf_sha256": "5e41e4753381b71f20448ccf85d1e2f0118ed5516b46042b4d24a51f40820abe"
+ "manuscript_pdf_sha256": "7ed26e8dc9e5d5d5305428a6d32d14a6ec858dd9c07471c10a64f3da8a8ace72"
 }
