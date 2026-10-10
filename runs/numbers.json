@@ -169,10 +169,15 @@
   "tex": "28.5\\%",
   "source": "oracle_guard.json: mean guard sized to the realized support"
  },
- "NumOracleGainPct": {
+ "NumOracleChirpGainPct": {
   "value": 8.606468842729974,
   "tex": "8.6\\%",
-  "source": "oracle_guard.json: max gain of an ideal adaptive guard"
+  "source": "oracle_guard.json: extra data chirps of an ideal adaptive guard"
+ },
+ "NumOracleGainPct": {
+  "value": 9.207555555555569,
+  "tex": "9.2\\%",
+  "source": "oracle_guard.json: error-free payload gain of an ideal adaptive guard (CRC and tail included)"
  },
  "NumPilotBlockSharePct": {
   "value": 2.13623046875,
@@ -215,8 +220,8 @@
   "source": "checks k4: |Z|/N at N=2048, same"
  },
  "NumTxEnergyDevPct": {
-  "value": 0.013600481846087753,
-  "tex": "0.01\\%",
+  "value": 0.06648733119425376,
+  "tex": "0.07\\%",
   "source": "checks k7: max |mean energy per sample - 1| over frame types"
  },
  "NumWindowCapture": {
@@ -349,6 +354,41 @@
   "tex": "3603",
   "source": "theory_check e3: in-cell trials per point (min)"
  },
+ "NumCapFourMinPct": {
+  "value": -0.2524504437202979,
+  "tex": "\\ensuremath{-0.3\\%}",
+  "source": "cap_summary: min paired change vs cap 8, four paths, caps 6/12, 8 and 16 dB"
+ },
+ "NumCapFourMaxPct": {
+  "value": 0.3245791419260735,
+  "tex": "+0.3\\%",
+  "source": "cap_summary: max paired change vs cap 8, four paths"
+ },
+ "NumCapEightGainPct": {
+  "value": 3.401030026236529,
+  "tex": "3.4\\%",
+  "source": "cap_summary: eight paths, cap 12 vs 8 (paired)"
+ },
+ "NumCapEightCi": {
+  "value": "[+1.3, +5.9]",
+  "tex": "[+1.3, +5.9]",
+  "source": "cap_summary: 95% whole-frame bootstrap interval"
+ },
+ "NumCapEightTpLow": {
+  "value": 0.8658293269230768,
+  "tex": "0.87",
+  "source": "cap_summary: eight paths, cap 8 throughput"
+ },
+ "NumCapEightTpHigh": {
+  "value": 0.8952764423076922,
+  "tex": "0.90",
+  "source": "cap_summary: eight paths, cap 12 throughput"
+ },
+ "NumCapEightSnr": {
+  "value": "10",
+  "tex": "10",
+  "source": "cap_summary: SNR of the eight-path check"
+ },
  "NumSptMList": {
   "value": "2, 4, 2, 1, 1",
   "tex": "2, 4, 2, 1, 1",
@@ -379,10 +419,15 @@
   "tex": "0",
   "source": "pick_v3: comparisons in which the best M>1 is ahead with a 95% interval above zero"
  },
- "NumMpTrials": {
+ "NumMpTrialsTrack": {
+  "value": 40,
+  "tex": "40",
+  "source": "pick_v3: held-out frames per comparison, tracked superimposed versions"
+ },
+ "NumMpTrialsSingle": {
   "value": 30,
   "tex": "30",
-  "source": "pick_v3: held-out seeds per comparison (min)"
+  "source": "pick_v3: held-out frames per comparison, single-block version"
  },
  "NumEvalTrials": {
   "value": 200,
@@ -470,14 +515,14 @@
   "source": "max |sp-track - sp| (bit/s/Hz)"
  },
  "NumSptEpsList": {
-  "value": "0.15, 0.1, 0.1, 0.3, 0.3",
-  "tex": "0.15, 0.1, 0.1, 0.3, 0.3",
-  "source": "tune_v2: tuned pilot fraction per tuning SNR"
+  "value": "0.1, 0.1, 0.1, 0.3, 0.3",
+  "tex": "0.1, 0.1, 0.1, 0.3, 0.3",
+  "source": "pick_v3: tuned pilot fraction per tuning SNR (sp-track)"
  },
  "NumSptKList": {
   "value": "16, 16, 16, 16, 16",
   "tex": "16, 16, 16, 16, 16",
-  "source": "tune_v2: tuned acquisition blocks per tuning SNR"
+  "source": "pick_v3: tuned acquisition blocks per tuning SNR (sp-track)"
  },
  "NumSpItersSatDiff": {
   "value": 0.001963141025641102,
@@ -487,7 +532,7 @@
  "NumSplEpsList": {
   "value": "0.15, 0.15, 0.2, 0.4, 0.5",
   "tex": "0.15, 0.15, 0.2, 0.4, 0.5",
-  "source": "tune: low-latency pilot fraction per tuning SNR"
+  "source": "pick_v3: low-latency pilot fraction per tuning SNR"
  },
  "NumSplFromSnr": {
   "value": 10,

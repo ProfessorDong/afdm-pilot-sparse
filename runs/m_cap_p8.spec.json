@@ -1,0 +1,39 @@
+{
+ "trials": 200,
+ "procs": 18,
+ "seed0": 40001,
+ "base": {
+  "B": 16,
+  "coded": true,
+  "decision": "decoded",
+  "P_max": 8,
+  "frac_delay": true,
+  "reacq_every": 4
+ },
+ "seed_by": "snr",
+ "name": "m_cap_p8",
+ "grid": [
+  {
+   "P": 8,
+   "receivers": [
+    "track"
+   ],
+   "snr_db": 10,
+   "Bp": 1,
+   "P_max": 8,
+   "diag": true
+  },
+  {
+   "P": 8,
+   "receivers": [
+    "track"
+   ],
+   "snr_db": 10,
+   "Bp": 1,
+   "P_max": 12,
+   "diag": true
+  }
+ ],
+ "note": "order cap 12 vs the evaluated 8 for P=8 true paths, on the m_robust channels and noise",
+ "code_sha": "19396cf646d691617f4253589e5f13cb803b8e0aa2657cf28377321f096d00d2"
+}

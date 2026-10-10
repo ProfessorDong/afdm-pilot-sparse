@@ -74,13 +74,15 @@ python pick_v3.py                            # held-out choice of M (runs/tune_v
 python run_sweep.py specs/m_main_mp.json     # superimposed receivers with the chosen M, evaluation seeds
 python run_sweep.py specs/m_main_lo.json     # receivers whose random stream shifted (0-6 dB)
 python merge_multipilot.py                   # merges both into runs/m_main.jsonl
+python run_sweep.py specs/m_cap.json        # order-cap sensitivity (P_max 6, 12), m_main channels
+python run_sweep.py specs/m_cap_p8.json     #   P = 8 paths, cap 8 vs 12, m_robust channels
 python run_sweep.py specs/m_two.json         # Fig. 6(b): two closely spaced paths
 python run_sweep.py specs/m_mismatch.json    # matched-model control (Fig. 5)
 python run_sweep.py specs/m_robust.json      # Table IV
 python run_sweep.py specs/m_frame.json       # Fig. 7
 python run_sweep.py specs/dev_c2p_ref.json   # paired c2 check (held-out seeds)
 python run_sweep.py specs/dev_c2p_irr.json
-python theory_check.py && python checks.py && python oracle_guard.py
+python theory_check.py && python checks.py && python oracle_guard.py   # all checks (e1-e5, k1-k9) by default
 python make_numbers.py && python make_figures.py && python make_tables.py && python make_tables.py robust
 python replay.py && python make_manifest.py  # provenance: re-simulation check and manifest
 ```

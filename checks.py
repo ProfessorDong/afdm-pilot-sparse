@@ -174,7 +174,8 @@ def joint_rho(S, paths, h, L, b_next, rng, draws=4):
     N sigma^2 (sigma^2-free), for an aperture of L known full-energy blocks, under the
     assumptions of Theorem 1: known integer delays, parameters (Re h, Im h, kappa) per
     path. Joint: tr(D J^{-1} D^H)/N with J = (2/sigma^2) Re(G^H G) of all paths;
-    decoupled: the same with each path's block of J alone (others known), i.e. eq. (10).
+    decoupled (rho_sep): the same with each path's block of J alone (others known);
+    eq. (10) is its common-moment approximation.
     Medians over random-data draws (J can be ill-conditioned for close paths)."""
     vals, dec, conds = [], [], []
     for _ in range(draws):
@@ -233,7 +234,11 @@ def k7(frames=400):
     S = make_system(cfg)
     So = ofdm_system(cfg)
     rng = np.random.default_rng(7)
-    out = {k: [] for k in ("proposed", "per_block", "superimposed_0.1", "superimposed_0.3", "ofdm")}
+    from engine import sp_pilot
+    # every superimposed configuration (pilot chirps M, fraction eps) that is evaluated
+    sel = json.load(open(OUT.parent / "tune_v5_choice.json"))["choice"]
+    sp_cfg = sorted({(c["M"], c["eps"]) for lab in sel.values() for c in lab.values()})
+    out = {k: [] for k in ["proposed", "per_block", "ofdm"] + [f"superimposed_M{M}_{e:g}" for M, e in sp_cfg]}
     B = 16
     for _ in range(frames):
         pay = Payload(True, rng)
@@ -241,11 +246,10 @@ def k7(frames=400):
         out["proposed"].append(np.mean(np.abs(S.transmit(x)) ** 2))
         x = build_frame(S, "P" * B, pay, "C")
         out["per_block"].append(np.mean(np.abs(S.transmit(x)) ** 2))
-        for eps in (0.1, 0.3):
+        for M, eps in sp_cfg:
             d = np.stack([pay.symbols(("S", b), S.N) for b in range(B)])
-            xs = np.sqrt(1 - eps) * d
-            xs[:, S.m0] += np.sqrt(eps * S.N)
-            out[f"superimposed_{eps}"].append(np.mean(np.abs(S.transmit(xs)) ** 2))
+            xs = np.sqrt(1 - eps) * d + sp_pilot(S, eps, M)[None, :]
+            out[f"superimposed_M{M}_{eps:g}"].append(np.mean(np.abs(S.transmit(xs)) ** 2))
         xo = np.stack([So.data_block(rng)] + [pay.symbols(("O", b), S.N) for b in range(1, B)])
         out["ofdm"].append(np.mean(np.abs(So.transmit(xo)) ** 2))
     return {k: dict(mean=float(np.mean(v)), se=float(np.std(v) / np.sqrt(len(v))),
@@ -314,7 +318,7 @@ def k9():
 
 
 if __name__ == "__main__":
-    which = sys.argv[1:] or ["k1", "k2", "k3", "k4", "k5", "k6"]
+    which = sys.argv[1:] or ["k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9"]   # every check the paper uses
     res = json.load(open(OUT)) if OUT.exists() else {}
     for w in which:
         res[w] = globals()[w]()

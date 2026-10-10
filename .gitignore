@@ -69,6 +69,11 @@ AFDM_TVT_*
 !runs/m_main_mp.spec.json
 !runs/m_main_lo.jsonl
 !runs/m_main_lo.spec.json
+!runs/m_cap.jsonl
+!runs/m_cap.spec.json
+!runs/m_cap_p8.jsonl
+!runs/m_cap_p8.spec.json
+!runs/cap_sensitivity.json
 !runs/superseded/
 runs/superseded/*
 !runs/superseded/m_main_before_multipilot.jsonl

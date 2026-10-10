@@ -290,7 +290,7 @@ def e5(trials=4000):
 
 
 if __name__ == "__main__":
-    which = sys.argv[1:] or ["e1", "e2", "e3"]
+    which = sys.argv[1:] or ["e1", "e2", "e3", "e4", "e5"]   # every check the paper uses
     path = OUT / "theory_check.json"
     res = json.load(open(path)) if path.exists() else {}
     for w in which:

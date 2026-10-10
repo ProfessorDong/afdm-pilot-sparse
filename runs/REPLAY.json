@@ -70,5 +70,13 @@
  "m_main_lo": {
   "replayed": 4,
   "mismatched": []
+ },
+ "m_cap": {
+  "replayed": 4,
+  "mismatched": []
+ },
+ "m_cap_p8": {
+  "replayed": 2,
+  "mismatched": []
  }
 }

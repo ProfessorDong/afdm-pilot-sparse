@@ -133,7 +133,15 @@ put("NumOverheadGainPct", 100 * (1 / (1 - len(S.zero_set) / S.N) - 1), "1/(1-|Z|
 # ------------------------------------------------------------------ oracle adaptive guard (runs/oracle_guard.json)
 _og = json.load(open(RUNS / "oracle_guard.json"))
 put("NumOracleGuardPct", 100 * _og["oracle_mean"], "oracle_guard.json: mean guard sized to the realized support", r"{:.1f}\%")
-put("NumOracleGainPct", 100 * _og["max_gain_oracle_vs_fixed"], "oracle_guard.json: max gain of an ideal adaptive guard", r"{:.1f}\%")
+# error-free coded payload of a pilot block is linear in its data chirps (CRC and tail
+# overhead fixed), so the mean oracle payload follows from the mean reserved fraction
+from coding import BlockCode as _BC
+_ovh = {n - _BC(n).k_payload for n in (300, 337, 366, 400, 512)}
+assert len(_ovh) == 1
+_ovh = _ovh.pop()
+put("NumOracleChirpGainPct", 100 * _og["max_gain_oracle_vs_fixed"], "oracle_guard.json: extra data chirps of an ideal adaptive guard", r"{:.1f}\%")
+put("NumOracleGainPct", 100 * ((S.N * (1 - _og["oracle_mean"]) - _ovh) / (S.N * (1 - _og["fixed_guard"]) - _ovh) - 1),
+    "oracle_guard.json: error-free payload gain of an ideal adaptive guard (CRC and tail included)", r"{:.1f}\%")
 put("NumPilotBlockSharePct", 100 * _og["pilot_sparse_frame_guard_share"], "|Z|/(16N): guard share of a 16-block pilot-sparse frame", r"{:.1f}\%")
 # ------------------------------------------------------------------ numerical checks (runs/checks.json)
 _ck = json.load(open(RUNS / "checks.json"))
@@ -226,7 +234,27 @@ def _guard(names, src):
     return deco
 
 
-_MP = ("NumSptMList", "NumSplMList", "NumSpMList", "NumMpMaxGainPct", "NumMpMaxLossPct", "NumMpSigCount", "NumMpTrials")
+_CAP = ("NumCapFourMinPct", "NumCapFourMaxPct", "NumCapEightGainPct", "NumCapEightCi", "NumCapEightTpLow", "NumCapEightTpHigh",
+        "NumCapEightSnr")
+
+
+@_guard(_CAP, "cap_sensitivity.json")
+def _cap():
+    """Order-cap sensitivity (cap_summary.py): four paths, caps 6 and 12 vs 8; eight paths, cap 12 vs 8."""
+    c = json.load(open(RUNS / "cap_sensitivity.json"))
+    four = [v["rel_vs_cap8"] for k, v in c.items() if k.startswith("P4@") and not k.endswith("cap8")]
+    put("NumCapFourMinPct", 100 * min(four), "cap_summary: min paired change vs cap 8, four paths, caps 6/12, 8 and 16 dB", r"{:+.1f}\%")
+    put("NumCapFourMaxPct", 100 * max(four), "cap_summary: max paired change vs cap 8, four paths", r"{:+.1f}\%")
+    (k12,) = [k for k in c if k.startswith("P8@") and k.endswith("cap12")]
+    (k8,) = [k for k in c if k.startswith("P8@") and k.endswith("cap8")]
+    v = c[k12]
+    put("NumCapEightGainPct", 100 * v["rel_vs_cap8"], "cap_summary: eight paths, cap 12 vs 8 (paired)", r"{:.1f}\%")
+    put("NumCapEightCi", f"[{100 * v['ci95'][0]:+.1f}, {100 * v['ci95'][1]:+.1f}]", "cap_summary: 95% whole-frame bootstrap interval")
+    put("NumCapEightTpLow", c[k8]["tp"], "cap_summary: eight paths, cap 8 throughput", "{:.2f}")
+    put("NumCapEightTpHigh", v["tp"], "cap_summary: eight paths, cap 12 throughput", "{:.2f}")
+    put("NumCapEightSnr", k12.split("@")[1].split("dB")[0], "cap_summary: SNR of the eight-path check")
+
+_MP = ("NumSptMList", "NumSplMList", "NumSpMList", "NumMpMaxGainPct", "NumMpMaxLossPct", "NumMpSigCount", "NumMpTrialsTrack", "NumMpTrialsSingle")
 
 
 @_guard(_MP, "pick_v3 / tune_v5, tune_v6")
@@ -245,8 +273,10 @@ def _multipilot():
         "pick_v3: largest held-out loss of the best M>1 against the best M=1 (paired)", r"{:.1f}\%")
     put("NumMpSigCount", sum(1 for v in rel if v["rel"] > 0 and v["ci95"][0] > 0),
         "pick_v3: comparisons in which the best M>1 is ahead with a 95% interval above zero", "{:d}")
-    put("NumMpTrials", min(c2["n_seeds"] for lab in ch.values() for c2 in lab.values()),
-        "pick_v3: held-out seeds per comparison (min)", "{:d}")
+    put("NumMpTrialsTrack", min(c2["n_seeds"] for lab in ("sp_track", "sp_track_ll") for c2 in ch[lab].values()),
+        "pick_v3: held-out frames per comparison, tracked superimposed versions", "{:d}")
+    put("NumMpTrialsSingle", min(c2["n_seeds"] for c2 in ch["sp"].values()),
+        "pick_v3: held-out frames per comparison, single-block version", "{:d}")
 
 _MAIN = ("NumGainConvPct", "NumSnrGenieMatch", "NumGapGeniePct", "NumSpTopSnr", "NumSpFromSnr", "NumSpMaxAdvPct",
          "NumOverSpEightPct", "NumOverConvEightPct", "NumGenieRatioEightPct", "NumGenieRatioSixPct",
@@ -293,8 +323,21 @@ def _main():
     put("NumSpOverGenieMaxPct", 100 * max(sp[s] / ge[s] - 1 for s in S_), "max sp-track over perfect CSI of the pilot-sparse frame", r"{:.1f}\%")
     put("NumSpSingleMaxDiff", max(abs(sp[s] - by[s]["tp_sp"]) for s in S_), "max |sp-track - sp| (bit/s/Hz)", "{:.2f}")
     ch = json.load(open(RUNS / "tune_v2_choice.json"))["sp_track"]
-    put("NumSptEpsList", ", ".join(f"{ch[k]['spt_eps']:g}" for k in sorted(ch, key=float)), "tune_v2: tuned pilot fraction per tuning SNR")
-    put("NumSptKList", ", ".join(f"{ch[k]['K']}" for k in sorted(ch, key=float)), "tune_v2: tuned acquisition blocks per tuning SNR")
+    # tuned superimposed configurations: all from the FINAL selection (pick_v3), which
+    # chooses (M, eps, K) jointly; checked against the configuration actually evaluated
+    fin = json.load(open(RUNS / "tune_v5_choice.json"))["choice"]
+    ft, fl = fin["sp_track"], fin["sp_track_ll"]
+    put("NumSptEpsList", ", ".join(f"{ft[k]['eps']:g}" for k in sorted(ft, key=float)), "pick_v3: tuned pilot fraction per tuning SNR (sp-track)")
+    put("NumSptKList", ", ".join(f"{ft[k]['K_or_iters']}" for k in sorted(ft, key=float)), "pick_v3: tuned acquisition blocks per tuning SNR (sp-track)")
+    _mspec = json.load(open(ROOT / "specs" / "m_main.json"))
+    _tun = sorted(float(k) for k in ft)
+    for g in _mspec["grid"]:
+        if g.get("Bp") == 1 and "sp-track" in g["receivers"]:
+            k = f"{min(_tun, key=lambda t: (abs(t - g['snr_db']), t)):g}"
+            assert (g["spt_eps"], g["sp_acq_blocks"], g.get("spt_M", 1)) == (ft[k]["eps"], ft[k]["K_or_iters"], ft[k]["M"]), g["snr_db"]
+            assert (g["spl_eps"], g["spl_K"], g.get("spl_M", 1)) == (fl[k]["eps"], fl[k]["K_or_iters"], fl[k]["M"]), g["snr_db"]
+            fs = fin["sp"][k]
+            assert (g["sp_eps"], g["sp_iters"], g.get("sp_M", 1)) == (fs["eps"], fs["K_or_iters"], fs["M"]), g["snr_db"]
     # single-block superimposed pilot: gain of the last iteration step at the chosen fraction
     _tv = [r for nm in ("tune_v2", "tune_v3", "tune_v4") for r in summarize(nm)[0] if r.get("sp_iters") and r["trials"] >= 30]
     _cs = json.load(open(RUNS / "tune_v2_choice.json"))["sp"]
@@ -304,8 +347,7 @@ def _main():
             t = {r["sp_iters"]: r["tp_sp"] for r in _tv if r["snr_db"] == float(k) and r["sp_eps"] == v["sp_eps"]}
             _sat.append(t[20] - t[16])
     put("NumSpItersSatDiff", max(_sat) if _sat else 0.0, "tune: throughput gain from 16 to 20 iterations (single-block SP)", "{:.3f}")
-    cl = json.load(open(RUNS / "tune_v2_choice.json"))["sp_track_ll"]
-    put("NumSplEpsList", ", ".join(f"{cl[k]['spl_eps']:g}" for k in sorted(cl, key=float)), "tune: low-latency pilot fraction per tuning SNR")
+    put("NumSplEpsList", ", ".join(f"{fl[k]['eps']:g}" for k in sorted(fl, key=float)), "pick_v3: low-latency pilot fraction per tuning SNR")
     spl = {s: by[s]["tp_sp-track-ll"] for s in S_}
     wl = [s for s in S_ if spl[s] > tr[s]]
     put("NumSplFromSnr", min(wl) if wl else "--", "lowest SNR where low-latency sp-track > track", "{}")

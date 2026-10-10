@@ -42,7 +42,7 @@ def main():
     hsr = physical(5.9e9, 1e3, cfg.N, cfg.Ncp, cfg.kappa_max, cfg.ell_max, 100.0)
     v2v = physical(60e9, 15e3, cfg.N, cfg.Ncp, 1.0, cfg.ell_max, 20.0)
     rows = [
-        (r"Chirps $N$, CP $N_\mathrm{cp}$, $\beta$", f"{cfg.N}, {cfg.Ncp}, {S.beta:.4f}"),
+        (r"Chirps $N$, CP $N_\mathrm{cp}$, $\beta$, pilot $m_0$", f"{cfg.N}, {cfg.Ncp}, {S.beta:.4f}, {S.m0}"),
         (r"$\alpha_{\max}$, $\xi$, $Q$, $\ell_{\max}$, $\kappa_{\max}$", f"{cfg.alpha_max}, {cfg.xi}, {S.Q}, {cfg.ell_max}, {cfg.kappa_max:g}"),
         (r"Reserved $|\mathcal{Z}|$, pilot energy $E_\mathrm{p}$", f"{len(S.zero_set)} chirps, {S.Ep:.0f}"),
         (r"Paths $P$; order cap $P_{\max}$", f"{cfg.P}; {cfg.P_max}"),
